@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Flowchart</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/svg.js/1.0.1/svg.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js"></script>
+    <script src="./flowchartsvg/dist/flowsvg.min.js"></script>
+  </head>
+  <body>
+    <div id="drawing"></div>
+    <script>
+      flowSVG.draw(SVG("demo").size(600, 800));
+      flowSVG.config({
+        interactive: true,
+        showButtons: true,
+        connectorLength: 60,
+        scrollto: true
+        // more options...
+      });
+      flowSVG.shapes([
+        {
+          // The label is how the shape is identified
+          label: "knowPolicy",
+          // Type may be decision, finish, or process
+          type: "decision",
+          /*
+      18
+          text is an array of lines. SVG text doesn't
+      19
+          wrap, so you have to manually adjust line length
+      20
+          */
+          text: ["Do you know the ", "Open Access policy", "of the journal?"],
+          /*
+      28
+          Where to go from here. 'yes' and 'no' apply to
+      29
+          decisions. 'next' is used with processes.
+      30
+          These don't apply to finish shapes for obvious
+      31
+          reasons.
+      32
+          */
+          yes: "hasOAPolicy",
+          no: "checkPolicy"
+          // If this was a process...
+          // next: ...
+        }
+        // more shapes...
+      ]);
+    </script>
+  </body>
+</html>

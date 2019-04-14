@@ -1,0 +1,7 @@
+Flow chart
+Sprint 1 
+    - Flow chart builder drag drop (frontend)
+
+Sprint 2 
+    - Wrapping in web component and linking into existing vuejs application (frontend)
+    - Linking to backend by calling graphql endpoint to save and load charts (backend)

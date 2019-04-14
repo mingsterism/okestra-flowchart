@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link rel="stylesheet" href="./jquery.flowchart.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.panzoom/3.2.2/jquery.panzoom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js"></script>
+    <script src="./flowchart/jquery.flowchart.js"></script>
+  </head>
+  <body>
+    <h1>This is a flowchart app!</h1>
+    <div id="chart_container">
+      <div class="flowchart-example-container" id="example"></div>
+    </div>
+    <div class="draggable_operators">
+      <div class="draggable_operators_label">
+        Operators (drag and drop them in the flowchart):
+      </div>
+      <div
+        class="draggable_operators_divs"
+        style="display:flex;flex-direction: row;
+              flex-wrap: nowrap;
+              justify-content: center;
+              align-items: center;
+              align-content: stretch;"
+      >
+        <div
+          class="draggable_operator circleStart-toolbar"
+          data-nb-inputs="0"
+          data-nb-outputs="1"
+          data-shape="circleStart"
+          style="display:flex;justify-content: center;align-items: center"
+        >
+          Start
+        </div>
+        <div
+          class="draggable_operator circleEnd-toolbar"
+          data-nb-inputs="1"
+          data-nb-outputs="0"
+          data-shape="circleEnd"
+          style="display:flex;justify-content: center;align-items: center"
+        >
+          End
+        </div>
+        <div
+          class="draggable_operator diamond-toolbar"
+          data-nb-inputs="1"
+          data-nb-outputs="3"
+          data-shape="diamond"
+        >
+          <div class="item-count">???</div>
+        </div>
+        <div
+          class="draggable_operator rectangle-toolbar"
+          data-shape="rectangle"
+          data-nb-inputs="1"
+          data-nb-outputs="1"
+        >
+          Step
+        </div>
+
+        <div
+          class="draggable_operator rectangle-toolbar"
+          data-shape="rectangle"
+          data-nb-inputs="1"
+          data-nb-outputs="2"
+        >
+          Condition
+        </div>
+      </div>
+    </div>
+    <button class="delete_selected_button">
+      Delete selected operator / link
+    </button>
+    <script src="./flowchart.js"></script>
+  </body>
+</html>
