@@ -643,6 +643,8 @@ $(function() {
       this._refreshInternalProperties(operatorData);
       var infos = $.extend(true, {}, operatorData.internal.properties);
 
+      console.log("infos.inputs", infos.inputs);
+
       for (var connectorId_i in infos.inputs) {
         if (infos.inputs.hasOwnProperty(connectorId_i)) {
           if (infos.inputs[connectorId_i] == null) {
@@ -755,7 +757,8 @@ $(function() {
         connectorKey,
         connectorInfos,
         $operator_container,
-        connectorType
+        connectorType,
+        bottomPadding
       ) {
         var $operator_connector_set = $(
           '<div class="flowchart-operator-connector-set"></div>'
@@ -778,23 +781,39 @@ $(function() {
           connectorKey,
           connectorInfos,
           fullElement,
-          connectorType
+          connectorType,
+          bottomPadding
         );
       }
 
       for (var key_i in infos.inputs) {
         if (infos.inputs.hasOwnProperty(key_i)) {
-          addConnector(key_i, infos.inputs[key_i], $operator_inputs, "inputs");
+          var bottomPadding = false;
+          if (Object.keys(infos.inputs).length == 2 && key_i == "input_0") {
+            bottomPadding = true;
+          }
+          addConnector(
+            key_i,
+            infos.inputs[key_i],
+            $operator_inputs,
+            "inputs",
+            bottomPadding
+          );
         }
       }
 
       for (var key_o in infos.outputs) {
         if (infos.outputs.hasOwnProperty(key_o)) {
+          var bottomPadding = false;
+          if (Object.keys(infos.outputs).length == 2 && key_o == "output_0") {
+            bottomPadding = true;
+          }
           addConnector(
             key_o,
             infos.outputs[key_o],
             $operator_outputs,
-            "outputs"
+            "outputs",
+            bottomPadding
           );
         }
       }
@@ -807,7 +826,8 @@ $(function() {
       connectorKey,
       connectorInfos,
       fullElement,
-      connectorType
+      connectorType,
+      bottomPadding
     ) {
       var $operator_connector_set = fullElement.connectorSets[connectorKey];
 
@@ -816,6 +836,12 @@ $(function() {
       var $operator_connector = $(
         '<div class="flowchart-operator-connector"></div>'
       );
+
+      if (bottomPadding) {
+        $operator_connector = $(
+          '<div class="flowchart-operator-connector" style="bottom:20px"></div>'
+        );
+      }
 
       // $operator_connector = $(
       //   '<div style="height:100px;width:100%;position:relative" class="flowchart-operator-connector"></div>'

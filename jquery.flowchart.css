@@ -51,7 +51,7 @@
   height: 0px;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-  border-left: 10px solid rgb(204, 204, 204);
+  border-left: 10px solid black;
   position: absolute;
   top: 0px;
 }
@@ -68,7 +68,7 @@
   position: relative;
   right: 8px;
   top: -5px;
-  border-left-color: rgb(51, 102, 255);
+  border-left-color: white;
   /* width: 0;
   height: 0;
   border-top: 5px solid transparent;
