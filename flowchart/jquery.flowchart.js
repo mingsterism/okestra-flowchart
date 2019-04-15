@@ -684,18 +684,31 @@ $(function() {
       var $operator = $('<div class="flowchart-operator"></div>');
       $operator.addClass(infos.class);
       $operator.addClass(infos.shape);
-      $operator.addClass("rotate-shape-90degree");
 
       console.log("info.class", infos.class);
 
+      $container = $('<div class="container"></div>');
+
+      $container.appendTo($operator);
+
+      $row = $('<div class="row"></div>');
+
+      $row.appendTo($container);
+
+      $icon = $("<div class='col-sm-2'></div>");
+
+      $icon.appendTo($row);
+
+      $title = $("<div class='col-sm-10'></div>");
+
+      $title.appendTo($row);
+
       //Creating an input to take in customised value on the user
       var $operator_input = $(
-        '<textarea type="text" style="width:100%;display:none;height:50px" class="input-inside-operator"></textarea>'
+        '<input type="text" style="width:100%;display:none;height:95%" class="input-inside-operator"/>'
       );
 
       var $operator_title = $('<div class="flowchart-operator-title"></div>');
-
-      $operator_title.addClass("rotate-title-90degree");
 
       var $operator_span_title = $(
         "<div class='flowchart-span-title'>" + infos.title + "</div>"
@@ -704,7 +717,7 @@ $(function() {
         $operator_span_title.addClass("diamond-title-height");
       }
       $operator_title.html($operator_span_title);
-      $operator_title.appendTo($operator);
+      $operator_title.appendTo($title);
       $operator_input.appendTo($operator_title);
 
       //Adding input with display on none

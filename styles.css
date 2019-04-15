@@ -58,9 +58,8 @@ body {
 }
 
 .rectangle {
-  width: 100px;
-  height: 100px;
-  background-color: #00a9c9;
+  width: 200px;
+  height: 30px;
   position: relative;
   color: white;
   display: flex;
@@ -175,17 +174,13 @@ body {
 
 .flowchart-span-title {
   width: 100%;
-  height: 50px;
   word-break: break-all;
   font-size: 0.8em;
   line-height: 12px;
-  text-align: center;
   vertical-align: -webkit-baseline-middle;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
+  color: black;
 }
 
 .flowchart-operator-inputs-outputs-circle {
@@ -203,15 +198,4 @@ body {
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 10px solid green;
-}
-
-.rotate-shape-90degree {
-  transform: rotate(90deg);
-}
-
-.rotate-title-90degree {
-  transform: rotate(90deg);
-  transform: rotate(-90deg);
-  transform: rotate;
-  transform-origin: 10% 50%;
 }
