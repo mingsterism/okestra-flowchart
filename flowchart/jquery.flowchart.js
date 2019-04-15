@@ -151,6 +151,7 @@ $(function() {
             console.log(e.target.value);
             console.log(!/^\s*$/.test(e.target.vale));
             if (e.target.value || /^\s*$/.test(e.target.vale)) {
+              console.log("enter key is pressed");
               $(e.target)
                 .prev()
                 .html($(e.target).val());
@@ -158,7 +159,12 @@ $(function() {
               var operator_id = $(e.target)
                 .parent()
                 .parent()
+                .parent()
+                .parent()
+                .parent()
                 .data("operator_id");
+
+              console.log(operator_id);
 
               var newOperatorData = self.data.operators;
               newOperatorData[operator_id].properties.title = $(e.target).val();
@@ -705,7 +711,7 @@ $(function() {
 
       //Creating an input to take in customised value on the user
       var $operator_input = $(
-        '<input type="text" style="width:100%;display:none;height:95%" class="input-inside-operator"/>'
+        '<input type="text" style="width:100%;display:none;height:90%" class="input-inside-operator"/>'
       );
 
       var $operator_title = $('<div class="flowchart-operator-title"></div>');
