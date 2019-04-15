@@ -128,6 +128,8 @@ $(function() {
     _initEvents: function() {
       var self = this;
 
+      //Customised listener
+
       //self.data.operators is the data of whole diagram
 
       //IF the flow chart title is double clicked, then the input will be visible
@@ -171,6 +173,8 @@ $(function() {
           }
         }
       );
+
+      //End of customised listener
 
       this.element.mousemove(function(e) {
         var $this = $(this);
@@ -233,6 +237,8 @@ $(function() {
         }
       );
 
+      //End of the connector is clicked and ready to connect
+
       this.objs.layers.links.on(
         "mousedown touchstart",
         ".flowchart-link",
@@ -270,7 +276,7 @@ $(function() {
       });
     },
 
-    //ENtry point of the program
+    //Entry point of the program
     setData: function(data) {
       console.log("setData", data.operators, data.operatorTypes);
       this._clearOperatorsLayer();
@@ -678,15 +684,18 @@ $(function() {
       var $operator = $('<div class="flowchart-operator"></div>');
       $operator.addClass(infos.class);
       $operator.addClass(infos.shape);
+      $operator.addClass("rotate-shape-90degree");
 
       console.log("info.class", infos.class);
 
       //Creating an input to take in customised value on the user
       var $operator_input = $(
-        '<input type="text" style="width:100%;display:none" class="input-inside-operator"/>'
+        '<textarea type="text" style="width:100%;display:none;height:50px" class="input-inside-operator"></textarea>'
       );
 
       var $operator_title = $('<div class="flowchart-operator-title"></div>');
+
+      $operator_title.addClass("rotate-title-90degree");
 
       var $operator_span_title = $(
         "<div class='flowchart-span-title'>" + infos.title + "</div>"

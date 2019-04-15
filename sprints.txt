@@ -1,6 +1,10 @@
 Flow chart
 Sprint 1 
     - Flow chart builder drag drop (frontend)
+    - Change the connector to upside down
+    - Change th curvy path to straight line path
+    - Change the shape to all rectangle
+    - For approve and decline automatically pops up
 
 Sprint 2 
     - Wrapping in web component and linking into existing vuejs application (frontend)
