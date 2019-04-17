@@ -1,5 +1,5 @@
 //The problem:the connector screw the input of data into input field
-
+//Arrow and line algorithm is at _drawLink function at line 483
 $(function() {
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
@@ -520,6 +520,9 @@ $(function() {
         "g"
       );
       this.objs.layers.links[0].appendChild(overallGroup);
+
+      console.log("this.objs.layers.links", this.objs.layers.links);
+
       linkData.internal.els.overallGroup = overallGroup;
 
       var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
