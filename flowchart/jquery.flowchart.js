@@ -91,12 +91,15 @@ $(function() {
         "http://www.w3.org/2000/svg",
         "line"
       );
+
+      console.log("Shape", shape);
+
+      //The dotted line is created here which we saw during dragging the line
       shape.setAttribute("x1", "0");
       shape.setAttribute("y1", "0");
       shape.setAttribute("x2", "0");
       shape.setAttribute("y2", "0");
-      shape.setAttribute("stroke-dasharray", "6,6");
-      shape.setAttribute("stroke-width", "4");
+      shape.setAttribute("stroke-width", "1");
       shape.setAttribute("stroke", "black");
       shape.setAttribute("fill", "none");
       this.objs.layers.temporaryLink[0].appendChild(shape);
@@ -230,7 +233,9 @@ $(function() {
         function() {
           console.log("Connector is now clicked!");
           var $this = $(this);
+          console.log($this);
           if (self.options.canUserEditLinks) {
+            //Where is self._connectorClicked
             self._connectorClicked(
               $this.closest(".flowchart-operator").data("operator_id"),
               $this.data("connector"),
@@ -309,14 +314,19 @@ $(function() {
     },
 
     addLink: function(linkData) {
-      //Called upon linking
+      //Called upon linking when both input and output connector is clicked
       console.log("links", this.data.links);
-      console.log("link.this.data.operaors", this.data.operators);
+      console.log(
+        "link.this.data.operators from addLink function",
+        this.data.operators
+      );
+
+      //This.data.links is a object storing linkData
       while (typeof this.data.links[this.linkNum] != "undefined") {
         this.linkNum++;
       }
 
-      this.createLink(this.linkNum, linkData);
+      this.createLink(this.linkNum, linkData); //(0,linkData)
       return this.linkNum;
     },
 
@@ -326,10 +336,17 @@ $(function() {
         return;
       }
 
+      console.log("Line 339 of createLink", this.data.links);
+
       var subConnectors = this._getSubConnectors(linkData);
+      //Getting the output connector involved
       var fromSubConnector = subConnectors[0];
+
+      //Getting the input connector involved
       var toSubConnector = subConnectors[1];
 
+      //Check if the connector is already connected, the old connection will be abolished,i.e. the old object will be removed
+      //from the this.data.link object
       var multipleLinksOnOutput = this.options.multipleLinksOnOutput;
       var multipleLinksOnInput = this.options.multipleLinksOnInput;
       if (!multipleLinksOnOutput || !multipleLinksOnInput) {
@@ -362,20 +379,29 @@ $(function() {
         }
       }
 
+      //Dun know what these rows doing
+      /*console.log("linkData.fromOperator", linkData.fromOperator);
+      console.log("linkData.fromConnector", linkData.fromConnector);
       this._autoCreateSubConnector(
         linkData.fromOperator,
         linkData.fromConnector,
         "outputs",
         fromSubConnector
       );
+      console.log("linkData.toOperator", linkData.toOperator);
+      console.log("linkData.toConnector", linkData.toConnector);
       this._autoCreateSubConnector(
         linkData.toOperator,
         linkData.toConnector,
         "inputs",
         toSubConnector
-      );
+      );*/
+      //Dun know what these rows doing
 
+      //new linkData is inserted into this.data.links
       this.data.links[linkId] = linkData;
+
+      //Time to draw out svg and path line
       this._drawLink(linkId);
 
       this.callbackEvent("afterChange", ["link_create"]);
@@ -392,8 +418,10 @@ $(function() {
       ][connector];
       if (connectorInfos.multiple) {
         var fromFullElement = this.data.operators[operator].internal.els;
+        console.log("fromFullElement", fromFullElement);
         var nbFromConnectors = this.data.operators[operator].internal.els
           .connectors[connector].length;
+        console.log("nbFromConnectors", nbFromConnectors);
         for (var i = nbFromConnectors; i < subConnector + 2; i++) {
           this._createSubConnector(connector, connectorInfos, fromFullElement);
         }
@@ -420,6 +448,7 @@ $(function() {
       this.objs.layers.operators.empty();
     },
 
+    //Get the positon of the connector clicked
     getConnectorPosition: function(operatorId, connectorId, subConnector) {
       var operatorData = this.data.operators[operatorId];
       var $connector =
@@ -451,6 +480,7 @@ $(function() {
       this.callbackEvent("afterChange", ["link_change_main_color"]);
     },
 
+    //The svg and path is drawn here in this function
     _drawLink: function(linkId) {
       var linkData = this.data.links[linkId];
 
@@ -1083,6 +1113,8 @@ $(function() {
       this.callbackEvent("afterChange", ["operator_create"]);
     },
 
+    //This is the callback function when connector is clicked
+
     _connectorClicked: function(
       operator,
       connector,
@@ -1097,22 +1129,50 @@ $(function() {
           connector: connector,
           subConnector: subConnector
         };
+
+        console.log(
+          "this.lastOutputConnectorClicked",
+          this.lastOutputConnectorClicked
+        );
+
         this.objs.layers.temporaryLink.show();
+
+        console.log(
+          "this.objs.layers.temporaryLink",
+          this.objs.layers.temporaryLink
+        );
+
         var position = this.getConnectorPosition(
           operator,
           connector,
           subConnector
         );
+
+        console.log("position", position);
+
         var x = position.x + position.width;
         var y = position.y;
+
+        console.log("x", x);
+        console.log("y", y);
+
+        //Where is temporaryLink; This set the starting point of the temporary link
         this.objs.temporaryLink.setAttribute("x1", x.toString());
         this.objs.temporaryLink.setAttribute("y1", y.toString());
+
+        //Where is mousemove? The mousemove will be detected and the line element is updated accordingly
         this._mousemove(x, y);
       }
       if (
+        //Check if input connector is pressed and check if output connector is clicked beforehand
         connectorCategory == "inputs" &&
         this.lastOutputConnectorClicked != null
       ) {
+        console.log("connectorCategory", connectorCategory);
+        console.log(
+          "this.lastOutputConnectorClicked",
+          this.lastOutputConnectorClicked
+        );
         var linkData = {
           fromOperator: this.lastOutputConnectorClicked.operator,
           fromConnector: this.lastOutputConnectorClicked.connector,
@@ -1121,7 +1181,9 @@ $(function() {
           toConnector: connector,
           toSubConnector: subConnector
         };
+        console.log("linkData", linkData);
 
+        //Linkdata specify which output of which operator is connected to which input of which operator
         this.addLink(linkData);
         this._unsetTemporaryLink();
       }
@@ -1133,6 +1195,7 @@ $(function() {
     },
 
     _mousemove: function(x, y, e) {
+      //Here check whether the use click on another connector
       if (this.lastOutputConnectorClicked != null) {
         this.objs.temporaryLink.setAttribute("x2", x);
         this.objs.temporaryLink.setAttribute("y2", y);
