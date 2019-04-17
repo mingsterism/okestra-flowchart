@@ -11,7 +11,7 @@ $(function() {
       data: {},
       distanceFromArrow: 3,
       defaultOperatorClass: "flowchart-default-operator",
-      defaultLinkColor: "#3366ff",
+      defaultLinkColor: "pink",
       defaultSelectedLinkColor: "black",
       linkWidth: 10,
       grid: 20,
@@ -703,6 +703,12 @@ $(function() {
 
       $icon = $("<div class='col-sm-2'></div>");
 
+      $mailIcon = $(
+        '<span class="glyphicon" style="color:black;font-size:30px">&#x2709;</span>'
+      );
+
+      $mailIcon.appendTo($icon);
+
       $icon.appendTo($row);
 
       $title = $("<div class='col-sm-10'></div>");
@@ -905,17 +911,16 @@ $(function() {
 
       //Operator connector arrow
       var $operator_connector_small_arrow = $(
-        '<div class="flowchart-operator-connector-small-arrow" style="position:relative;right:8px;bottom:5px"></div>'
+        '<div class="flowchart-operator-connector-small-arrow" style="position:relative"></div>'
       );
 
       if (connectorType == "inputs") {
         $operator_connector_small_arrow = $(
-          '<div class="flowchart-operator-connector-small-arrow" style="position:relative;left:-8px;bottom:5px"></div>'
+          '<div class="flowchart-operator-connector-small-arrow" style="position:relative"></div>'
         );
       }
 
       $operator_connector_small_arrow.appendTo($operator_connector_arrow);
-      $operator_connector_small_arrow.addClass("centerArrow");
 
       fullElement.connectors[connectorKey].push($operator_connector);
       fullElement.connectorArrows[connectorKey].push($operator_connector_arrow);
@@ -1262,12 +1267,15 @@ $(function() {
       );
     },
 
+    //Colorize the link
     colorizeLink: function(linkId, color) {
       var linkData = this.data.links[linkId];
       linkData.internal.els.path.setAttribute("stroke", color);
       linkData.internal.els.rect.setAttribute("fill", color);
-      linkData.internal.els.fromSmallConnector.css("border-left-color", color);
-      linkData.internal.els.toSmallConnector.css("border-left-color", color);
+      // linkData.internal.els.fromSmallConnector.css("border-left-color", color);
+      // linkData.internal.els.toSmallConnector.css("border-left-color", color);
+      linkData.internal.els.fromSmallConnector.css("border-top-color", color);
+      linkData.internal.els.toSmallConnector.css("border-bottom-color", color);
     },
 
     uncolorizeLink: function(linkId) {
