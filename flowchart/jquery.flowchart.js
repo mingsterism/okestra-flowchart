@@ -192,7 +192,7 @@ $(function() {
       //End of customised listener
 
       this.element.mousemove(function(e) {
-        console.log(e);
+        //console.log(e);
         var $this = $(this);
         var offset = $this.offset();
         self._mousemove(
@@ -487,7 +487,7 @@ $(function() {
       this.callbackEvent("afterChange", ["link_change_main_color"]);
     },
 
-    //The svg and path is drawn here in this function
+    //The svg and path is CREATED here in this function, noted that created only , the position is not set yet
     _drawLink: function(linkId) {
       var linkData = this.data.links[linkId];
       if (typeof linkData.internal == "undefined") {
@@ -514,60 +514,81 @@ $(function() {
         ];
       linkData.internal.els.fromSmallConnector = fromSmallConnector;
       linkData.internal.els.toSmallConnector = toSmallConnector;
+
+      console.log("linkData.internal.els", linkData.internal.els);
+
       var overallGroup = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "g"
       );
       this.objs.layers.links[0].appendChild(overallGroup);
       console.log("this.objs.layers.links", this.objs.layers.links);
+      var line1 = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      var line2 = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+
+      var line3 = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      overallGroup.appendChild(line1);
+      overallGroup.appendChild(line2);
+      overallGroup.appendChild(line3);
+
       linkData.internal.els.overallGroup = overallGroup;
-      var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-      var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
-      this.maskNum++;
-      mask.setAttribute("id", maskId);
-      overallGroup.appendChild(mask);
-      var shape = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-      );
-      shape.setAttribute("x", "0");
-      shape.setAttribute("y", "0");
-      shape.setAttribute("width", "100%");
-      shape.setAttribute("height", "100%");
-      shape.setAttribute("stroke", "none");
-      shape.setAttribute("fill", "white");
-      mask.appendChild(shape);
-      var shape_polygon = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "polygon"
-      );
-      shape_polygon.setAttribute("stroke", "none");
-      shape_polygon.setAttribute("fill", "black");
-      mask.appendChild(shape_polygon);
-      linkData.internal.els.mask = shape_polygon;
-      var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      group.setAttribute("class", "flowchart-link");
-      group.setAttribute("data-link_id", linkId);
-      overallGroup.appendChild(group);
-      var shape_path = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-      );
-      shape_path.setAttribute(
-        "stroke-width",
-        this.options.linkWidth.toString()
-      );
-      shape_path.setAttribute("fill", "none");
-      group.appendChild(shape_path);
-      linkData.internal.els.path = shape_path;
-      var shape_rect = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-      );
-      shape_rect.setAttribute("stroke", "none");
-      shape_rect.setAttribute("mask", "url(#" + maskId + ")");
-      group.appendChild(shape_rect);
-      linkData.internal.els.rect = shape_rect;
+      // var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
+      // var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
+      // this.maskNum++;
+      // mask.setAttribute("id", maskId);
+      // overallGroup.appendChild(mask);
+      // var shape = document.createElementNS(
+      //   "http://www.w3.org/2000/svg",
+      //   "rect"
+      // );
+      // shape.setAttribute("x", "0");
+      // shape.setAttribute("y", "0");
+      // shape.setAttribute("width", "100%");
+      // shape.setAttribute("height", "100%");
+      // shape.setAttribute("stroke", "none");
+      // shape.setAttribute("fill", "white");
+      // mask.appendChild(shape);
+      // var shape_polygon = document.createElementNS(
+      //   "http://www.w3.org/2000/svg",
+      //   "polygon"
+      // );
+      // shape_polygon.setAttribute("stroke", "none");
+      // shape_polygon.setAttribute("fill", "black");
+      // mask.appendChild(shape_polygon);
+      // linkData.internal.els.mask = shape_polygon;
+      // var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      // group.setAttribute("class", "flowchart-link");
+      // group.setAttribute("data-link_id", linkId);
+      // overallGroup.appendChild(group);
+      // var shape_path = document.createElementNS(
+      //   "http://www.w3.org/2000/svg",
+      //   "path"
+      // );
+      // shape_path.setAttribute(
+      //   "stroke-width",
+      //   this.options.linkWidth.toString()
+      // );
+      // shape_path.setAttribute("fill", "none");
+      // group.appendChild(shape_path);
+      // linkData.internal.els.path = shape_path;
+      // var shape_rect = document.createElementNS(
+      //   "http://www.w3.org/2000/svg",
+      //   "rect"
+      // );
+      // shape_rect.setAttribute("stroke", "none");
+      // shape_rect.setAttribute("mask", "url(#" + maskId + ")");
+      // group.appendChild(shape_rect);
+      // linkData.internal.els.rect = shape_rect;
+
       this._refreshLinkPositions(linkId);
       this.uncolorizeLink(linkId);
     },
@@ -586,6 +607,7 @@ $(function() {
       return [fromSubConnector, toSubConnector];
     },
 
+    //Setting the x and y attribute of the shape created in _drawlink
     _refreshLinkPositions: function(linkId) {
       var linkData = this.data.links[linkId];
 
@@ -1176,15 +1198,14 @@ $(function() {
         console.log("linkData", linkData);
 
         //Linkdata specify which output of which operator is connected to which input of which operator
-        this.addLink(linkData);
         this._unsetTemporaryLink();
+        this.addLink(linkData);
       }
     },
 
     _unsetTemporaryLink: function() {
       this.lastOutputConnectorClicked = null;
       this.objs.layers.temporaryLink.hide();
-
       //Remove all the added line except for the 1st one
       let firstLine = $(".flowchart-temporary-link-layer line:first-child");
       let x1 = firstLine.attr("x1");
@@ -1202,9 +1223,8 @@ $(function() {
 
     _mousemove: function(x, y, e) {
       //Update the length of hint length
-      console.log(x, y);
       if (this.lastOutputConnectorClicked != null) {
-        console.log("this.objs.temporaryLink", this.objs.temporaryLink);
+        //console.log("this.objs.temporaryLink", this.objs.temporaryLink);
         this.objs.temporaryLink.setAttribute("x2", x);
         this.objs.temporaryLink.setAttribute("y2", y);
       }
@@ -1370,12 +1390,12 @@ $(function() {
     //Colorize the link
     colorizeLink: function(linkId, color) {
       var linkData = this.data.links[linkId];
-      linkData.internal.els.path.setAttribute("stroke", color);
-      linkData.internal.els.rect.setAttribute("fill", color);
+      //linkData.internal.els.path.setAttribute("stroke", color);
+      //linkData.internal.els.rect.setAttribute("fill", color);
       // linkData.internal.els.fromSmallConnector.css("border-left-color", color);
       // linkData.internal.els.toSmallConnector.css("border-left-color", color);
-      linkData.internal.els.fromSmallConnector.css("border-top-color", color);
-      linkData.internal.els.toSmallConnector.css("border-bottom-color", color);
+      //linkData.internal.els.fromSmallConnector.css("border-top-color", color);
+      //linkData.internal.els.toSmallConnector.css("border-bottom-color", color);
     },
 
     uncolorizeLink: function(linkId) {
