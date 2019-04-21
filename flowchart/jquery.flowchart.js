@@ -103,7 +103,13 @@ $(function() {
       shape.setAttribute("stroke", "black");
       shape.setAttribute("fill", "none");
       this.objs.layers.temporaryLink[0].appendChild(shape);
-      this.objs.temporaryLink = shape;
+
+      //This.objs.temporary link now refers to the temporary guiding black line
+      //this.objs.temporaryLink = shape;
+
+      this.objs.temporaryLink = $(
+        ".flowchart-temporary-link-layer line:last-child"
+      )[0];
 
       this._initEvents();
 
@@ -186,6 +192,7 @@ $(function() {
       //End of customised listener
 
       this.element.mousemove(function(e) {
+        console.log(e);
         var $this = $(this);
         var offset = $this.offset();
         self._mousemove(
@@ -483,26 +490,20 @@ $(function() {
     //The svg and path is drawn here in this function
     _drawLink: function(linkId) {
       var linkData = this.data.links[linkId];
-
       if (typeof linkData.internal == "undefined") {
         linkData.internal = {};
       }
       linkData.internal.els = {};
-
       var fromOperatorId = linkData.fromOperator;
       var fromConnectorId = linkData.fromConnector;
       var toOperatorId = linkData.toOperator;
       var toConnectorId = linkData.toConnector;
-
       var subConnectors = this._getSubConnectors(linkData);
       var fromSubConnector = subConnectors[0];
       var toSubConnector = subConnectors[1];
-
       var color = this.getLinkMainColor(linkId);
-
       var fromOperator = this.data.operators[fromOperatorId];
       var toOperator = this.data.operators[toOperatorId];
-
       var fromSmallConnector =
         fromOperator.internal.els.connectorSmallArrows[fromConnectorId][
           fromSubConnector
@@ -511,27 +512,20 @@ $(function() {
         toOperator.internal.els.connectorSmallArrows[toConnectorId][
           toSubConnector
         ];
-
       linkData.internal.els.fromSmallConnector = fromSmallConnector;
       linkData.internal.els.toSmallConnector = toSmallConnector;
-
       var overallGroup = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "g"
       );
       this.objs.layers.links[0].appendChild(overallGroup);
-
       console.log("this.objs.layers.links", this.objs.layers.links);
-
       linkData.internal.els.overallGroup = overallGroup;
-
       var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
       var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
       this.maskNum++;
       mask.setAttribute("id", maskId);
-
       overallGroup.appendChild(mask);
-
       var shape = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "rect"
@@ -543,7 +537,6 @@ $(function() {
       shape.setAttribute("stroke", "none");
       shape.setAttribute("fill", "white");
       mask.appendChild(shape);
-
       var shape_polygon = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "polygon"
@@ -552,12 +545,10 @@ $(function() {
       shape_polygon.setAttribute("fill", "black");
       mask.appendChild(shape_polygon);
       linkData.internal.els.mask = shape_polygon;
-
       var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       group.setAttribute("class", "flowchart-link");
       group.setAttribute("data-link_id", linkId);
       overallGroup.appendChild(group);
-
       var shape_path = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "path"
@@ -569,7 +560,6 @@ $(function() {
       shape_path.setAttribute("fill", "none");
       group.appendChild(shape_path);
       linkData.internal.els.path = shape_path;
-
       var shape_rect = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "rect"
@@ -578,7 +568,6 @@ $(function() {
       shape_rect.setAttribute("mask", "url(#" + maskId + ")");
       group.appendChild(shape_rect);
       linkData.internal.els.rect = shape_rect;
-
       this._refreshLinkPositions(linkId);
       this.uncolorizeLink(linkId);
     },
@@ -1163,7 +1152,7 @@ $(function() {
         this.objs.temporaryLink.setAttribute("x1", x.toString());
         this.objs.temporaryLink.setAttribute("y1", y.toString());
 
-        //Where is mousemove? The mousemove will be detected and the line element is updated accordingly
+        //Where is mousemove? Setting the initial position of the hint line first
         this._mousemove(x, y);
       }
       if (
@@ -1195,11 +1184,27 @@ $(function() {
     _unsetTemporaryLink: function() {
       this.lastOutputConnectorClicked = null;
       this.objs.layers.temporaryLink.hide();
+
+      //Remove all the added line except for the 1st one
+      let firstLine = $(".flowchart-temporary-link-layer line:first-child");
+      let x1 = firstLine.attr("x1");
+      let y1 = firstLine.attr("y1");
+      firstLine[0].setAttribute("x2", x1);
+      firstLine[0].setAttribute("y2", y1);
+      $(".flowchart-temporary-link-layer").html(
+        $(".flowchart-temporary-link-layer line:first-child")
+      );
+
+      this.objs.temporaryLink = $(
+        ".flowchart-temporary-link-layer line:last-child"
+      )[0];
     },
 
     _mousemove: function(x, y, e) {
-      //Here check whether the use click on another connector
+      //Update the length of hint length
+      console.log(x, y);
       if (this.lastOutputConnectorClicked != null) {
+        console.log("this.objs.temporaryLink", this.objs.temporaryLink);
         this.objs.temporaryLink.setAttribute("x2", x);
         this.objs.temporaryLink.setAttribute("y2", y);
       }
@@ -1207,17 +1212,46 @@ $(function() {
 
     _click: function(x, y, e) {
       var $target = $(e.target);
-      if ($target.closest(".flowchart-operator-connector").length == 0) {
-        this._unsetTemporaryLink();
-      }
+      var $flowchart_temporary_link_layer = $(
+        ".flowchart-temporary-link-layer"
+      );
+      var lastLineDrawn = $(".flowchart-temporary-link-layer line:last-child");
+      var nextLine = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      var x2 = lastLineDrawn.attr("x2");
+      var y2 = lastLineDrawn.attr("y2");
+      if (this.lastOutputConnectorClicked != null) {
+        //What to do when a connector is clicked and the temporary link is drag ann CLICKED on the svg of the flowchart
+        this.objs.temporaryLink.setAttribute("x2", x);
+        this.objs.temporaryLink.setAttribute("y2", y);
 
-      if ($target.closest(".flowchart-operator").length == 0) {
-        this.unselectOperator();
+        if ($target[0].tagName == "svg") {
+          nextLine.setAttribute("x1", x2);
+          nextLine.setAttribute("y1", y2);
+          nextLine.setAttribute("x2", x2);
+          nextLine.setAttribute("y2", y2);
+          nextLine.setAttribute("stroke", "black");
+          nextLine.setAttribute("fill", "none");
+          $flowchart_temporary_link_layer.append(nextLine);
+          this.objs.temporaryLink = $(
+            ".flowchart-temporary-link-layer line:last-child"
+          )[0];
+          console.log("Time to fight lo");
+        }
       }
+      // if ($target.closest(".flowchart-operator-connector").length == 0) {
+      //   this._unsetTemporaryLink();
+      // }
 
-      if ($target.closest(".flowchart-link").length == 0) {
-        this.unselectLink();
-      }
+      // if ($target.closest(".flowchart-operator").length == 0) {
+      //   this.unselectOperator();
+      // }
+
+      // if ($target.closest(".flowchart-link").length == 0) {
+      //   this.unselectLink();
+      // }
     },
 
     _removeSelectedClassOperators: function() {
