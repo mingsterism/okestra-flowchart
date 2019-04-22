@@ -591,7 +591,6 @@ $(function() {
       // shape_rect.setAttribute("mask", "url(#" + maskId + ")");
       // group.appendChild(shape_rect);
       // linkData.internal.els.rect = shape_rect;
-
       this._refreshLinkPositions(linkId);
       this.uncolorizeLink(linkId);
     },
@@ -666,6 +665,8 @@ $(function() {
       linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
       linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
       linkData.internal.els.line3.setAttribute("stroke", "black");
+
+      console.log("redrawLink");
 
       //Line 1
 
