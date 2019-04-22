@@ -274,6 +274,7 @@ $(function() {
       });
 
       this.objs.layers.links.on("click", ".flowchart-link", function() {
+        console.log($(this).data("link_id"));
         self.selectLink($(this).data("link_id"));
       });
 
@@ -522,7 +523,7 @@ $(function() {
         "g"
       );
       this.objs.layers.links[0].appendChild(overallGroup);
-      console.log("this.objs.layers.links", this.objs.layers.links);
+
       var line1 = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "line"
@@ -536,16 +537,13 @@ $(function() {
         "http://www.w3.org/2000/svg",
         "line"
       );
-      overallGroup.appendChild(line1);
-      overallGroup.appendChild(line2);
-      overallGroup.appendChild(line3);
 
       linkData.internal.els.overallGroup = overallGroup;
       // var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
       // var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
       // this.maskNum++;
       // mask.setAttribute("id", maskId);
-      // overallGroup.appendChild(mask);
+      //overallGroup.appendChild(mask);
       // var shape = document.createElementNS(
       //   "http://www.w3.org/2000/svg",
       //   "rect"
@@ -565,10 +563,10 @@ $(function() {
       // shape_polygon.setAttribute("fill", "black");
       // mask.appendChild(shape_polygon);
       // linkData.internal.els.mask = shape_polygon;
-      // var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-      // group.setAttribute("class", "flowchart-link");
-      // group.setAttribute("data-link_id", linkId);
-      // overallGroup.appendChild(group);
+      var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "flowchart-link");
+      group.setAttribute("data-link_id", linkId);
+      overallGroup.appendChild(group);
       // var shape_path = document.createElementNS(
       //   "http://www.w3.org/2000/svg",
       //   "path"
@@ -578,7 +576,12 @@ $(function() {
       //   this.options.linkWidth.toString()
       // );
       // shape_path.setAttribute("fill", "none");
-      // group.appendChild(shape_path);
+      linkData.internal.els.line1 = line1;
+      linkData.internal.els.line2 = line2;
+      linkData.internal.els.line3 = line3;
+      group.appendChild(line1);
+      group.appendChild(line2);
+      group.appendChild(line3);
       // linkData.internal.els.path = shape_path;
       // var shape_rect = document.createElementNS(
       //   "http://www.w3.org/2000/svg",
@@ -626,70 +629,102 @@ $(function() {
         toSubConnector
       );
 
+      //x position of the output connector
       var fromX = fromPosition.x;
       var offsetFromX = fromPosition.width;
+
+      //y position of output connector
       var fromY = fromPosition.y;
 
+      //x position of input connector
       var toX = toPosition.x;
-      var toY = toPosition.y;
 
-      fromY += this.options.linkVerticalDecal;
-      toY += this.options.linkVerticalDecal;
+      //y position of input connector
+      var toY = toPosition.y;
 
       var distanceFromArrow = this.options.distanceFromArrow;
 
-      linkData.internal.els.mask.setAttribute(
-        "points",
-        fromX +
-          "," +
-          (fromY - offsetFromX - distanceFromArrow) +
-          " " +
-          (fromX + offsetFromX + distanceFromArrow) +
-          "," +
-          fromY +
-          " " +
-          fromX +
-          "," +
-          (fromY + offsetFromX + distanceFromArrow)
-      );
+      //Doing the math 1st
+      var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
+      var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
 
-      var bezierFromX = fromX + offsetFromX + distanceFromArrow;
-      var bezierToX = toX + 1;
-      var bezierIntensity = Math.min(
-        100,
-        Math.max(Math.abs(bezierFromX - bezierToX) / 2, Math.abs(fromY - toY))
-      );
+      var halfYdiff = ydiff / 2;
+      linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+      linkData.internal.els.line1.setAttribute("y1", fromY);
+      linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+      linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
+      linkData.internal.els.line1.setAttribute("stroke", "black");
 
-      linkData.internal.els.path.setAttribute(
-        "d",
-        "M" +
-          bezierFromX +
-          "," +
-          fromY +
-          " C" +
-          (fromX + offsetFromX + distanceFromArrow + bezierIntensity) +
-          "," +
-          fromY +
-          " " +
-          (toX - bezierIntensity) +
-          "," +
-          toY +
-          " " +
-          bezierToX +
-          "," +
-          toY
-      );
+      linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+      linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
+      linkData.internal.els.line2.setAttribute("x2", toX + offsetFromX);
+      linkData.internal.els.line2.setAttribute("y2", toY - halfYdiff);
+      linkData.internal.els.line2.setAttribute("stroke", "black");
 
-      linkData.internal.els.rect.setAttribute("x", fromX);
-      linkData.internal.els.rect.setAttribute(
-        "y",
-        fromY - this.options.linkWidth / 2
-      );
-      linkData.internal.els.rect.setAttribute(
-        "width",
-        offsetFromX + distanceFromArrow + 1
-      );
-      linkData.internal.els.rect.setAttribute("height", this.options.linkWidth);
+      linkData.internal.els.line3.setAttribute("x1", toX + offsetFromX);
+      linkData.internal.els.line3.setAttribute("y1", toY);
+      linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
+      linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
+      linkData.internal.els.line3.setAttribute("stroke", "black");
+
+      //Line 1
+
+      //Line2
+
+      //Line 3
+
+      // linkData.internal.els.mask.setAttribute(
+      //   "points",
+      //   fromX +
+      //     "," +
+      //     (fromY - offsetFromX - distanceFromArrow) +
+      //     " " +
+      //     (fromX + offsetFromX + distanceFromArrow) +
+      //     "," +
+      //     fromY +
+      //     " " +
+      //     fromX +
+      //     "," +
+      //     (fromY + offsetFromX + distanceFromArrow)
+      // );
+
+      // var bezierFromX = fromX + offsetFromX + distanceFromArrow;
+      // var bezierToX = toX + 1;
+      // var bezierIntensity = Math.min(
+      //   100,
+      //   Math.max(Math.abs(bezierFromX - bezierToX) / 2, Math.abs(fromY - toY))
+      // );
+
+      // linkData.internal.els.path.setAttribute(
+      //   "d",
+      //   "M" +
+      //     bezierFromX +
+      //     "," +
+      //     fromY +
+      //     " C" +
+      //     (fromX + offsetFromX + distanceFromArrow + bezierIntensity) +
+      //     "," +
+      //     fromY +
+      //     " " +
+      //     (toX - bezierIntensity) +
+      //     "," +
+      //     toY +
+      //     " " +
+      //     bezierToX +
+      //     "," +
+      //     toY
+      // );
+
+      // linkData.internal.els.rect.setAttribute("x", fromX);
+      // linkData.internal.els.rect.setAttribute(
+      //   "y",
+      //   fromY - this.options.linkWidth / 2
+      // );
+      // linkData.internal.els.rect.setAttribute(
+      //   "width",
+      //   offsetFromX + distanceFromArrow + 1
+      // );
+      // linkData.internal.els.rect.setAttribute("height", this.options.linkWidth);
     },
 
     getOperatorCompleteData: function(operatorData) {
