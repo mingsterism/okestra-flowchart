@@ -538,6 +538,16 @@ $(function() {
         "line"
       );
 
+      var line4 = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+
+      var line5 = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+
       linkData.internal.els.overallGroup = overallGroup;
       // var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
       // var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
@@ -579,9 +589,13 @@ $(function() {
       linkData.internal.els.line1 = line1;
       linkData.internal.els.line2 = line2;
       linkData.internal.els.line3 = line3;
+      linkData.internal.els.line4 = line4;
+      linkData.internal.els.line5 = line5;
       group.appendChild(line1);
       group.appendChild(line2);
       group.appendChild(line3);
+      group.appendChild(line4);
+      group.appendChild(line5);
       // linkData.internal.els.path = shape_path;
       // var shape_rect = document.createElementNS(
       //   "http://www.w3.org/2000/svg",
@@ -647,24 +661,128 @@ $(function() {
       var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
       var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
 
+      console.log("xdiff", xdiff);
       var halfYdiff = ydiff / 2;
-      linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-      linkData.internal.els.line1.setAttribute("y1", fromY);
-      linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-      linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
-      linkData.internal.els.line1.setAttribute("stroke", "black");
+      var halfXdiff = xdiff / 2;
 
-      linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-      linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
-      linkData.internal.els.line2.setAttribute("x2", toX + offsetFromX);
-      linkData.internal.els.line2.setAttribute("y2", toY - halfYdiff);
-      linkData.internal.els.line2.setAttribute("stroke", "black");
+      if (toY - fromY < 0 && xdiff != 0) {
+        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y1", fromY);
+        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
+        linkData.internal.els.line1.setAttribute("stroke", "black");
 
-      linkData.internal.els.line3.setAttribute("x1", toX + offsetFromX);
-      linkData.internal.els.line3.setAttribute("y1", toY);
-      linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
-      linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
-      linkData.internal.els.line3.setAttribute("stroke", "black");
+        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
+        linkData.internal.els.line2.setAttribute(
+          "x2",
+          toX + offsetFromX + halfXdiff
+        );
+        linkData.internal.els.line2.setAttribute("y2", fromY + halfYdiff);
+        linkData.internal.els.line2.setAttribute("stroke", "black");
+
+        linkData.internal.els.line3.setAttribute(
+          "x1",
+          toX + offsetFromX + halfXdiff
+        );
+        linkData.internal.els.line3.setAttribute("y1", fromY + halfYdiff);
+        linkData.internal.els.line3.setAttribute(
+          "x2",
+          toX + offsetFromX + halfXdiff
+        );
+        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line3.setAttribute("stroke", "black");
+
+        linkData.internal.els.line4.setAttribute(
+          "x1",
+          toX + offsetFromX + halfXdiff
+        );
+        linkData.internal.els.line4.setAttribute("y1", toY - halfYdiff);
+        linkData.internal.els.line4.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line4.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line4.setAttribute("stroke", "black");
+
+        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y1", toY);
+        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line5.setAttribute("stroke", "black");
+      } else if (xdiff == 0 && toY - fromY < 0) {
+        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y1", fromY);
+        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
+        linkData.internal.els.line1.setAttribute("stroke", "black");
+
+        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
+        linkData.internal.els.line2.setAttribute(
+          "x2",
+          fromX + offsetFromX + 200
+        );
+        linkData.internal.els.line2.setAttribute("y2", fromY + halfYdiff);
+        linkData.internal.els.line2.setAttribute("stroke", "black");
+
+        linkData.internal.els.line3.setAttribute(
+          "x1",
+          fromX + offsetFromX + 200
+        );
+        linkData.internal.els.line3.setAttribute("y1", fromY + halfYdiff);
+        linkData.internal.els.line3.setAttribute(
+          "x2",
+          toX + offsetFromX + halfXdiff + 200
+        );
+        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line3.setAttribute("stroke", "black");
+
+        linkData.internal.els.line4.setAttribute(
+          "x1",
+          toX + offsetFromX + halfXdiff
+        );
+        linkData.internal.els.line4.setAttribute("y1", toY - halfYdiff);
+        linkData.internal.els.line4.setAttribute(
+          "x2",
+          toX + offsetFromX + halfXdiff + 200
+        );
+        linkData.internal.els.line4.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line4.setAttribute("stroke", "black");
+
+        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y1", toY);
+        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line5.setAttribute("stroke", "black");
+      } else {
+        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y1", fromY);
+        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
+        linkData.internal.els.line1.setAttribute("stroke", "black");
+
+        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
+        linkData.internal.els.line2.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line2.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line2.setAttribute("stroke", "black");
+
+        linkData.internal.els.line3.setAttribute("x1", toX + offsetFromX);
+        linkData.internal.els.line3.setAttribute("y1", toY);
+        linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line3.setAttribute("stroke", "black");
+
+        linkData.internal.els.line4.setAttribute("x1", 0);
+        linkData.internal.els.line4.setAttribute("y1", 0);
+        linkData.internal.els.line4.setAttribute("x2", 0);
+        linkData.internal.els.line4.setAttribute("y2", 0);
+        linkData.internal.els.line4.setAttribute("stroke", "black");
+
+        linkData.internal.els.line5.setAttribute("x1", 0);
+        linkData.internal.els.line5.setAttribute("y1", 0);
+        linkData.internal.els.line5.setAttribute("x2", 0);
+        linkData.internal.els.line5.setAttribute("y2", 0);
+        linkData.internal.els.line5.setAttribute("stroke", "black");
+      }
 
       console.log("redrawLink");
 
