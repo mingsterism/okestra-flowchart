@@ -142,15 +142,39 @@ $(function() {
       //self.data.operators is the data of whole diagram
 
       //IF the flow chart title is double clicked, then the input will be visible
-      this.objs.layers.operators.on("click", ".flowchart-span-title", function(
-        e
-      ) {
-        //Find nearest input field and remove the input-invisible class
-        $(e.target)
-          .next()
-          .show();
-        $(e.target).hide();
-      });
+      this.objs.layers.operators.on(
+        "dblclick",
+        ".flowchart-span-title",
+        function(e) {
+          //Find nearest input field and remove the input-invisible class
+          $(e.target)
+            .next()
+            .show();
+          $(e.target).hide();
+        }
+      );
+
+      this.objs.layers.operators.on(
+        "dblclick",
+        ".input-inside-operator",
+        function(e) {
+          //Find nearest input field and remove the input-invisible class
+          if (e.target.value || /^\s*$/.test(e.target.vale)) {
+            console.log("enter key is pressed");
+            $(e.target)
+              .prev()
+              .html($(e.target).val());
+          } else {
+            $(e.target)
+              .prev()
+              .html("Start");
+          }
+          $(e.target)
+            .prev()
+            .show();
+          $(e.target).hide();
+        }
+      );
 
       this.objs.layers.operators.on(
         "keypress",
@@ -164,22 +188,26 @@ $(function() {
               $(e.target)
                 .prev()
                 .html($(e.target).val());
-
-              var operator_id = $(e.target)
-                .parent()
-                .parent()
-                .parent()
-                .parent()
-                .parent()
-                .data("operator_id");
-
-              console.log(operator_id);
-
-              var newOperatorData = self.data.operators;
-              newOperatorData[operator_id].properties.title = $(e.target).val();
-              self.data.operators = newOperatorData;
-              console.log(self.data.operators);
+            } else {
+              $(e.target)
+                .prev()
+                .html("Start");
             }
+
+            var operator_id = $(e.target)
+              .parent()
+              .parent()
+              .parent()
+              .parent()
+              .parent()
+              .data("operator_id");
+
+            console.log(operator_id);
+
+            var newOperatorData = self.data.operators;
+            newOperatorData[operator_id].properties.title = $(e.target).val();
+            self.data.operators = newOperatorData;
+            console.log(self.data.operators);
 
             $(e.target).hide();
             $(e.target)
@@ -190,6 +218,21 @@ $(function() {
       );
 
       //End of customised listener
+      this.element.dblclick(function(e) {
+        console.log($(e.target).attr("class"));
+        if ($(e.target).attr("class") == "flowchart-links-layer") {
+          let firstLine = $(".flowchart-temporary-link-layer line:first-child");
+          let x1 = firstLine.attr("x1");
+          let y1 = firstLine.attr("y1");
+          firstLine[0].setAttribute("x2", x1);
+          firstLine[0].setAttribute("y2", y1);
+          $(".flowchart-temporary-link-layer").html(firstLine);
+          self.objs.temporaryLink = $(
+            ".flowchart-temporary-link-layer line:last-child"
+          )[0];
+          self.lastOutputConnectorClicked = null;
+        }
+      });
 
       this.element.mousemove(function(e) {
         //console.log(e);
@@ -203,8 +246,11 @@ $(function() {
       });
 
       this.element.click(function(e) {
+        console.log($(e.target).attr("class"));
         var $this = $(this);
         var offset = $this.offset();
+        console.log("this.data.operators", self.data.operators);
+        console.log("this.data.links", self.data.links);
         self._click(
           (e.pageX - offset.left) / self.positionRatio,
           (e.pageY - offset.top) / self.positionRatio,
@@ -265,16 +311,18 @@ $(function() {
         }
       );
 
-      this.objs.layers.links.on("mouseover", ".flowchart-link", function() {
-        self._connecterMouseOver($(this).data("link_id"));
+      this.objs.layers.links.on("mouseover", ".flowchart-link", function(e) {
+        console.log("ndsvnsoi");
+        //self._connecterMouseOver($(this).data("link_id"));
+        self.selectLink($(this).data("link_id"));
       });
 
-      this.objs.layers.links.on("mouseout", ".flowchart-link", function() {
+      this.objs.layers.links.on("mouseout", ".flowchart-link", function(e) {
         self._connecterMouseOut($(this).data("link_id"));
       });
 
-      this.objs.layers.links.on("click", ".flowchart-link", function() {
-        console.log($(this).data("link_id"));
+      this.objs.layers.links.on("click", ".flowchart-link", function(e) {
+        console.log("linkId", $(this).data("link_id"));
         self.selectLink($(this).data("link_id"));
       });
 
@@ -1394,10 +1442,18 @@ $(function() {
         "http://www.w3.org/2000/svg",
         "line"
       );
+      var x1 = lastLineDrawn.attr("x1");
+      var y1 = lastLineDrawn.attr("y1");
       var x2 = lastLineDrawn.attr("x2");
       var y2 = lastLineDrawn.attr("y2");
       if (this.lastOutputConnectorClicked != null) {
+        console.log(x1);
+        console.log(x);
+        console.log(x - x1);
+        // isStraightLine = x - x1 < 0 ? -(x - x1) : x - x1;
+        // isPerpendicular = y - y1 < 0 ? -(y - y1) : y - y1;
         //What to do when a connector is clicked and the temporary link is drag ann CLICKED on the svg of the flowchart
+        //if (isStraightLine < 5 || isPerpendicular < 5) {
         this.objs.temporaryLink.setAttribute("x2", x);
         this.objs.temporaryLink.setAttribute("y2", y);
 
@@ -1414,18 +1470,19 @@ $(function() {
           )[0];
           console.log("Time to fight lo");
         }
+        //}
       }
-      // if ($target.closest(".flowchart-operator-connector").length == 0) {
+      // if ($target.closest(".flowchart-operator-connector").length == 0 ) {
       //   this._unsetTemporaryLink();
       // }
 
-      // if ($target.closest(".flowchart-operator").length == 0) {
-      //   this.unselectOperator();
-      // }
+      if ($target.closest(".flowchart-operator").length == 0) {
+        this.unselectOperator();
+      }
 
-      // if ($target.closest(".flowchart-link").length == 0) {
-      //   this.unselectLink();
-      // }
+      if ($target.closest(".flowchart-link").length == 0) {
+        this.unselectLink();
+      }
     },
 
     _removeSelectedClassOperators: function() {
@@ -1462,6 +1519,10 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
+      this.selectedLinkId = null;
+      $(`.flowchart-link line`).each(function() {
+        $(this).attr("stroke", "black");
+      });
       if (!this.callbackEvent("operatorSelect", [operatorId])) {
         return;
       }
@@ -1576,10 +1637,10 @@ $(function() {
         if (!this.callbackEvent("linkUnselect", [])) {
           return;
         }
-        this.uncolorizeLink(
-          this.selectedLinkId,
-          this.options.defaultSelectedLinkColor
-        );
+        // this.uncolorizeLink(
+        //   this.selectedLinkId,
+        //   this.options.defaultSelectedLinkColor
+        // );
         this.selectedLinkId = null;
       }
     },
@@ -1591,7 +1652,13 @@ $(function() {
       }
       this.unselectOperator();
       this.selectedLinkId = linkId;
-      this.colorizeLink(linkId, this.options.defaultSelectedLinkColor);
+      //this.colorizeLink(linkId, this.options.defaultSelectedLinkColor);
+      $(`.flowchart-link line`).each(function() {
+        $(this).attr("stroke", "black");
+      });
+      $(`.flowchart-link[data-link_id=${linkId}] line`).each(function() {
+        $(this).attr("stroke", "red");
+      });
     },
 
     deleteOperator: function(operatorId) {
@@ -1622,9 +1689,14 @@ $(function() {
       delete this.data.operators[operatorId];
 
       this.callbackEvent("afterChange", ["operator_delete"]);
+
+      for (var key in this.data.links) {
+        this._refreshLinkPositions(key);
+      }
     },
 
     deleteLink: function(linkId) {
+      console.log("link");
       this._deleteLink(linkId, false);
     },
 
