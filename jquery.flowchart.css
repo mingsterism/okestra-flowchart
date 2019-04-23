@@ -47,18 +47,18 @@
 .flowchart-operator-outputs .flowchart-operator-connector-arrow {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid black;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid black;
   position: absolute;
 }
 
 .flowchart-operator-inputs .flowchart-operator-connector-arrow {
   width: 0;
   height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid black;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid black;
   position: absolute;
 }
 

@@ -312,7 +312,6 @@ $(function() {
       );
 
       this.objs.layers.links.on("mouseover", ".flowchart-link", function(e) {
-        console.log("ndsvnsoi");
         //self._connecterMouseOver($(this).data("link_id"));
         self.selectLink($(this).data("link_id"));
       });
@@ -321,10 +320,10 @@ $(function() {
       //   self._connecterMouseOut($(this).data("link_id"));
       // });
 
-      // this.objs.layers.links.on("click", ".flowchart-link", function(e) {
-      //   console.log("linkId", $(this).data("link_id"));
-      //   self.selectLink($(this).data("link_id"));
-      // });
+      this.objs.layers.links.on("click", ".flowchart-link", function(e) {
+        console.log("linkId", $(this).data("link_id"));
+        self.selectLink($(this).data("link_id"));
+      });
 
       this.objs.layers.operators.on(
         "mouseover",
@@ -710,10 +709,56 @@ $(function() {
       var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
 
       console.log("xdiff", xdiff);
+      console.log("ydiff", ydiff);
+
+      console.log("xdiff", xdiff);
       var halfYdiff = ydiff / 2;
       var halfXdiff = xdiff / 2;
 
-      if (toY - fromY < 0 && xdiff != 0) {
+      if (toY - fromY < 62 && toY - fromY >= -20 && xdiff >= 100) {
+        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y1", fromY);
+        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+        linkData.internal.els.line1.setAttribute("y2", fromY + 80);
+        linkData.internal.els.line1.setAttribute("stroke", "black");
+
+        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+        linkData.internal.els.line2.setAttribute("y1", fromY + 80);
+        console.log(toX - fromX);
+        linkData.internal.els.line2.setAttribute(
+          "x2",
+          toX + (toX - fromX) * 1.5
+        );
+        linkData.internal.els.line2.setAttribute("y2", fromY + 80);
+        linkData.internal.els.line2.setAttribute("stroke", "black");
+
+        linkData.internal.els.line3.setAttribute(
+          "x1",
+          toX + (toX - fromX) * 1.5
+        );
+        linkData.internal.els.line3.setAttribute("y1", fromY + 80);
+        linkData.internal.els.line3.setAttribute(
+          "x2",
+          toX + (toX - fromX) * 1.5
+        );
+        linkData.internal.els.line3.setAttribute("y2", fromY - 40);
+        linkData.internal.els.line3.setAttribute("stroke", "black");
+
+        linkData.internal.els.line4.setAttribute(
+          "x1",
+          toX + (toX - fromX) * 1.5
+        );
+        linkData.internal.els.line4.setAttribute("y1", fromY - 40);
+        linkData.internal.els.line4.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line4.setAttribute("y2", fromY - 40);
+        linkData.internal.els.line4.setAttribute("stroke", "black");
+
+        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y1", fromY - 40);
+        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
+        linkData.internal.els.line5.setAttribute("y2", toY);
+        linkData.internal.els.line5.setAttribute("stroke", "black");
+      } else if (toY - fromY < 0 && xdiff != 0) {
         linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
         linkData.internal.els.line1.setAttribute("y1", fromY);
         linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
@@ -800,7 +845,57 @@ $(function() {
         linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
         linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
         linkData.internal.els.line5.setAttribute("stroke", "black");
-      } else {
+      }
+      // } else if (xdiff < 100 && ydiff < 65) {
+      //   linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
+      //   linkData.internal.els.line1.setAttribute("y1", fromY);
+      //   linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
+      //   linkData.internal.els.line1.setAttribute("y2", fromY + 10);
+      //   linkData.internal.els.line1.setAttribute("stroke", "black");
+
+      //   linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
+      //   linkData.internal.els.line2.setAttribute("y1", fromY + 10);
+      //   linkData.internal.els.line2.setAttribute(
+      //     "x2",
+      //     fromX + offsetFromX - (toX - fromX) * 2
+      //   );
+      //   linkData.internal.els.line2.setAttribute("y2", fromY + 10);
+      //   linkData.internal.els.line2.setAttribute("stroke", "black");
+
+      //   linkData.internal.els.line3.setAttribute(
+      //     "x1",
+      //     fromX + offsetFromX - (toX - fromX) * 2
+      //   );
+      //   linkData.internal.els.line3.setAttribute("y1", fromY + 10);
+      //   linkData.internal.els.line3.setAttribute(
+      //     "x2",
+      //     fromX + offsetFromX - (toX - fromX) * 2
+      //   );
+      //   linkData.internal.els.line3.setAttribute(
+      //     "y2",
+      //     fromY + 40 + (toY - fromY) * 1.5
+      //   );
+      //   linkData.internal.els.line3.setAttribute("stroke", "black");
+
+      //   linkData.internal.els.line4.setAttribute(
+      //     "x1",
+      //     fromX + offsetFromX - (toX - fromX) * 2
+      //   );
+      //   linkData.internal.els.line4.setAttribute(
+      //     "y1",
+      //     fromY + 40 + (toY - fromY) * 1.5
+      //   );
+      //   linkData.internal.els.line4.setAttribute(
+      //     "x2",
+      //     fromX + (toX - fromX) * 4
+      //   );
+      //   linkData.internal.els.line4.setAttribute(
+      //     "y2",
+      //     fromY + 40 + (toY - fromY) * 1.5
+      //   );
+      //   linkData.internal.els.line4.setAttribute("stroke", "black");
+      // }
+      else {
         linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
         linkData.internal.els.line1.setAttribute("y1", fromY);
         linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
@@ -814,9 +909,9 @@ $(function() {
         linkData.internal.els.line2.setAttribute("stroke", "black");
 
         linkData.internal.els.line3.setAttribute("x1", toX + offsetFromX);
-        linkData.internal.els.line3.setAttribute("y1", toY);
+        linkData.internal.els.line3.setAttribute("y1", toY - halfYdiff);
         linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
+        linkData.internal.els.line3.setAttribute("y2", toY);
         linkData.internal.els.line3.setAttribute("stroke", "black");
 
         linkData.internal.els.line4.setAttribute("x1", 0);
@@ -1691,6 +1786,8 @@ $(function() {
       this.callbackEvent("afterChange", ["operator_delete"]);
 
       for (var key in this.data.links) {
+        console.log(this.data.links);
+        console.log(key);
         this._refreshLinkPositions(key);
       }
     },
