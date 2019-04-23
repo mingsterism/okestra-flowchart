@@ -317,14 +317,14 @@ $(function() {
         self.selectLink($(this).data("link_id"));
       });
 
-      this.objs.layers.links.on("mouseout", ".flowchart-link", function(e) {
-        self._connecterMouseOut($(this).data("link_id"));
-      });
+      // this.objs.layers.links.on("mouseout", ".flowchart-link", function(e) {
+      //   self._connecterMouseOut($(this).data("link_id"));
+      // });
 
-      this.objs.layers.links.on("click", ".flowchart-link", function(e) {
-        console.log("linkId", $(this).data("link_id"));
-        self.selectLink($(this).data("link_id"));
-      });
+      // this.objs.layers.links.on("click", ".flowchart-link", function(e) {
+      //   console.log("linkId", $(this).data("link_id"));
+      //   self.selectLink($(this).data("link_id"));
+      // });
 
       this.objs.layers.operators.on(
         "mouseover",
