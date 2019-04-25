@@ -199,3 +199,8 @@ body {
   border-bottom: 10px solid transparent;
   border-left: 10px solid green;
 }
+
+.decider-container {
+  width: 300px;
+  height: 300px;
+}

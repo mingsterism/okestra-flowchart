@@ -55,12 +55,14 @@ $(document).ready(function() {
     var nbInputs = parseInt($element.data("nb-inputs"));
     var nbOutputs = parseInt($element.data("nb-outputs"));
     var shape = $element.data("shape");
+    var func = $element.data("function");
     var data = {
       properties: {
         title: $element.text(),
         inputs: {},
         outputs: {},
-        shape: shape
+        shape: shape,
+        func: func
       }
     };
 
