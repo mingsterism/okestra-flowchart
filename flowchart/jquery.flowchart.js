@@ -1078,28 +1078,11 @@ $(function() {
       $operator_input.appendTo($operator_title);
 
       //Adding input with display on none
-
-      if (infos.shape === "diamond") {
-        $operator_title.addClass("item-count-inside-canvas");
-      } else {
-        $operator_title.addClass("centerText");
-      }
+      $operator_title.addClass("centerText");
 
       var $operator_inputs_outputs = $(
         '<div class="flowchart-operator-inputs-outputs"></div>'
       );
-
-      //If matching the shapes stated, reposition the connector
-      if (
-        infos.shape === "circleStart" ||
-        infos.shape === "circleEnd" ||
-        infos.shape === "rectangle" ||
-        infos.shape === "diamond"
-      ) {
-        $operator_inputs_outputs.addClass(
-          "flowchart-operator-inputs-outputs-circle"
-        );
-      }
 
       $operator_inputs_outputs.appendTo($operator);
 
