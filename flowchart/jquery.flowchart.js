@@ -1026,6 +1026,10 @@ $(function() {
 
       console.log("infos", infos);
 
+      if (infos.func == "decider") {
+        console.log("Decider");
+      }
+
       $operator_diamond_item_count = $('<div class="item_count"></div>');
 
       var $operator = $('<div class="flowchart-operator"></div>');
@@ -1124,7 +1128,8 @@ $(function() {
         connectorSets: connectorSets,
         connectors: connectors,
         connectorArrows: connectorArrows,
-        connectorSmallArrows: connectorSmallArrows
+        connectorSmallArrows: connectorSmallArrows,
+        func: infos.func
       };
 
       //Connector is created here
@@ -1133,11 +1138,16 @@ $(function() {
         connectorInfos,
         $operator_container,
         connectorType,
-        bottomPadding
+        bottomPadding,
+        func
       ) {
         var $operator_connector_set = $(
           '<div class="flowchart-operator-connector-set"></div>'
         );
+
+        if (connectorKey == "output_1" && func == "decider") {
+          $operator_connector_set.css("height", 0);
+        }
         console.log(connectorInfos);
 
         // var $operator_connector_set = $(
@@ -1157,7 +1167,8 @@ $(function() {
           connectorInfos,
           fullElement,
           connectorType,
-          bottomPadding
+          bottomPadding,
+          fullElement.func
         );
       }
 
@@ -1176,7 +1187,7 @@ $(function() {
           );
         }
       }
-
+      console.log("infos", infos.func);
       for (var key_o in infos.outputs) {
         if (infos.outputs.hasOwnProperty(key_o)) {
           var bottomPadding = false;
@@ -1188,7 +1199,8 @@ $(function() {
             infos.outputs[key_o],
             $operator_outputs,
             "outputs",
-            bottomPadding
+            bottomPadding,
+            infos.func
           );
         }
       }
@@ -1202,7 +1214,8 @@ $(function() {
       connectorInfos,
       fullElement,
       connectorType,
-      bottomPadding
+      bottomPadding,
+      func
     ) {
       var $operator_connector_set = fullElement.connectorSets[connectorKey];
 
@@ -1212,7 +1225,7 @@ $(function() {
         '<div class="flowchart-operator-connector"></div>'
       );
 
-      if (bottomPadding) {
+      if (bottomPadding && func != "decider") {
         $operator_connector = $(
           '<div class="flowchart-operator-connector" style="bottom:20px"></div>'
         );
@@ -1284,6 +1297,62 @@ $(function() {
       }
 
       this.createOperator(this.operatorNum, operatorData);
+      console.log("addOperator", this.data.operators);
+
+      if (operatorData.properties.title == "Reject") {
+        let r = operatorData.properties.random;
+        let approve, reject, mother, approveNum, rejectNum, motherNum;
+        for (var key in this.data.operators) {
+          if (
+            this.data.operators[key].properties.random == r &&
+            this.data.operators[key].properties.title == "Approve"
+          ) {
+            approve = this.data.operators[key];
+            approveNum = key;
+          }
+
+          if (
+            this.data.operators[key].properties.random == r &&
+            this.data.operators[key].properties.title == "Reject"
+          ) {
+            reject = this.data.operators[key];
+            rejectNum = key;
+          }
+
+          if (
+            this.data.operators[key].properties.random == r &&
+            this.data.operators[key].properties.title != "Approve" &&
+            this.data.operators[key].properties.title != "Reject"
+          ) {
+            mother = this.data.operators[key];
+            motherNum = key;
+          }
+        }
+
+        console.log(approve, reject, mother);
+
+        var linkData1 = {
+          fromOperator: motherNum,
+          fromConnector: "output_0",
+          fromSubConnector: 0,
+          toOperator: approveNum,
+          toConnector: "input_0",
+          toSubConnector: 0
+        };
+
+        var linkData2 = {
+          fromOperator: motherNum,
+          fromConnector: "output_1",
+          fromSubConnector: 0,
+          toOperator: rejectNum,
+          toConnector: "input_0",
+          toSubConnector: 0
+        };
+
+        this.addLink(linkData1);
+
+        this.addLink(linkData2);
+      }
       return this.operatorNum;
     },
 
@@ -1492,7 +1561,10 @@ $(function() {
           toConnector: connector,
           toSubConnector: subConnector
         };
+
         console.log("linkData", linkData);
+
+        console.log(linkData);
 
         //Linkdata specify which output of which operator is connected to which input of which operator
         this._unsetTemporaryLink();

@@ -56,13 +56,43 @@ $(document).ready(function() {
     var nbOutputs = parseInt($element.data("nb-outputs"));
     var shape = $element.data("shape");
     var func = $element.data("function");
+    let r = Math.random()
+      .toString(36)
+      .substring(7);
     var data = {
       properties: {
         title: $element.text(),
         inputs: {},
         outputs: {},
         shape: shape,
-        func: func
+        func: func,
+        random: r
+      }
+    };
+
+    var i = 0;
+    for (i = 0; i < nbInputs; i++) {
+      data.properties.inputs["input_" + i] = {
+        label: ""
+      };
+    }
+    for (i = 0; i < nbOutputs; i++) {
+      data.properties.outputs["output_" + i] = {
+        label: ""
+      };
+    }
+
+    return data;
+  }
+
+  function createApproveDeleteOperator(nbInputs, nbOutputs, title, random) {
+    var data = {
+      properties: {
+        title: title,
+        inputs: {},
+        outputs: {},
+        shape: "rectangle",
+        random: random
       }
     };
 
@@ -122,6 +152,29 @@ $(document).ready(function() {
         data.top = relativeTop;
 
         $flowchart.flowchart("addOperator", data);
+        console.log(data);
+        if (data.properties.func == "decider") {
+          var approve = createApproveDeleteOperator(
+            1,
+            1,
+            "Approve",
+            data.properties.random
+          );
+          var reject = createApproveDeleteOperator(
+            1,
+            1,
+            "Reject",
+            data.properties.random
+          );
+          approve.left = relativeLeft - 100;
+          approve.top = relativeTop + 100;
+          reject.left = relativeLeft + 120;
+          reject.top = approve.top;
+          $flowchart.flowchart("addOperator", approve);
+          $flowchart.flowchart("addOperator", reject);
+          console.log(approve);
+          console.log(reject);
+        }
       }
     }
   });
