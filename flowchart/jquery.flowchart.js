@@ -1585,12 +1585,21 @@ $(function() {
       }
       this.unselectOperator();
       this.selectedLinkId = linkId;
-      $(`.flowchart-link line`).each(function() {
-        $(this).attr("stroke", "black");
-      });
-      $(`.flowchart-link[data-link_id=${linkId}] line`).each(function() {
-        $(this).attr("stroke", "red");
-      });
+
+      let toOperator = this.data.links[linkId].toOperator;
+      let fromOperator = this.data.links[linkId].fromOperator;
+
+      if (
+        !this.data.operators[toOperator].properties.random ||
+        !this.data.operators[fromOperator].properties.random
+      ) {
+        $(`.flowchart-link line`).each(function() {
+          $(this).attr("stroke", "black");
+        });
+        $(`.flowchart-link[data-link_id=${linkId}] line`).each(function() {
+          $(this).attr("stroke", "red");
+        });
+      }
     },
 
     deleteOperator: function(operatorId) {
@@ -1630,8 +1639,14 @@ $(function() {
     },
 
     deleteLink: function(linkId) {
-      console.log("link");
-      this._deleteLink(linkId, false);
+      let fromOperator = this.data.links[linkId].fromOperator;
+      let toOperator = this.data.links[linkId].toOperator;
+      if (
+        !this.data.operators[fromOperator].properties.random &&
+        !this.data.operators[toOperator].properties.random
+      ) {
+        this._deleteLink(linkId, false);
+      }
     },
 
     _deleteLink: function(linkId, forced) {
@@ -1706,7 +1721,48 @@ $(function() {
         this.deleteLink(this.selectedLinkId);
       }
       if (this.selectedOperatorId != null) {
-        this.deleteOperator(this.selectedOperatorId);
+        console.log(this.data.operators);
+        if (!this.data.operators[this.selectedOperatorId].properties.random) {
+          this.deleteOperator(this.selectedOperatorId);
+        }
+
+        if (
+          this.data.operators[this.selectedOperatorId].properties.random &&
+          this.data.operators[this.selectedOperatorId].properties.title !=
+            "Reject" &&
+          this.data.operators[this.selectedOperatorId].properties.title !=
+            "Approve"
+        ) {
+          let r = this.data.operators[this.selectedOperatorId].properties
+            .random;
+          for (var key in this.data.operators) {
+            if (
+              this.data.operators[key].properties.random == r &&
+              this.data.operators[key].properties.title == "Approve"
+            ) {
+              this.deleteOperator(key);
+            }
+          }
+
+          for (var key in this.data.operators) {
+            if (
+              this.data.operators[key].properties.random == r &&
+              this.data.operators[key].properties.title == "Reject"
+            ) {
+              this.deleteOperator(key);
+            }
+          }
+
+          for (var key in this.data.operators) {
+            if (
+              this.data.operators[key].properties.random == r &&
+              this.data.operators[key].properties.title != "Approve" &&
+              this.data.operators[key].properties.title != "Reject"
+            ) {
+              this.deleteOperator(key);
+            }
+          }
+        }
       }
     },
 

@@ -56,9 +56,12 @@ $(document).ready(function() {
     var nbOutputs = parseInt($element.data("nb-outputs"));
     var shape = $element.data("shape");
     var func = $element.data("function");
-    let r = Math.random()
-      .toString(36)
-      .substring(7);
+    let r =
+      func == "decider"
+        ? Math.random()
+            .toString(36)
+            .substring(7)
+        : null;
     var data = {
       properties: {
         title: $element.text(),
