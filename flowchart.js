@@ -167,7 +167,7 @@ $(document).ready(function() {
             data.properties.random
           );
           approve.left = relativeLeft - 100;
-          approve.top = relativeTop + 100;
+          approve.top = relativeTop + 80;
           reject.left = relativeLeft + 120;
           reject.top = approve.top;
           $flowchart.flowchart("addOperator", approve);
