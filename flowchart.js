@@ -129,6 +129,7 @@ $(document).ready(function() {
       return $flowchart.flowchart("getOperatorElement", data);
     },
     stop: function(e, ui) {
+      console.log(e);
       var $this = $(this);
       var elOffset = ui.offset;
       var containerOffset = $container.offset();
@@ -151,8 +152,9 @@ $(document).ready(function() {
         data.left = relativeLeft;
         data.top = relativeTop;
 
+        console.log(relativeLeft, relativeTop);
+
         $flowchart.flowchart("addOperator", data);
-        console.log(data);
         if (data.properties.func == "decider") {
           var approve = createApproveDeleteOperator(
             1,
@@ -172,8 +174,6 @@ $(document).ready(function() {
           reject.top = approve.top;
           $flowchart.flowchart("addOperator", approve);
           $flowchart.flowchart("addOperator", reject);
-          console.log(approve);
-          console.log(reject);
         }
       }
     }
