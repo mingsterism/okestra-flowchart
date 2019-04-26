@@ -316,10 +316,6 @@ $(function() {
         self.selectLink($(this).data("link_id"));
       });
 
-      // this.objs.layers.links.on("mouseout", ".flowchart-link", function(e) {
-      //   self._connecterMouseOut($(this).data("link_id"));
-      // });
-
       this.objs.layers.links.on("click", ".flowchart-link", function(e) {
         console.log("linkId", $(this).data("link_id"));
         self.selectLink($(this).data("link_id"));
@@ -433,25 +429,6 @@ $(function() {
           }
         }
       }
-
-      //Dun know what these rows doing
-      /*console.log("linkData.fromOperator", linkData.fromOperator);
-      console.log("linkData.fromConnector", linkData.fromConnector);
-      this._autoCreateSubConnector(
-        linkData.fromOperator,
-        linkData.fromConnector,
-        "outputs",
-        fromSubConnector
-      );
-      console.log("linkData.toOperator", linkData.toOperator);
-      console.log("linkData.toConnector", linkData.toConnector);
-      this._autoCreateSubConnector(
-        linkData.toOperator,
-        linkData.toConnector,
-        "inputs",
-        toSubConnector
-      );*/
-      //Dun know what these rows doing
 
       //new linkData is inserted into this.data.links
       this.data.links[linkId] = linkData;
@@ -596,43 +573,10 @@ $(function() {
       );
 
       linkData.internal.els.overallGroup = overallGroup;
-      // var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-      // var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
-      // this.maskNum++;
-      // mask.setAttribute("id", maskId);
-      //overallGroup.appendChild(mask);
-      // var shape = document.createElementNS(
-      //   "http://www.w3.org/2000/svg",
-      //   "rect"
-      // );
-      // shape.setAttribute("x", "0");
-      // shape.setAttribute("y", "0");
-      // shape.setAttribute("width", "100%");
-      // shape.setAttribute("height", "100%");
-      // shape.setAttribute("stroke", "none");
-      // shape.setAttribute("fill", "white");
-      // mask.appendChild(shape);
-      // var shape_polygon = document.createElementNS(
-      //   "http://www.w3.org/2000/svg",
-      //   "polygon"
-      // );
-      // shape_polygon.setAttribute("stroke", "none");
-      // shape_polygon.setAttribute("fill", "black");
-      // mask.appendChild(shape_polygon);
-      // linkData.internal.els.mask = shape_polygon;
       var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       group.setAttribute("class", "flowchart-link");
       group.setAttribute("data-link_id", linkId);
       overallGroup.appendChild(group);
-      // var shape_path = document.createElementNS(
-      //   "http://www.w3.org/2000/svg",
-      //   "path"
-      // );
-      // shape_path.setAttribute(
-      //   "stroke-width",
-      //   this.options.linkWidth.toString()
-      // );
-      // shape_path.setAttribute("fill", "none");
       linkData.internal.els.line1 = line1;
       linkData.internal.els.line2 = line2;
       linkData.internal.els.line3 = line3;
@@ -643,15 +587,6 @@ $(function() {
       group.appendChild(line3);
       group.appendChild(line4);
       group.appendChild(line5);
-      // linkData.internal.els.path = shape_path;
-      // var shape_rect = document.createElementNS(
-      //   "http://www.w3.org/2000/svg",
-      //   "rect"
-      // );
-      // shape_rect.setAttribute("stroke", "none");
-      // shape_rect.setAttribute("mask", "url(#" + maskId + ")");
-      // group.appendChild(shape_rect);
-      // linkData.internal.els.rect = shape_rect;
       this._refreshLinkPositions(linkId);
       this.uncolorizeLink(linkId);
     },
@@ -845,57 +780,7 @@ $(function() {
         linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
         linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
         linkData.internal.els.line5.setAttribute("stroke", "black");
-      }
-      // } else if (xdiff < 100 && ydiff < 65) {
-      //   linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-      //   linkData.internal.els.line1.setAttribute("y1", fromY);
-      //   linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-      //   linkData.internal.els.line1.setAttribute("y2", fromY + 10);
-      //   linkData.internal.els.line1.setAttribute("stroke", "black");
-
-      //   linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-      //   linkData.internal.els.line2.setAttribute("y1", fromY + 10);
-      //   linkData.internal.els.line2.setAttribute(
-      //     "x2",
-      //     fromX + offsetFromX - (toX - fromX) * 2
-      //   );
-      //   linkData.internal.els.line2.setAttribute("y2", fromY + 10);
-      //   linkData.internal.els.line2.setAttribute("stroke", "black");
-
-      //   linkData.internal.els.line3.setAttribute(
-      //     "x1",
-      //     fromX + offsetFromX - (toX - fromX) * 2
-      //   );
-      //   linkData.internal.els.line3.setAttribute("y1", fromY + 10);
-      //   linkData.internal.els.line3.setAttribute(
-      //     "x2",
-      //     fromX + offsetFromX - (toX - fromX) * 2
-      //   );
-      //   linkData.internal.els.line3.setAttribute(
-      //     "y2",
-      //     fromY + 40 + (toY - fromY) * 1.5
-      //   );
-      //   linkData.internal.els.line3.setAttribute("stroke", "black");
-
-      //   linkData.internal.els.line4.setAttribute(
-      //     "x1",
-      //     fromX + offsetFromX - (toX - fromX) * 2
-      //   );
-      //   linkData.internal.els.line4.setAttribute(
-      //     "y1",
-      //     fromY + 40 + (toY - fromY) * 1.5
-      //   );
-      //   linkData.internal.els.line4.setAttribute(
-      //     "x2",
-      //     fromX + (toX - fromX) * 4
-      //   );
-      //   linkData.internal.els.line4.setAttribute(
-      //     "y2",
-      //     fromY + 40 + (toY - fromY) * 1.5
-      //   );
-      //   linkData.internal.els.line4.setAttribute("stroke", "black");
-      // }
-      else {
+      } else {
         linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
         linkData.internal.els.line1.setAttribute("y1", fromY);
         linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
@@ -926,67 +811,6 @@ $(function() {
         linkData.internal.els.line5.setAttribute("y2", 0);
         linkData.internal.els.line5.setAttribute("stroke", "black");
       }
-
-      console.log("redrawLink");
-
-      //Line 1
-
-      //Line2
-
-      //Line 3
-
-      // linkData.internal.els.mask.setAttribute(
-      //   "points",
-      //   fromX +
-      //     "," +
-      //     (fromY - offsetFromX - distanceFromArrow) +
-      //     " " +
-      //     (fromX + offsetFromX + distanceFromArrow) +
-      //     "," +
-      //     fromY +
-      //     " " +
-      //     fromX +
-      //     "," +
-      //     (fromY + offsetFromX + distanceFromArrow)
-      // );
-
-      // var bezierFromX = fromX + offsetFromX + distanceFromArrow;
-      // var bezierToX = toX + 1;
-      // var bezierIntensity = Math.min(
-      //   100,
-      //   Math.max(Math.abs(bezierFromX - bezierToX) / 2, Math.abs(fromY - toY))
-      // );
-
-      // linkData.internal.els.path.setAttribute(
-      //   "d",
-      //   "M" +
-      //     bezierFromX +
-      //     "," +
-      //     fromY +
-      //     " C" +
-      //     (fromX + offsetFromX + distanceFromArrow + bezierIntensity) +
-      //     "," +
-      //     fromY +
-      //     " " +
-      //     (toX - bezierIntensity) +
-      //     "," +
-      //     toY +
-      //     " " +
-      //     bezierToX +
-      //     "," +
-      //     toY
-      // );
-
-      // linkData.internal.els.rect.setAttribute("x", fromX);
-      // linkData.internal.els.rect.setAttribute(
-      //   "y",
-      //   fromY - this.options.linkWidth / 2
-      // );
-      // linkData.internal.els.rect.setAttribute(
-      //   "width",
-      //   offsetFromX + distanceFromArrow + 1
-      // );
-      // linkData.internal.els.rect.setAttribute("height", this.options.linkWidth);
     },
 
     getOperatorCompleteData: function(operatorData) {
@@ -1070,9 +894,7 @@ $(function() {
       var $operator_span_title = $(
         "<div class='flowchart-span-title'>" + infos.title + "</div>"
       );
-      if (infos.shape === "diamond") {
-        $operator_span_title.addClass("diamond-title-height");
-      }
+
       $operator_title.html($operator_span_title);
       $operator_title.appendTo($title);
       $operator_input.appendTo($operator_title);
@@ -1088,9 +910,7 @@ $(function() {
 
       //Input div part
       var $operator_inputs = $('<div class="flowchart-operator-inputs"></div>');
-      // var $operator_inputs = $(
-      //   '<div style="height:100px;width:50%" class="flowchart-operator-inputs"></div>'
-      // );
+
       $operator_inputs.appendTo($operator_inputs_outputs);
 
       var $operator_outputs = $(
@@ -1131,11 +951,6 @@ $(function() {
         if (connectorKey == "output_1" && func == "decider") {
           $operator_connector_set.css("height", 0);
         }
-        console.log(connectorInfos);
-
-        // var $operator_connector_set = $(
-        //   '<div style="height:100px;width:100%" class="flowchart-operator-connector-set"></div>'
-        // );
 
         $operator_connector_set.data("connector_type", connectorType);
         $operator_connector_set.appendTo($operator_container);
@@ -1214,35 +1029,13 @@ $(function() {
         );
       }
 
-      // $operator_connector = $(
-      //   '<div style="height:100px;width:100%;position:relative" class="flowchart-operator-connector"></div>'
-      // );
-
       $operator_connector.appendTo($operator_connector_set);
       $operator_connector.data("connector", connectorKey);
       $operator_connector.data("sub_connector", subConnector);
 
-      // var $operator_connector_label = $(
-      //   '<div class="flowchart-operator-connector-label"></div>'
-      // );
-      // $operator_connector_label.text(
-      //   connectorInfos.label.replace("(:i)", subConnector + 1)
-      // );
-      // $operator_connector_label.appendTo($operator_connector);
-
       var $operator_connector_arrow = $(
         '<div class="flowchart-operator-connector-arrow"></div>'
       );
-
-      // var $operator_connector_arrow = $(
-      //   '<div class="connector-arrow " style="left:100%;top:40%;position:relative"></div>'
-      // );
-
-      // if (connectorType == "inputs") {
-      //   $operator_connector_arrow = $(
-      //     '<div class="connector-arrow " style="top:40%;position:relative"></div>'
-      //   );
-      // }
 
       $operator_connector_arrow.appendTo($operator_connector);
 
@@ -1273,14 +1066,11 @@ $(function() {
 
     //Adding operator happens here when you drop a div at the canvas
     addOperator: function(operatorData) {
-      console.log("addOperator", this.data.operators);
-      console.log(this.data.operators);
       while (typeof this.data.operators[this.operatorNum] != "undefined") {
         this.operatorNum++;
       }
 
       this.createOperator(this.operatorNum, operatorData);
-      console.log("addOperator", this.data.operators);
 
       if (operatorData.properties.title == "Reject") {
         let r = operatorData.properties.random;
@@ -1311,8 +1101,6 @@ $(function() {
             motherNum = key;
           }
         }
-
-        console.log(approve, reject, mother);
 
         var linkData1 = {
           fromOperator: motherNum,
@@ -1362,8 +1150,12 @@ $(function() {
         operatorData.left = Math.round(operatorData.left / grid) * grid;
       }
 
+      console.log(operatorData.top);
+      console.log(operatorData.left);
+
       fullElement.operator.appendTo(this.objs.layers.operators);
       fullElement.operator.css({
+        position: "absolute",
         top: operatorData.top,
         left: operatorData.left
       });
@@ -1457,6 +1249,7 @@ $(function() {
               });
             }
             operatorChangedPosition($(this).data("operator_id"), ui.position);
+            console.log("ui.position", ui.position);
           },
           stop: function(e, ui) {
             self._unsetTemporaryLink();
@@ -1755,12 +1548,6 @@ $(function() {
     //Colorize the link
     colorizeLink: function(linkId, color) {
       var linkData = this.data.links[linkId];
-      //linkData.internal.els.path.setAttribute("stroke", color);
-      //linkData.internal.els.rect.setAttribute("fill", color);
-      // linkData.internal.els.fromSmallConnector.css("border-left-color", color);
-      // linkData.internal.els.toSmallConnector.css("border-left-color", color);
-      //linkData.internal.els.fromSmallConnector.css("border-top-color", color);
-      //linkData.internal.els.toSmallConnector.css("border-bottom-color", color);
     },
 
     uncolorizeLink: function(linkId) {
@@ -1787,10 +1574,6 @@ $(function() {
         if (!this.callbackEvent("linkUnselect", [])) {
           return;
         }
-        // this.uncolorizeLink(
-        //   this.selectedLinkId,
-        //   this.options.defaultSelectedLinkColor
-        // );
         this.selectedLinkId = null;
       }
     },
@@ -1802,7 +1585,6 @@ $(function() {
       }
       this.unselectOperator();
       this.selectedLinkId = linkId;
-      //this.colorizeLink(linkId, this.options.defaultSelectedLinkColor);
       $(`.flowchart-link line`).each(function() {
         $(this).attr("stroke", "black");
       });

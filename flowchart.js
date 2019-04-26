@@ -132,7 +132,9 @@ $(document).ready(function() {
       console.log(e);
       var $this = $(this);
       var elOffset = ui.offset;
+      console.log(ui.offset);
       var containerOffset = $container.offset();
+      console.log(containerOffset);
       if (
         elOffset.left > containerOffset.left &&
         elOffset.top > containerOffset.top &&
@@ -142,7 +144,12 @@ $(document).ready(function() {
         var flowchartOffset = $flowchart.offset();
 
         var relativeLeft = elOffset.left - flowchartOffset.left;
+        console.log(flowchartOffset.left);
+
+        console.log(relativeLeft);
         var relativeTop = elOffset.top - flowchartOffset.top;
+        console.log("flowchartOffset.top", flowchartOffset.top);
+        console.log(relativeTop);
 
         var positionRatio = $flowchart.flowchart("getPositionRatio");
         relativeLeft /= positionRatio;
@@ -168,9 +175,9 @@ $(document).ready(function() {
             "Reject",
             data.properties.random
           );
-          approve.left = relativeLeft - 100;
-          approve.top = relativeTop + 80;
-          reject.left = relativeLeft + 120;
+          approve.left = relativeLeft - 120;
+          approve.top = relativeTop + 100;
+          reject.left = relativeLeft + 140;
           reject.top = approve.top;
           $flowchart.flowchart("addOperator", approve);
           $flowchart.flowchart("addOperator", reject);
