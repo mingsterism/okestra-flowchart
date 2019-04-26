@@ -1642,7 +1642,7 @@ $(function() {
       let fromOperator = this.data.links[linkId].fromOperator;
       let toOperator = this.data.links[linkId].toOperator;
       if (
-        !this.data.operators[fromOperator].properties.random &&
+        !this.data.operators[fromOperator].properties.random ||
         !this.data.operators[toOperator].properties.random
       ) {
         this._deleteLink(linkId, false);
