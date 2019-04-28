@@ -164,7 +164,9 @@ $(document).ready(function() {
 
         console.log(relativeLeft, relativeTop);
 
+        //This function comes from the library
         $flowchart.flowchart("addOperator", data);
+
         if (data.properties.func == "decider") {
           var approve = createApproveDeleteOperator(
             1,

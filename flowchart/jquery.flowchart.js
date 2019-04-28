@@ -624,6 +624,8 @@ $(function() {
         toSubConnector
       );
 
+      //I use svg line to draw line <line></line>
+
       //x position of the output connector
       var fromX = fromPosition.x;
       var offsetFromX = fromPosition.width;
@@ -1067,11 +1069,14 @@ $(function() {
     //Adding operator happens here when you drop a div at the canvas
     addOperator: function(operatorData) {
       while (typeof this.data.operators[this.operatorNum] != "undefined") {
+        //Create the id of operator
         this.operatorNum++;
       }
 
+      //Put the operatorData into the JSON object which is accessible through this.data.operators
       this.createOperator(this.operatorNum, operatorData);
 
+      //Automatically popups of the Approve and Reject Operator
       if (operatorData.properties.title == "Reject") {
         let r = operatorData.properties.random;
         let approve, reject, mother, approveNum, rejectNum, motherNum;
@@ -1102,6 +1107,7 @@ $(function() {
           }
         }
 
+        //After i put the approve and reject operator onto the canvas, i create link to link them together
         var linkData1 = {
           fromOperator: motherNum,
           fromConnector: "output_0",
@@ -1120,6 +1126,7 @@ $(function() {
           toSubConnector: 0
         };
 
+        //Add Link object into JSON object that contains all the link which is called this.data.links
         this.addLink(linkData1);
 
         this.addLink(linkData2);
@@ -1171,6 +1178,7 @@ $(function() {
       var self = this;
 
       function operatorChangedPosition(operator_id, pos) {
+        //We passed in the new position of the operator
         operatorData.top = pos.top;
         operatorData.left = pos.left;
 
@@ -1210,6 +1218,7 @@ $(function() {
               (e.pageY - elementOffset.top) / self.positionRatio -
               parseInt($(e.target).css("top"));
           },
+          //Everytime the operator is dragged this callback will be called
           drag: function(e, ui) {
             if (self.options.grid) {
               var grid = self.options.grid;
@@ -1248,7 +1257,9 @@ $(function() {
                 top: ui.position.top
               });
             }
+
             operatorChangedPosition($(this).data("operator_id"), ui.position);
+
             console.log("ui.position", ui.position);
           },
           stop: function(e, ui) {
