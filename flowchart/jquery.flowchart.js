@@ -150,6 +150,10 @@ $(function() {
           $(e.target)
             .next()
             .show();
+
+          $(e.target)
+            .next()[0]
+            .focus();
           $(e.target).hide();
         }
       );
