@@ -11,8 +11,10 @@ $(document).ready(function() {
   // Centering panzoom
   $flowchart.panzoom(
     "pan",
-    -cx + $container.width() / 2,
-    -cy + $container.height() / 2
+    // -cx + $container.width() / 2,
+    // -cy + $container.height() / 2
+    -cx + $container.width() * 1.5,
+    -cy + $container.height() * 1.5
   );
 
   // Panzoom zoom handling...

@@ -238,6 +238,10 @@ $(function() {
         //console.log(e);
         var $this = $(this);
         var offset = $this.offset();
+        console.log(
+          (e.pageX - offset.left) / self.positionRatio,
+          (e.pageY - offset.top) / self.positionRatio
+        );
         self._mousemove(
           (e.pageX - offset.left) / self.positionRatio,
           (e.pageY - offset.top) / self.positionRatio,
@@ -303,23 +307,28 @@ $(function() {
 
       //End of the connector is clicked and ready to connect
 
+      // this.objs.layers.links.on(
+      //   "mousedown touchstart",
+      //   ".flowchart-link",
+      //   function(e) {
+      //     e.stopImmediatePropagation();
+      //   }
+      // );
+
       this.objs.layers.links.on(
-        "mousedown touchstart",
+        "mouseover dblclick",
         ".flowchart-link",
         function(e) {
-          e.stopImmediatePropagation();
+          console.log(self.selectedLinkId);
+          self._connecterMouseOver($(this).data("link_id"));
+          self.selectLink($(this).data("link_id"));
         }
       );
 
-      this.objs.layers.links.on("mouseover", ".flowchart-link", function(e) {
-        //self._connecterMouseOver($(this).data("link_id"));
-        self.selectLink($(this).data("link_id"));
-      });
-
-      this.objs.layers.links.on("click", ".flowchart-link", function(e) {
-        console.log("linkId", $(this).data("link_id"));
-        self.selectLink($(this).data("link_id"));
-      });
+      // this.objs.layers.links.on("click", ".flowchart-link", function(e) {
+      //   console.log("linkId", $(this).data("link_id"));
+      //   self.selectLink($(this).data("link_id"));
+      // });
 
       this.objs.layers.operators.on(
         "mouseover",
@@ -1223,29 +1232,43 @@ $(function() {
             if (self.options.grid) {
               var grid = self.options.grid;
               var elementOffset = self.element.offset();
+              console.log(elementOffset);
               ui.position.left =
                 Math.round(
                   ((e.pageX - elementOffset.left) / self.positionRatio -
                     pointerX) /
                     grid
                 ) * grid;
+              console.log("ui.position.left", ui.position.left);
               ui.position.top =
                 Math.round(
                   ((e.pageY - elementOffset.top) / self.positionRatio -
                     pointerY) /
                     grid
                 ) * grid;
-
+              console.log(!operatorData.internal.properties.uncontained);
               if (!operatorData.internal.properties.uncontained) {
+                const constant = (19 / 20) * 2000;
                 var $this = $(this);
-                ui.position.left = Math.min(
-                  Math.max(ui.position.left, 0),
-                  self.element.width() - $this.outerWidth()
-                );
-                ui.position.top = Math.min(
-                  Math.max(ui.position.top, 0),
-                  self.element.height() - $this.outerHeight()
-                );
+                // ui.position.left = Math.min(
+                //   Math.max(ui.position.left, 0),
+                //   self.element.width() - $this.outerWidth()
+                // );
+                if (ui.position.left > constant) {
+                  ui.position.left = constant;
+                } else if (ui.position.left < 0) {
+                  ui.position.left = 0;
+                }
+
+                if (ui.position.top < 0) {
+                  ui.position.top = 0;
+                } else if (ui.position.top > constant) {
+                  ui.position.top = constant;
+                }
+                // ui.position.top = Math.min(
+                //   Math.max(ui.position.top, 0),
+                //   self.element.height() - $this.outerHeight()
+                // );
               }
 
               ui.offset.left = Math.round(
@@ -1434,9 +1457,9 @@ $(function() {
         this.unselectOperator();
       }
 
-      if ($target.closest(".flowchart-link").length == 0) {
-        this.unselectLink();
-      }
+      // if ($target.closest(".flowchart-link").length == 0) {
+      //   this.unselectLink();
+      // }
     },
 
     _removeSelectedClassOperators: function() {

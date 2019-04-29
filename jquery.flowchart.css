@@ -117,10 +117,12 @@
   width: 140px;
   background: #fafafa;
   pointer-events: initial;
+  border: 1px solid black;
 }
 
 .flowchart-operator.hover {
-  border-color: #999;
+  /*border-color: #999;*/
+  border: none;
 }
 
 .flowchart-operator.selected {
