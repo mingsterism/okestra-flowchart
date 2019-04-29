@@ -1248,22 +1248,26 @@ $(function() {
                 ) * grid;
               console.log(!operatorData.internal.properties.uncontained);
               if (!operatorData.internal.properties.uncontained) {
-                const constant = (19 / 20) * 2000;
+                const sizeW = parseInt($("#example").css("width"));
+                const sizeH = parseInt($("#example").css("height"));
+                const constantW = (19.5 / (sizeW / 100)) * sizeW;
+                const constantH = (21 / (sizeH / 100)) * sizeH;
+                console.log(sizeH);
                 var $this = $(this);
                 // ui.position.left = Math.min(
                 //   Math.max(ui.position.left, 0),
                 //   self.element.width() - $this.outerWidth()
                 // );
-                if (ui.position.left > constant) {
-                  ui.position.left = constant;
+                if (ui.position.left > constantW) {
+                  ui.position.left = constantW;
                 } else if (ui.position.left < 0) {
                   ui.position.left = 0;
                 }
 
                 if (ui.position.top < 0) {
                   ui.position.top = 0;
-                } else if (ui.position.top > constant) {
-                  ui.position.top = constant;
+                } else if (ui.position.top > constantH) {
+                  ui.position.top = constantH;
                 }
                 // ui.position.top = Math.min(
                 //   Math.max(ui.position.top, 0),

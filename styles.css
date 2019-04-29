@@ -35,8 +35,8 @@ line {
 }
 
 #example {
-  width: 2000px;
-  height: 2000px;
+  width: 2200px;
+  height: 2200px;
   background: white;
 }
 
@@ -70,17 +70,6 @@ line {
   justify-content: center;
   align-items: center;
   margin: 20px;
-}
-
-.item-count-inside-canvas {
-  display: table-cell;
-  height: 60px;
-  transform: translateX(-50%) translateY(-50%) rotate(-45deg);
-  vertical-align: middle;
-  color: white;
-  position: absolute;
-  top: 50%;
-  left: 50%;
 }
 
 .centerText {
