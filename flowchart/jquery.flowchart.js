@@ -1,3 +1,6 @@
+var $ = require('../node_modules/jquery/dist/jquery')
+
+
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
 $(function() {
@@ -238,10 +241,10 @@ $(function() {
         //console.log(e);
         var $this = $(this);
         var offset = $this.offset();
-        console.log(
-          (e.pageX - offset.left) / self.positionRatio,
-          (e.pageY - offset.top) / self.positionRatio
-        );
+        // console.log(
+        //   (e.pageX - offset.left) / self.positionRatio,
+        //   (e.pageY - offset.top) / self.positionRatio
+        // );
         self._mousemove(
           (e.pageX - offset.left) / self.positionRatio,
           (e.pageY - offset.top) / self.positionRatio,

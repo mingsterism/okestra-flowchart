@@ -1,37 +1,49 @@
+var $ = require("./node_modules/jquery/dist/jquery");
+var panzoom = require("panzoom");
+
 $(document).ready(function() {
   var $flowchart = $("#example");
+  console.log($flowchart, "===============");
+  console.log($flowchart.flowchart);
   var $container = $flowchart.parent();
 
   var cx = $flowchart.width() / 2;
   var cy = $flowchart.height() / 2;
 
   // Panzoom initialization...
-  $flowchart.panzoom();
+  // just grab a DOM element
+  var element = document.querySelector('#example')
+  // console.log(element, '=========')
+// And pass it to panzoom
 
-  // Centering panzoom
-  $flowchart.panzoom(
-    "pan",
-    -cx + $container.width() / 2,
-    -cy + $container.height() / 2
-  );
+  panzoom(element);
 
-  // Panzoom zoom handling...
-  var possibleZooms = [0.5, 0.75, 1, 2, 3];
-  var currentZoom = 2;
-  $container.on("mousewheel.focal", function(e) {
-    e.preventDefault();
-    var delta = e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
-    var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-    currentZoom = Math.max(
-      0,
-      Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1))
-    );
-    $flowchart.flowchart("setPositionRatio", possibleZooms[currentZoom]);
-    $flowchart.panzoom("zoom", possibleZooms[currentZoom], {
-      animate: false,
-      focal: e
-    });
-  });
+  // $flowchart.panzoom();
+
+  // // // Centering panzoom
+  // $flowchart.panzoom(
+  //   "pan",
+  //   -cx + $container.width() / 2,
+  //   -cy + $container.height() / 2
+  // );
+
+  // // Panzoom zoom handling...
+  // var possibleZooms = [0.5, 0.75, 1, 2, 3];
+  // var currentZoom = 2;
+  // $container.on("mousewheel.focal", function(e) {
+  //   e.preventDefault();
+  //   var delta = e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
+  //   var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+  //   currentZoom = Math.max(
+  //     0,
+  //     Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1))
+  //   );
+  //   $flowchart.flowchart("setPositionRatio", possibleZooms[currentZoom]);
+  //   $flowchart.panzoom("zoom", possibleZooms[currentZoom], {
+  //     animate: false,
+  //     focal: e
+  //   });
+  // });
 
   var data = {};
 
@@ -49,6 +61,8 @@ $(document).ready(function() {
     });
 
   var $draggableOperators = $(".draggable_operator");
+  console.log("###########", $draggableOperators);
+  console.log("###########", $draggableOperators[0].draggable);
 
   //This is where operatorData is retrieved
   function getOperatorData($element) {

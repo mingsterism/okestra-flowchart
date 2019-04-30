@@ -8,7 +8,8 @@
     "jquery": "^3.4.0",
     "jquery-ui": "^1.12.1",
     "jquery-ui-bundle": "^1.12.1-migrate",
-    "jquery.panzoom": "^3.2.2"
+    "jquery.panzoom": "^3.2.2",
+    "panzoom": "^8.0.0"
   },
   "devDependencies": {
     "webpack": "^4.30.0",
