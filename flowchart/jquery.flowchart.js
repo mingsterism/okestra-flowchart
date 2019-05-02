@@ -1,4 +1,4 @@
-var $ = require('../node_modules/jquery/dist/jquery')
+// var $ = require('../node_modules/jquery/dist/jquery')
 
 
 //The problem:the connector screw the input of data into input field

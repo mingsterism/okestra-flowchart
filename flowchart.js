@@ -1,5 +1,5 @@
-var $ = require("./node_modules/jquery/dist/jquery");
-var panzoom = require("panzoom");
+// var $ = require("./node_modules/jquery/dist/jquery");
+// var panzoom = require("jquery.panzoom");
 
 $(document).ready(function() {
   var $flowchart = $("#example");
@@ -12,38 +12,38 @@ $(document).ready(function() {
 
   // Panzoom initialization...
   // just grab a DOM element
-  var element = document.querySelector('#example')
+  var element = document.querySelector("#example");
   // console.log(element, '=========')
-// And pass it to panzoom
+  // And pass it to panzoom
 
   panzoom(element);
 
-  // $flowchart.panzoom();
+  $flowchart.panzoom();
 
-  // // // Centering panzoom
-  // $flowchart.panzoom(
-  //   "pan",
-  //   -cx + $container.width() / 2,
-  //   -cy + $container.height() / 2
-  // );
+  // // Centering panzoom
+  $flowchart.panzoom(
+    "pan",
+    -cx + $container.width() / 2,
+    -cy + $container.height() / 2
+  );
 
-  // // Panzoom zoom handling...
-  // var possibleZooms = [0.5, 0.75, 1, 2, 3];
-  // var currentZoom = 2;
-  // $container.on("mousewheel.focal", function(e) {
-  //   e.preventDefault();
-  //   var delta = e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
-  //   var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-  //   currentZoom = Math.max(
-  //     0,
-  //     Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1))
-  //   );
-  //   $flowchart.flowchart("setPositionRatio", possibleZooms[currentZoom]);
-  //   $flowchart.panzoom("zoom", possibleZooms[currentZoom], {
-  //     animate: false,
-  //     focal: e
-  //   });
-  // });
+  // Panzoom zoom handling...
+  var possibleZooms = [0.5, 0.75, 1, 2, 3];
+  var currentZoom = 2;
+  $container.on("mousewheel.focal", function(e) {
+    e.preventDefault();
+    var delta = e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
+    var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+    currentZoom = Math.max(
+      0,
+      Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1))
+    );
+    $flowchart.flowchart("setPositionRatio", possibleZooms[currentZoom]);
+    $flowchart.panzoom("zoom", possibleZooms[currentZoom], {
+      animate: false,
+      focal: e
+    });
+  });
 
   var data = {};
 
@@ -52,11 +52,12 @@ $(document).ready(function() {
     data: data,
     linkWidth: 5
   });
-
   $flowchart
     .parent()
-    .siblings(".delete_selected_button")
+    .siblings()
+    .children(".delete_selected_button")
     .click(function() {
+      console.log("DELETING");
       $flowchart.flowchart("deleteSelected");
     });
 
