@@ -1148,7 +1148,8 @@ $(function() {
           fromSubConnector: 0,
           toOperator: approveNum,
           toConnector: "input_0",
-          toSubConnector: 0
+          toSubConnector: 0,
+          type: "label"
         };
 
         var linkData2 = {
@@ -1157,7 +1158,8 @@ $(function() {
           fromSubConnector: 0,
           toOperator: rejectNum,
           toConnector: "input_0",
-          toSubConnector: 0
+          toSubConnector: 0,
+          type: "label"
         };
 
         //Add Link object into JSON object that contains all the link which is called this.data.links
@@ -1165,6 +1167,9 @@ $(function() {
 
         this.addLink(linkData2);
       }
+
+      console.log("this.data.links", this.data.links);
+
       return this.operatorNum;
     },
 
@@ -1395,6 +1400,52 @@ $(function() {
         //   "this.lastOutputConnectorClicked",
         //   this.lastOutputConnectorClicked
         // );
+        if (
+          this.data.operators[this.lastOutputConnectorClicked.operator]
+            .properties.title == "Approve"
+        ) {
+          let id = this.data.operators[this.lastOutputConnectorClicked.operator]
+            .properties.random;
+          let motherNode;
+          console.log("---------------Approve------------");
+          for (var key in this.data.operators) {
+            if (this.data.operators[key].properties.random == id) {
+              motherNode = key;
+              break;
+            }
+          }
+
+          for (var key in this.data.links) {
+            if (this.data.links[key].fromOperator == motherNode) {
+              this.data.links[key].toOperatorApprove = operator;
+              break;
+            }
+          }
+        }
+
+        if (
+          this.data.operators[this.lastOutputConnectorClicked.operator]
+            .properties.title == "Reject"
+        ) {
+          let id = this.data.operators[this.lastOutputConnectorClicked.operator]
+            .properties.random;
+          let motherNode;
+          console.log("---------------Reject------------");
+          for (var key in this.data.operators) {
+            if (this.data.operators[key].properties.random == id) {
+              motherNode = key;
+              break;
+            }
+          }
+
+          for (var key in this.data.links) {
+            if (this.data.links[key].fromOperator == motherNode) {
+              this.data.links[key].toOperatorReject = operator;
+              break;
+            }
+          }
+        }
+
         var linkData = {
           fromOperator: this.lastOutputConnectorClicked.operator,
           fromConnector: this.lastOutputConnectorClicked.connector,
@@ -1528,11 +1579,10 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
-        const objId =
-          this.data.operators[operatorId].properties.objectId;
-        console.log("Emitting event: nodeClicked with objectId: ", objId);
-        const nodeClicked = new Event("nodeClicked", { objId });
-        window.dispatchEvent(nodeClicked);
+      const objId = this.data.operators[operatorId].properties.objectId;
+      console.log("Emitting event: nodeClicked with objectId: ", objId);
+      const nodeClicked = new Event("nodeClicked", { objId });
+      window.dispatchEvent(nodeClicked);
       this.selectedLinkId = null;
       $(`.flowchart-link line`).each(function() {
         $(this).attr("stroke", "black");
@@ -1712,12 +1762,35 @@ $(function() {
     deleteLink: function(linkId) {
       let fromOperator = this.data.links[linkId].fromOperator;
       let toOperator = this.data.links[linkId].toOperator;
+      let id, motherNodeId;
       if (
         !this.data.operators[fromOperator].properties.random ||
         !this.data.operators[toOperator].properties.random
       ) {
         this._deleteLink(linkId, false);
+        // console.log(this.data.operators[fromOperator].properties.title);
+        // if (this.data.operators[fromOperator].properties.title == "Approve") {
+        //   id = this.data.operators[fromOperator].properties.random;
+        //   for (key in this.data.operators) {
+        //     if (
+        //       this.data.operators[key].properties.nodeType == "DECISION" &&
+        //       this.data.operators[key].properties.random == id
+        //     ) {
+        //       motherNodeId = key;
+        //       break;
+        //     }
+        //   }
+        //   console.log("motherNodeId", motherNodeId);
+        //   for (key in this.data.links) {
+        //     if (this.data.links[key].fromOperator == motherNodeId) {
+        //       this.data.links[key].toOperatorApprove = null;
+        //     }
+        //   }
+        // }
       }
+
+      // console.log("------Links after deleted-----");
+      // console.log(this.data.links);
     },
 
     _deleteLink: function(linkId, forced) {
