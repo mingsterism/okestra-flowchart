@@ -1,3 +1,5 @@
+// var $ = require('../node_modules/jquery/dist/jquery')
+
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
 $(function() {
@@ -205,12 +207,13 @@ $(function() {
               .parent()
               .parent()
               .data("operator_id");
-
+            console.log("=============== 207");
             console.log(operator_id);
 
             var newOperatorData = self.data.operators;
             newOperatorData[operator_id].properties.title = $(e.target).val();
             self.data.operators = newOperatorData;
+            console.log("=============== 213");
             console.log(self.data.operators);
 
             $(e.target).hide();
@@ -223,6 +226,7 @@ $(function() {
 
       //End of customised listener
       this.element.dblclick(function(e) {
+        console.log("=============== 226");
         console.log($(e.target).attr("class"));
         if ($(e.target).attr("class") == "flowchart-links-layer") {
           let firstLine = $(".flowchart-temporary-link-layer line:first-child");
@@ -242,10 +246,10 @@ $(function() {
         //console.log(e);
         var $this = $(this);
         var offset = $this.offset();
-        console.log(
-          (e.pageX - offset.left) / self.positionRatio,
-          (e.pageY - offset.top) / self.positionRatio
-        );
+        // console.log(
+        //   (e.pageX - offset.left) / self.positionRatio,
+        //   (e.pageY - offset.top) / self.positionRatio
+        // );
         self._mousemove(
           (e.pageX - offset.left) / self.positionRatio,
           (e.pageY - offset.top) / self.positionRatio,
@@ -254,11 +258,25 @@ $(function() {
       });
 
       this.element.click(function(e) {
-        console.log($(e.target).attr("class"));
+        // console.log($(e.target).attr("class"));
         var $this = $(this);
+        // console.log("== @@@@@@@@@@@  ================");
+        // console.log(self.data)
+        // console.log(self.data.operators)
+        // const clickedOperatorId = $(this).data.apply("operator_id");
+        // console.log(self.data.operators[clickedOperatorId].properties.objectId);
+        // const objId =
+        //   self.data.operators[clickedOperatorId].properties.objectId;
+        // console.log("Emitting event: nodeClicked with objectId: ", objId);
+        // const nodeClicked = new Event("nodeClicked", { objId });
+        // window.dispatchEvent(nodeClicked);
+
+        // console.log("...................");
+        // console.log(self.data.links);
+        // console.log("== @@@@@@@@@@@  ================");
         var offset = $this.offset();
-        console.log("this.data.operators", self.data.operators);
-        console.log("this.data.links", self.data.links);
+        // console.log("this.data.operators", self.data.operators);
+        // console.log("this.data.links", self.data.links);
         self._click(
           (e.pageX - offset.left) / self.positionRatio,
           (e.pageY - offset.top) / self.positionRatio,
@@ -340,13 +358,16 @@ $(function() {
         function(e) {
           console.log($(this));
           self._operatorMouseOver($(this).data("operator_id"));
-          console.log("mouseover", $(this).data("operator_id"));
+          // console.log("mouseover", $(this).data("operator_id"));
         }
       );
 
       this.objs.layers.operators.on("mouseout", ".flowchart-operator", function(
         e
       ) {
+        // console.log("........................ 350")
+        // console.log(e)
+        // console.log("........................ 350")
         self._operatorMouseOut($(this).data("operator_id"));
       });
     },
@@ -1294,6 +1315,9 @@ $(function() {
             console.log("ui.position", ui.position);
           },
           stop: function(e, ui) {
+            //  console.log("############ 1300")
+            //  console.log(e)
+            //  console.log("############ 1300")
             self._unsetTemporaryLink();
             var operatorId = $(this).data("operator_id");
             operatorChangedPosition(operatorId, ui.position);
@@ -1328,17 +1352,17 @@ $(function() {
           subConnector: subConnector
         };
 
-        console.log(
-          "this.lastOutputConnectorClicked",
-          this.lastOutputConnectorClicked
-        );
+        // console.log(
+        //   "this.lastOutputConnectorClicked",
+        //   this.lastOutputConnectorClicked
+        // );
 
         this.objs.layers.temporaryLink.show();
 
-        console.log(
-          "this.objs.layers.temporaryLink",
-          this.objs.layers.temporaryLink
-        );
+        // console.log(
+        //   "this.objs.layers.temporaryLink",
+        //   this.objs.layers.temporaryLink
+        // );
 
         var position = this.getConnectorPosition(
           operator,
@@ -1346,13 +1370,13 @@ $(function() {
           subConnector
         );
 
-        console.log("position", position);
+        // console.log("position", position);
 
         var x = position.x + position.width;
         var y = position.y;
 
-        console.log("x", x);
-        console.log("y", y);
+        // console.log("x", x);
+        // console.log("y", y);
 
         //Where is temporaryLink; This set the starting point of the temporary link
         this.objs.temporaryLink.setAttribute("x1", x.toString());
@@ -1366,11 +1390,11 @@ $(function() {
         connectorCategory == "inputs" &&
         this.lastOutputConnectorClicked != null
       ) {
-        console.log("connectorCategory", connectorCategory);
-        console.log(
-          "this.lastOutputConnectorClicked",
-          this.lastOutputConnectorClicked
-        );
+        // console.log("connectorCategory", connectorCategory);
+        // console.log(
+        //   "this.lastOutputConnectorClicked",
+        //   this.lastOutputConnectorClicked
+        // );
         var linkData = {
           fromOperator: this.lastOutputConnectorClicked.operator,
           fromConnector: this.lastOutputConnectorClicked.connector,
@@ -1380,9 +1404,9 @@ $(function() {
           toSubConnector: subConnector
         };
 
-        console.log("linkData", linkData);
+        // console.log("linkData", linkData);
 
-        console.log(linkData);
+        // console.log(linkData);
 
         //Linkdata specify which output of which operator is connected to which input of which operator
         this._unsetTemporaryLink();
@@ -1504,6 +1528,11 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
+        const objId =
+          this.data.operators[operatorId].properties.objectId;
+        console.log("Emitting event: nodeClicked with objectId: ", objId);
+        const nodeClicked = new Event("nodeClicked", { objId });
+        window.dispatchEvent(nodeClicked);
       this.selectedLinkId = null;
       $(`.flowchart-link line`).each(function() {
         $(this).attr("stroke", "black");

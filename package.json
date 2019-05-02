@@ -1,0 +1,40 @@
+{
+  "name": "okestra-flowchart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "flowchart.js",
+  "dependencies": {
+    "bson-objectid": "^1.2.4",
+    "imports-loader": "^0.8.0",
+    "jquery": "^3.4.0",
+    "jquery-ui": "^1.12.1",
+    "jquery-ui-bundle": "^1.12.1-migrate",
+    "jquery.panzoom": "^3.2.2",
+    "panzoom": "^8.0.0"
+  },
+  "devDependencies": {
+    "css-loader": "^2.1.1",
+    "mini-css-extract-plugin": "^0.6.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "style-loader": "^0.23.1",
+    "terser-webpack-plugin": "^1.2.3",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-dev": "webpack --mode=development",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mingsterism/okestra-flowchart.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mingsterism/okestra-flowchart/issues"
+  },
+  "homepage": "https://github.com/mingsterism/okestra-flowchart#readme"
+}
