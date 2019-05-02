@@ -11,7 +11,8 @@ module.exports = {
     new webpack.ProvidePlugin({
       $: "jquery",
       jQuery: "jquery",
-      panzoom: "jquery.panzoom"
+      panzoom: "jquery.panzoom",
+      ObjectID: "bson-objectid"
     }),
     new MiniCssExtractPlugin({
       // Options similar to the same options in webpackOptions.output

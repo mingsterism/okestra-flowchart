@@ -1,3 +1,5 @@
+import { EventEmitter } from "events";
+
 // var $ = require("./node_modules/jquery/dist/jquery");
 // var panzoom = require("jquery.panzoom");
 
@@ -62,8 +64,6 @@ $(document).ready(function() {
     });
 
   var $draggableOperators = $(".draggable_operator");
-  console.log("###########", $draggableOperators);
-  console.log("###########", $draggableOperators[0].draggable);
 
   //This is where operatorData is retrieved
   function getOperatorData($element) {
@@ -84,7 +84,8 @@ $(document).ready(function() {
         outputs: {},
         shape: shape,
         func: func,
-        random: r
+        random: r,
+        objectId: ""
       }
     };
 
@@ -147,12 +148,14 @@ $(document).ready(function() {
       return $flowchart.flowchart("getOperatorElement", data);
     },
     stop: function(e, ui) {
+      console.log("!!!!!!!!!!!!!!");
       console.log(e);
+      console.log("!!!!!!!!!!!!!!");
       var $this = $(this);
       var elOffset = ui.offset;
-      console.log(ui.offset);
+      // console.log(ui.offset);
       var containerOffset = $container.offset();
-      console.log(containerOffset);
+      // console.log(containerOffset);
       if (
         elOffset.left > containerOffset.left &&
         elOffset.top > containerOffset.top &&
@@ -162,12 +165,12 @@ $(document).ready(function() {
         var flowchartOffset = $flowchart.offset();
 
         var relativeLeft = elOffset.left - flowchartOffset.left;
-        console.log(flowchartOffset.left);
+        // console.log(flowchartOffset.left);
 
-        console.log(relativeLeft);
+        // console.log(relativeLeft);
         var relativeTop = elOffset.top - flowchartOffset.top;
-        console.log("flowchartOffset.top", flowchartOffset.top);
-        console.log(relativeTop);
+        // console.log("flowchartOffset.top", flowchartOffset.top);
+        // console.log(relativeTop);
 
         var positionRatio = $flowchart.flowchart("getPositionRatio");
         relativeLeft /= positionRatio;
@@ -176,8 +179,13 @@ $(document).ready(function() {
         var data = getOperatorData($this);
         data.left = relativeLeft;
         data.top = relativeTop;
+        data.properties.objectId = ObjectID().str;
+        const objectId = data.properties.objectId;
+        console.log("Emitting event: nodeCreated with objectId: ", objectId)
+        const nodeCreated = new Event('nodeCreated', {objectId})
+        window.dispatchEvent(nodeCreated);
 
-        console.log(relativeLeft, relativeTop);
+        // console.log(relativeLeft, relativeTop);
 
         //This function comes from the library
         $flowchart.flowchart("addOperator", data);
