@@ -295,6 +295,26 @@ $(function() {
       this.objs.layers.operators.on("click", ".flowchart-operator", function(
         e
       ) {
+        var id = $(this).data("operator_id");
+        if (
+          self.lastOutputConnectorClicked != null &&
+          self.lastOutputConnectorClicked.operator - id != 0
+        ) {
+          //
+          var linkData = {
+            fromOperator: self.lastOutputConnectorClicked.operator,
+            fromConnector: self.lastOutputConnectorClicked.connector,
+            fromSubConnector: self.lastOutputConnectorClicked.subConnector,
+            toOperator: id,
+            toConnector: "input_0",
+            toSubConnector: 0
+          };
+
+          console.log(linkData);
+
+          self.addLink(linkData);
+          self._unsetTemporaryLink();
+        }
         console.log(
           "connector",
           $(e.target).closest(".flowchart-operator-connector")
@@ -319,6 +339,17 @@ $(function() {
               $this.closest(".flowchart-operator").data("operator_id"),
               $this.data("connector"),
               $this.data("sub_connector"),
+              $this
+                .closest(".flowchart-operator-connector-set")
+                .data("connector_type")
+            );
+
+            console.log(
+              $this.closest(".flowchart-operator").data("operator_id")
+            );
+            console.log($this.data("connector"));
+            console.log($this.data("sub_connector"));
+            console.log(
               $this
                 .closest(".flowchart-operator-connector-set")
                 .data("connector_type")
@@ -356,7 +387,6 @@ $(function() {
         "mouseover",
         ".flowchart-operator",
         function(e) {
-          console.log($(this));
           self._operatorMouseOver($(this).data("operator_id"));
           // console.log("mouseover", $(this).data("operator_id"));
         }
@@ -1457,7 +1487,7 @@ $(function() {
 
         // console.log("linkData", linkData);
 
-        // console.log(linkData);
+        console.log(linkData);
 
         //Linkdata specify which output of which operator is connected to which input of which operator
         this._unsetTemporaryLink();
@@ -1586,6 +1616,7 @@ $(function() {
       this.selectedLinkId = null;
       $(`.flowchart-link line`).each(function() {
         $(this).attr("stroke", "black");
+        $(this).css("stroke-width", 2);
       });
       if (!this.callbackEvent("operatorSelect", [operatorId])) {
         return;
@@ -1716,9 +1747,11 @@ $(function() {
       ) {
         $(`.flowchart-link line`).each(function() {
           $(this).attr("stroke", "black");
+          $(this).css("stroke-width", 2);
         });
         $(`.flowchart-link[data-link_id=${linkId}] line`).each(function() {
           $(this).attr("stroke", "red");
+          $(this).css("stroke-width", 3.5);
         });
       }
     },
