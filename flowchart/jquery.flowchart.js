@@ -1,5 +1,4 @@
 // var $ = require('../node_modules/jquery/dist/jquery')
-
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
 $(function() {
@@ -94,7 +93,7 @@ $(function() {
         "line"
       );
 
-      console.log("Shape", shape);
+      // console.log("Shape", shape);
 
       //The dotted line is created here which we saw during dragging the line
       shape.setAttribute("x1", "0");
@@ -165,20 +164,7 @@ $(function() {
         ".input-inside-operator",
         function(e) {
           //Find nearest input field and remove the input-invisible class
-          if (e.target.value || /^\s*$/.test(e.target.vale)) {
-            console.log("enter key is pressed");
-            $(e.target)
-              .prev()
-              .html($(e.target).val());
-          } else {
-            $(e.target)
-              .prev()
-              .html("Start");
-          }
-          $(e.target)
-            .prev()
-            .show();
-          $(e.target).hide();
+          self.updateOperatorTitle(e, null);
         }
       );
 
@@ -186,48 +172,14 @@ $(function() {
         "keypress",
         ".input-inside-operator",
         function(e) {
-          if (e.which == 13) {
-            console.log(e.target.value);
-            console.log(!/^\s*$/.test(e.target.vale));
-            if (e.target.value || /^\s*$/.test(e.target.vale)) {
-              console.log("enter key is pressed");
-              $(e.target)
-                .prev()
-                .html($(e.target).val());
-            } else {
-              $(e.target)
-                .prev()
-                .html("Start");
-            }
-
-            var operator_id = $(e.target)
-              .parent()
-              .parent()
-              .parent()
-              .parent()
-              .parent()
-              .data("operator_id");
-            console.log("=============== 207");
-            console.log(operator_id);
-
-            var newOperatorData = self.data.operators;
-            newOperatorData[operator_id].properties.title = $(e.target).val();
-            self.data.operators = newOperatorData;
-            console.log("=============== 213");
-            console.log(self.data.operators);
-
-            $(e.target).hide();
-            $(e.target)
-              .prev()
-              .show();
-          }
+          self.updateOperatorTitle(e, "keypress");
         }
       );
 
       //End of customised listener
       this.element.dblclick(function(e) {
-        console.log("=============== 226");
-        console.log($(e.target).attr("class"));
+        //console.log("=============== 226");
+        //console.log($(e.target).attr("class"));
         if ($(e.target).attr("class") == "flowchart-links-layer") {
           let firstLine = $(".flowchart-temporary-link-layer line:first-child");
           let x1 = firstLine.attr("x1");
@@ -243,7 +195,7 @@ $(function() {
       });
 
       this.element.mousemove(function(e) {
-        //console.log(e);
+        // console.log(e);
         var $this = $(this);
         var offset = $this.offset();
         // console.log(
@@ -310,18 +262,18 @@ $(function() {
             toSubConnector: 0
           };
 
-          console.log(linkData);
+          // console.log(linkData);
 
           self.addLink(linkData);
           self._unsetTemporaryLink();
         }
-        console.log(
-          "connector",
-          $(e.target).closest(".flowchart-operator-connector")
-        );
+        // console.log(
+        //   "connector",
+        //   $(e.target).closest(".flowchart-operator-connector")
+        // );
         if ($(e.target).closest(".flowchart-operator-connector").length == 0) {
           self.selectOperator($(this).data("operator_id"));
-          console.log("Newly created operator", $(this).data("operator_id"));
+          // console.log("Newly created operator", $(this).data("operator_id"));
         }
       });
 
@@ -330,9 +282,9 @@ $(function() {
         "click",
         ".flowchart-operator-connector",
         function() {
-          console.log("Connector is now clicked!");
+          //console.log("Connector is now clicked!");
           var $this = $(this);
-          console.log($this);
+          //console.log($this);
           if (self.options.canUserEditLinks) {
             //Where is self._connectorClicked
             self._connectorClicked(
@@ -344,16 +296,16 @@ $(function() {
                 .data("connector_type")
             );
 
-            console.log(
-              $this.closest(".flowchart-operator").data("operator_id")
-            );
-            console.log($this.data("connector"));
-            console.log($this.data("sub_connector"));
-            console.log(
-              $this
-                .closest(".flowchart-operator-connector-set")
-                .data("connector_type")
-            );
+            // console.log(
+            //   $this.closest(".flowchart-operator").data("operator_id")
+            // );
+            // console.log($this.data("connector"));
+            // console.log($this.data("sub_connector"));
+            // console.log(
+            //   $this
+            //     .closest(".flowchart-operator-connector-set")
+            //     .data("connector_type")
+            // );
           }
         }
       );
@@ -372,14 +324,14 @@ $(function() {
         "mouseover dblclick",
         ".flowchart-link",
         function(e) {
-          console.log(self.selectedLinkId);
+          //console.log(self.selectedLinkId);
           self._connecterMouseOver($(this).data("link_id"));
           self.selectLink($(this).data("link_id"));
         }
       );
 
       // this.objs.layers.links.on("click", ".flowchart-link", function(e) {
-      //   console.log("linkId", $(this).data("link_id"));
+      // console.log("linkId", $(this).data("link_id"));
       //   self.selectLink($(this).data("link_id"));
       // });
 
@@ -402,9 +354,73 @@ $(function() {
       });
     },
 
+    updateOperatorTitle: function(e, str) {
+      var self = this;
+      var newOperatorData = self.data.operators;
+      var oldValue = $(e.target)
+        .prev()
+        .html();
+      var operator_id = $(e.target)
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .data("operator_id");
+      if (str) {
+        if (e.which == 13) {
+          if (e.target.value || !/^\s*$/.test(e.target.value)) {
+            $(e.target)
+              .prev()
+              .html($(e.target).val());
+            newOperatorData[operator_id].properties.title = $(e.target).val();
+            self.data.operators = newOperatorData;
+
+            self.emitter.emit("operatorChanged", self.data.operators);
+          } else {
+            $(e.target)
+              .prev()
+              .html("N/A");
+            newOperatorData[operator_id].properties.title = "";
+            self.data.operators = newOperatorData;
+
+            self.emitter.emit("operatorChanged", self.data.operators);
+          }
+
+          $(e.target)
+            .prev()
+            .show();
+          $(e.target).hide();
+        }
+      } else {
+        if (e.target.value || !/^\s*$/.test(e.target.value)) {
+          $(e.target)
+            .prev()
+            .html($(e.target).val());
+          newOperatorData[operator_id].properties.title = $(e.target).val();
+          self.data.operators = newOperatorData;
+
+          self.emitter.emit("operatorChanged", self.data.operators);
+        } else {
+          $(e.target)
+            .prev()
+            .html("N/A");
+          newOperatorData[operator_id].properties.title = "";
+          self.data.operators = newOperatorData;
+
+          self.emitter.emit("operatorChanged", self.data.operators);
+        }
+
+        $(e.target)
+          .prev()
+          .show();
+        $(e.target).hide();
+      }
+    },
+
     //Entry point of the program
     setData: function(data) {
-      console.log("setData", data.operators, data.operatorTypes);
+      //console.log("setData", data.operators, data.operatorTypes);
       this._clearOperatorsLayer();
       this.data.operatorTypes = {};
       if (typeof data.operatorTypes != "undefined") {
@@ -418,7 +434,7 @@ $(function() {
         }
       }
 
-      console.log("data.operators", data.operators);
+      //console.log("data.operators", data.operators);
       this.data.links = {};
       for (var linkId in data.links) {
         if (data.links.hasOwnProperty(linkId)) {
@@ -430,11 +446,6 @@ $(function() {
 
     addLink: function(linkData) {
       //Called upon linking when both input and output connector is clicked
-      console.log("links", this.data.links);
-      console.log(
-        "link.this.data.operators from addLink function",
-        this.data.operators
-      );
 
       //This.data.links is a object storing linkData
       while (typeof this.data.links[this.linkNum] != "undefined") {
@@ -450,8 +461,6 @@ $(function() {
       if (!this.callbackEvent("linkCreate", [linkId, linkData])) {
         return;
       }
-
-      console.log("Line 339 of createLink", this.data.links);
 
       var subConnectors = this._getSubConnectors(linkData);
       //Getting the output connector involved
@@ -499,6 +508,8 @@ $(function() {
 
       //Time to draw out svg and path line
       this._drawLink(linkId);
+
+      this.emitter.emit("connectorChanged", this.data.links);
 
       this.callbackEvent("afterChange", ["link_create"]);
     },
@@ -604,7 +615,7 @@ $(function() {
       linkData.internal.els.fromSmallConnector = fromSmallConnector;
       linkData.internal.els.toSmallConnector = toSmallConnector;
 
-      console.log("linkData.internal.els", linkData.internal.els);
+      //console.log("linkData.internal.els", linkData.internal.els);
 
       var overallGroup = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -709,10 +720,10 @@ $(function() {
       var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
       var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
 
-      console.log("xdiff", xdiff);
-      console.log("ydiff", ydiff);
+      //console.log("xdiff", xdiff);
+      //console.log("ydiff", ydiff);
 
-      console.log("xdiff", xdiff);
+      //console.log("xdiff", xdiff);
       var halfYdiff = ydiff / 2;
       var halfXdiff = xdiff / 2;
 
@@ -725,7 +736,7 @@ $(function() {
 
         linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
         linkData.internal.els.line2.setAttribute("y1", fromY + 80);
-        console.log(toX - fromX);
+        //console.log(toX - fromX);
         linkData.internal.els.line2.setAttribute(
           "x2",
           toX + (toX - fromX) * 1.5
@@ -886,7 +897,7 @@ $(function() {
       this._refreshInternalProperties(operatorData);
       var infos = $.extend(true, {}, operatorData.internal.properties);
 
-      console.log("infos.inputs", infos.inputs);
+      //console.log("infos.inputs", infos.inputs);
 
       for (var connectorId_i in infos.inputs) {
         if (infos.inputs.hasOwnProperty(connectorId_i)) {
@@ -914,11 +925,7 @@ $(function() {
     _getOperatorFullElement: function(operatorData) {
       var infos = this.getOperatorCompleteData(operatorData);
 
-      console.log("infos", infos);
-
-      if (infos.func == "decider") {
-        console.log("Decider");
-      }
+      //console.log("infos", infos);
 
       $operator_diamond_item_count = $('<div class="item_count"></div>');
 
@@ -926,7 +933,7 @@ $(function() {
       $operator.addClass(infos.class);
       $operator.addClass(infos.shape);
 
-      console.log("info.class", infos.class);
+      //console.log("info.class", infos.class);
 
       $container = $('<div class="container"></div>');
 
@@ -1051,7 +1058,7 @@ $(function() {
           );
         }
       }
-      console.log("infos", infos.func);
+      //console.log("infos", infos.func);
       for (var key_o in infos.outputs) {
         if (infos.outputs.hasOwnProperty(key_o)) {
           var bottomPadding = false;
@@ -1131,7 +1138,9 @@ $(function() {
     },
 
     //Adding operator happens here when you drop a div at the canvas
-    addOperator: function(operatorData) {
+    addOperator: function(operatorData, myEmitter) {
+      this.emitter = myEmitter;
+
       while (typeof this.data.operators[this.operatorNum] != "undefined") {
         //Create the id of operator
         this.operatorNum++;
@@ -1198,7 +1207,10 @@ $(function() {
         this.addLink(linkData2);
       }
 
-      console.log("this.data.links", this.data.links);
+      //Emit the event operator is Added whenever a new operator is added
+      this.emitter.emit("operatorChanged", this.data.operators);
+
+      //console.log("this.data.links", this.data.links);
 
       return this.operatorNum;
     },
@@ -1208,7 +1220,7 @@ $(function() {
       this._refreshInternalProperties(operatorData);
 
       var fullElement = this._getOperatorFullElement(operatorData);
-      console.log("operatorData", operatorData);
+      //console.log("operatorData", operatorData);
       if (
         !this.callbackEvent("operatorCreate", [
           operatorId,
@@ -1226,8 +1238,8 @@ $(function() {
         operatorData.left = Math.round(operatorData.left / grid) * grid;
       }
 
-      console.log(operatorData.top);
-      console.log(operatorData.left);
+      //console.log(operatorData.top);
+      //console.log(operatorData.left);
 
       fullElement.operator.appendTo(this.objs.layers.operators);
       fullElement.operator.css({
@@ -1292,27 +1304,27 @@ $(function() {
             if (self.options.grid) {
               var grid = self.options.grid;
               var elementOffset = self.element.offset();
-              console.log(elementOffset);
+              //console.log(elementOffset);
               ui.position.left =
                 Math.round(
                   ((e.pageX - elementOffset.left) / self.positionRatio -
                     pointerX) /
                     grid
                 ) * grid;
-              console.log("ui.position.left", ui.position.left);
+              //console.log("ui.position.left", ui.position.left);
               ui.position.top =
                 Math.round(
                   ((e.pageY - elementOffset.top) / self.positionRatio -
                     pointerY) /
                     grid
                 ) * grid;
-              console.log(!operatorData.internal.properties.uncontained);
+              //console.log(!operatorData.internal.properties.uncontained);
               if (!operatorData.internal.properties.uncontained) {
                 const sizeW = parseInt($("#example").css("width"));
                 const sizeH = parseInt($("#example").css("height"));
                 const constantW = (19.5 / (sizeW / 100)) * sizeW;
                 const constantH = (21 / (sizeH / 100)) * sizeH;
-                console.log(sizeH);
+                //console.log(sizeH);
                 var $this = $(this);
                 // ui.position.left = Math.min(
                 //   Math.max(ui.position.left, 0),
@@ -1347,7 +1359,7 @@ $(function() {
 
             operatorChangedPosition($(this).data("operator_id"), ui.position);
 
-            console.log("ui.position", ui.position);
+            // console.log("ui.position", ui.position);
           },
           stop: function(e, ui) {
             //  console.log("############ 1300")
@@ -1487,7 +1499,7 @@ $(function() {
 
         // console.log("linkData", linkData);
 
-        console.log(linkData);
+        //console.log(linkData);
 
         //Linkdata specify which output of which operator is connected to which input of which operator
         this._unsetTemporaryLink();
@@ -1516,7 +1528,7 @@ $(function() {
     _mousemove: function(x, y, e) {
       //Update the length of hint length
       if (this.lastOutputConnectorClicked != null) {
-        //console.log("this.objs.temporaryLink", this.objs.temporaryLink);
+        // console.log("this.objs.temporaryLink", this.objs.temporaryLink);
         this.objs.temporaryLink.setAttribute("x2", x);
         this.objs.temporaryLink.setAttribute("y2", y);
       }
@@ -1537,9 +1549,9 @@ $(function() {
       var x2 = lastLineDrawn.attr("x2");
       var y2 = lastLineDrawn.attr("y2");
       if (this.lastOutputConnectorClicked != null) {
-        console.log(x1);
-        console.log(x);
-        console.log(x - x1);
+        //console.log(x1);
+        //console.log(x);
+        //console.log(x - x1);
         // isStraightLine = x - x1 < 0 ? -(x - x1) : x - x1;
         // isPerpendicular = y - y1 < 0 ? -(y - y1) : y - y1;
         //What to do when a connector is clicked and the temporary link is drag ann CLICKED on the svg of the flowchart
@@ -1786,10 +1798,12 @@ $(function() {
       this.callbackEvent("afterChange", ["operator_delete"]);
 
       for (var key in this.data.links) {
-        console.log(this.data.links);
-        console.log(key);
+        //console.log(this.data.links);
+        //console.log(key);
         this._refreshLinkPositions(key);
       }
+
+      this.emitter.emit("operatorChanged", this.data.operators);
     },
 
     deleteLink: function(linkId) {
@@ -1813,7 +1827,7 @@ $(function() {
         //       break;
         //     }
         //   }
-        //   console.log("motherNodeId", motherNodeId);
+        // console.log("motherNodeId", motherNodeId);
         //   for (key in this.data.links) {
         //     if (this.data.links[key].fromOperator == motherNodeId) {
         //       this.data.links[key].toOperatorApprove = null;
@@ -1848,6 +1862,8 @@ $(function() {
       this._cleanMultipleConnectors(toOperator, toConnector, "to");
 
       this.callbackEvent("afterChange", ["link_delete"]);
+
+      this.emitter.emit("connectorChanged", this.data.links);
     },
 
     _cleanMultipleConnectors: function(operator, connector, linkFromTo) {
@@ -1898,12 +1914,10 @@ $(function() {
         this.deleteLink(this.selectedLinkId);
       }
       if (this.selectedOperatorId != null) {
-        console.log(this.data.operators);
+        //console.log(this.data.operators);
         if (!this.data.operators[this.selectedOperatorId].properties.random) {
           this.deleteOperator(this.selectedOperatorId);
-        }
-
-        if (
+        } else if (
           this.data.operators[this.selectedOperatorId].properties.random &&
           this.data.operators[this.selectedOperatorId].properties.title !=
             "Reject" &&
