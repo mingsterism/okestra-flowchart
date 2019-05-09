@@ -1362,6 +1362,7 @@ $(function() {
             // console.log("ui.position", ui.position);
           },
           stop: function(e, ui) {
+            self.emitter.emit("operatorChanged", self.data.operators);
             //  console.log("############ 1300")
             //  console.log(e)
             //  console.log("############ 1300")
