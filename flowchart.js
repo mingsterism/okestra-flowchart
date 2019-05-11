@@ -10,7 +10,29 @@ $(document).ready(function() {
   });
 
   myEmitter.on("connectorChanged", connectors => {
+    console.log("Draw link");
+    console.log(connectors);
+    const getOperatorId = (operatorNum, operatorsObj) => {
+      console.log('@@@@@@@@@@@@@@@@@@')
+      console.log(operatorsObj)
+      return operatorsObj[operatorNum].properties.objectId;
+    };
+    const dataLinkages = [];
+    console.log(Object.entries(connectors.links))
+    const linkConnectors = Object.entries(connectors.links)
+
+    linkConnectors.map(op => {
+      console.log('@@@@@@@  1111    @@@@@@@@@@@')
+      console.log(op['1'])
+      const id =  getOperatorId(op['1'].fromOperator, connectors.operators);
+      const toId =  getOperatorId(op['1'].toOperator, connectors.operators)
+      const resp = {
+        id, toId
+      }
+      dataLinkages.push(resp)
+    });
     console.log("Connectors from event handler", connectors);
+    console.log("PAYLOAD: ", dataLinkages)
     //Update the data in mongoDB
   });
 
@@ -190,11 +212,12 @@ $(document).ready(function() {
         var data = getOperatorData($this);
         data.left = relativeLeft;
         data.top = relativeTop;
-        // data.properties.objectId = ObjectID().str;
-        // const objectId = data.properties.objectId;
-        // console.log("Emitting event: nodeCreated with objectId: ", objectId);
-        // const nodeCreated = new Event("nodeCreated", { objectId });
-        // window.dispatchEvent(nodeCreated);
+        // set object ID for each node
+        data.properties.objectId = ObjectID().str;
+        const objectId = data.properties.objectId;
+        console.log("Emitting event: nodeCreated with objectId: ", objectId);
+        const nodeCreated = new Event("nodeCreated", { objectId });
+        window.dispatchEvent(nodeCreated);
 
         // console.log(relativeLeft, relativeTop);
 

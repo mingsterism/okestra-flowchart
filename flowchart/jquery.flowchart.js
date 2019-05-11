@@ -253,6 +253,8 @@ $(function() {
           self.lastOutputConnectorClicked.operator - id != 0
         ) {
           //
+          console.log('-----------')
+          console.log(self)
           var linkData = {
             fromOperator: self.lastOutputConnectorClicked.operator,
             fromConnector: self.lastOutputConnectorClicked.connector,
@@ -509,7 +511,7 @@ $(function() {
       //Time to draw out svg and path line
       this._drawLink(linkId);
 
-      this.emitter.emit("connectorChanged", this.data.links);
+      this.emitter.emit("connectorChanged", this.data);
 
       this.callbackEvent("afterChange", ["link_create"]);
     },
@@ -589,6 +591,7 @@ $(function() {
 
     //The svg and path is CREATED here in this function, noted that created only , the position is not set yet
     _drawLink: function(linkId) {
+     
       var linkData = this.data.links[linkId];
       if (typeof linkData.internal == "undefined") {
         linkData.internal = {};
@@ -1623,6 +1626,7 @@ $(function() {
 
     selectOperator: function(operatorId) {
       const objId = this.data.operators[operatorId].properties.objectId;
+      console.log(this.data.operators[operatorId])
       console.log("Emitting event: nodeClicked with objectId: ", objId);
       const nodeClicked = new Event("nodeClicked", { objId });
       window.dispatchEvent(nodeClicked);
@@ -1864,7 +1868,7 @@ $(function() {
 
       this.callbackEvent("afterChange", ["link_delete"]);
 
-      this.emitter.emit("connectorChanged", this.data.links);
+      this.emitter.emit("connectorChanged", this.data);
     },
 
     _cleanMultipleConnectors: function(operator, connector, linkFromTo) {
