@@ -13,26 +13,27 @@ $(document).ready(function() {
     console.log("Draw link");
     console.log(connectors);
     const getOperatorId = (operatorNum, operatorsObj) => {
-      console.log('@@@@@@@@@@@@@@@@@@')
-      console.log(operatorsObj)
+      console.log("@@@@@@@@@@@@@@@@@@");
+      console.log(operatorsObj);
       return operatorsObj[operatorNum].properties.objectId;
     };
     const dataLinkages = [];
-    console.log(Object.entries(connectors.links))
-    const linkConnectors = Object.entries(connectors.links)
+    console.log(Object.entries(connectors.links));
+    const linkConnectors = Object.entries(connectors.links);
 
     linkConnectors.map(op => {
-      console.log('@@@@@@@  1111    @@@@@@@@@@@')
-      console.log(op['1'])
-      const id =  getOperatorId(op['1'].fromOperator, connectors.operators);
-      const toId =  getOperatorId(op['1'].toOperator, connectors.operators)
+      console.log("@@@@@@@  1111    @@@@@@@@@@@");
+      console.log(op["1"]);
+      const id = getOperatorId(op["1"].fromOperator, connectors.operators);
+      const toId = getOperatorId(op["1"].toOperator, connectors.operators);
       const resp = {
-        id, toId
-      }
-      dataLinkages.push(resp)
+        id,
+        toId
+      };
+      dataLinkages.push(resp);
     });
     console.log("Connectors from event handler", connectors);
-    console.log("PAYLOAD: ", dataLinkages)
+    console.log("PAYLOAD: ", dataLinkages);
     //Update the data in mongoDB
   });
 
@@ -46,7 +47,7 @@ $(document).ready(function() {
 
   // Panzoom initialization...
   // just grab a DOM element
-  const element = document.querySelector('#example');
+  const element = document.querySelector("#example");
   // console.log(element, '=========')
   // And pass it to panzoom
 
@@ -56,26 +57,27 @@ $(document).ready(function() {
 
   // // Centering panzoom
   $flowchart.panzoom(
-    'pan',
+    "pan",
     -cx + $container.width() / 2,
-    -cy + $container.height() / 2,
+    -cy + $container.height() / 2
   );
 
   // Panzoom zoom handling...
   const possibleZooms = [0.5, 0.75, 1, 2, 3];
   let currentZoom = 2;
-  $container.on('mousewheel.focal', (e) => {
+  $container.on("mousewheel.focal", e => {
     e.preventDefault();
-    const delta = e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
+    const delta =
+      e.delta || e.originalEvent.wheelDelta || e.originalEvent.detail;
     const zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
     currentZoom = Math.max(
       0,
-      Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1)),
+      Math.min(possibleZooms.length - 1, currentZoom + (zoomOut * 2 - 1))
     );
-    $flowchart.flowchart('setPositionRatio', possibleZooms[currentZoom]);
-    $flowchart.panzoom('zoom', possibleZooms[currentZoom], {
+    $flowchart.flowchart("setPositionRatio", possibleZooms[currentZoom]);
+    $flowchart.panzoom("zoom", possibleZooms[currentZoom], {
       animate: false,
-      focal: e,
+      focal: e
     });
   });
 
@@ -84,7 +86,7 @@ $(document).ready(function() {
   // Apply the plugin on a standard, empty div...
   $flowchart.flowchart({
     data,
-    linkWidth: 5,
+    linkWidth: 5
   });
 
   $flowchart
@@ -96,19 +98,20 @@ $(document).ready(function() {
       $flowchart.flowchart("deleteSelected");
     });
 
-  const $draggableOperators = $('.draggable_operator');
+  const $draggableOperators = $(".draggable_operator");
 
   // This is where operatorData is retrieved
   function getOperatorData($element) {
-    const nbInputs = parseInt($element.data('nb-inputs'));
-    const nbOutputs = parseInt($element.data('nb-outputs'));
-    const shape = $element.data('shape');
-    const func = $element.data('function');
-    const r = func == 'decider'
-      ? Math.random()
-        .toString(36)
-        .substring(7)
-      : null;
+    const nbInputs = parseInt($element.data("nb-inputs"));
+    const nbOutputs = parseInt($element.data("nb-outputs"));
+    const shape = $element.data("shape");
+    const func = $element.data("function");
+    const r =
+      func == "decider"
+        ? Math.random()
+            .toString(36)
+            .substring(7)
+        : null;
     const data = {
       properties: {
         title: $element.text(),
@@ -117,19 +120,19 @@ $(document).ready(function() {
         shape,
         func,
         random: r,
-        objectId: '',
-      },
+        objectId: ""
+      }
     };
 
     let i = 0;
     for (i = 0; i < nbInputs; i++) {
       data.properties.inputs[`input_${i}`] = {
-        label: '',
+        label: ""
       };
     }
     for (i = 0; i < nbOutputs; i++) {
       data.properties.outputs[`output_${i}`] = {
-        label: '',
+        label: ""
       };
     }
 
@@ -142,20 +145,20 @@ $(document).ready(function() {
         title,
         inputs: {},
         outputs: {},
-        shape: 'rectangle',
-        random,
-      },
+        shape: "rectangle",
+        random
+      }
     };
 
     let i = 0;
     for (i = 0; i < nbInputs; i++) {
       data.properties.inputs[`input_${i}`] = {
-        label: '',
+        label: ""
       };
     }
     for (i = 0; i < nbOutputs; i++) {
       data.properties.outputs[`output_${i}`] = {
-        label: '',
+        label: ""
       };
     }
 
@@ -165,11 +168,11 @@ $(document).ready(function() {
   const operatorId = 0;
 
   $draggableOperators.draggable({
-    cursor: 'move',
+    cursor: "move",
     opacity: 0.7,
 
-    helper: 'clone',
-    appendTo: 'body',
+    helper: "clone",
+    appendTo: "body",
     zIndex: 1000,
 
     helper: function(e) {
@@ -189,10 +192,10 @@ $(document).ready(function() {
       const containerOffset = $container.offset();
       // console.log(containerOffset);
       if (
-        elOffset.left > containerOffset.left
-        && elOffset.top > containerOffset.top
-        && elOffset.left < containerOffset.left + $container.width()
-        && elOffset.top < containerOffset.top + $container.height()
+        elOffset.left > containerOffset.left &&
+        elOffset.top > containerOffset.top &&
+        elOffset.left < containerOffset.left + $container.width() &&
+        elOffset.top < containerOffset.top + $container.height()
       ) {
         const flowchartOffset = $flowchart.offset();
 
@@ -204,7 +207,7 @@ $(document).ready(function() {
         // console.log("flowchartOffset.top", flowchartOffset.top);
         // console.log(relativeTop);
 
-        const positionRatio = $flowchart.flowchart('getPositionRatio');
+        const positionRatio = $flowchart.flowchart("getPositionRatio");
         relativeLeft /= positionRatio;
         relativeTop /= positionRatio;
 
@@ -214,27 +217,29 @@ $(document).ready(function() {
         // set object ID for each node
         data.properties.objectId = ObjectID().str;
         const objectId = data.properties.objectId;
-        console.log("Emitting event: nodeCreated with objectId: ", objectId);
-        const nodeCreated = new Event("nodeCreated", { objectId });
-        window.dispatchEvent(nodeCreated);
+        console.log("Emitting event: nodeClicked with objectId: ", objectId);
+        const nodeClicked = new CustomEvent("nodeClicked", {
+          detail: { objectId }
+        });
+        window.dispatchEvent(nodeClicked);
 
         // console.log(relativeLeft, relativeTop);
 
         //This function comes from the library
         $flowchart.flowchart("addOperator", data, myEmitter);
 
-        if (data.properties.func == 'decider') {
+        if (data.properties.func == "decider") {
           const approve = createApproveDeleteOperator(
             1,
             1,
-            'Approve',
-            data.properties.random,
+            "Approve",
+            data.properties.random
           );
           const reject = createApproveDeleteOperator(
             1,
             1,
-            'Reject',
-            data.properties.random,
+            "Reject",
+            data.properties.random
           );
           approve.left = relativeLeft - 120;
           approve.top = relativeTop + 100;
@@ -244,6 +249,6 @@ $(document).ready(function() {
           $flowchart.flowchart("addOperator", reject, myEmitter);
         }
       }
-    },
+    }
   });
 });
