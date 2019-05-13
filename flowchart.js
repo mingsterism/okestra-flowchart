@@ -13,26 +13,103 @@ $(document).ready(function() {
     console.log("Draw link");
     console.log(connectors);
     const getOperatorId = (operatorNum, operatorsObj) => {
-      console.log('@@@@@@@@@@@@@@@@@@')
-      console.log(operatorsObj)
-      return operatorsObj[operatorNum].properties.objectId;
+      console.log("@@@@@@@@@@@@@@@@@@");
+      console.log(operatorsObj);
+      return operatorsObj[operatorNum].properties;
     };
     const dataLinkages = [];
-    console.log(Object.entries(connectors.links))
-    const linkConnectors = Object.entries(connectors.links)
+    console.log(Object.entries(connectors.links));
+    const linkConnectors = Object.entries(connectors.links);
+
+    console.log(connectors.links);
+    console.log(linkConnectors);
 
     linkConnectors.map(op => {
-      console.log('@@@@@@@  1111    @@@@@@@@@@@')
-      console.log(op['1'])
-      const id =  getOperatorId(op['1'].fromOperator, connectors.operators);
-      const toId =  getOperatorId(op['1'].toOperator, connectors.operators)
-      const resp = {
-        id, toId
+      console.log("@@@@@@@  1111    @@@@@@@@@@@");
+      console.log(op["1"]);
+      const targetedFromOperator = getOperatorId(
+        op["1"].fromOperator,
+        connectors.operators
+      );
+      const targetedToOperator = getOperatorId(
+        op["1"].toOperator,
+        connectors.operators
+      );
+      let id = targetedFromOperator.objectId;
+      let toId = targetedToOperator.objectId;
+      let typeToId;
+      let typeId;
+
+      if (!toId) {
+        toId = id;
+        typeToId = targetedToOperator.type;
       }
-      dataLinkages.push(resp)
+      if (!id && targetedFromOperator.random) {
+        switch (targetedFromOperator.type) {
+          case "Approve":
+            for (let connector in connectors.links) {
+              if (
+                connectors.links[connector].toOperator === op["1"].toOperator
+              ) {
+                for (let con in connectors.links) {
+                  if (
+                    parseInt(connectors.links[connector].fromOperator) ===
+                    parseInt(connectors.links[con].toOperator)
+                  ) {
+                    console.log("hi");
+                    let objId = getOperatorId(
+                      connectors.links[con].fromOperator,
+                      connectors.operators
+                    ).objectId;
+                    console.log("objId", objId);
+                    let type = targetedFromOperator.type;
+                    id = objId;
+                    typeId = targetedFromOperator.type;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+            break;
+          case "Reject":
+            for (let connector in connectors.links) {
+              if (
+                connectors.links[connector].toOperator === op["1"].toOperator
+              ) {
+                for (let con in connectors.links) {
+                  if (
+                    parseInt(connectors.links[connector].fromOperator) ===
+                    parseInt(connectors.links[con].toOperator)
+                  ) {
+                    console.log("hi");
+                    let objId = getOperatorId(
+                      connectors.links[con].fromOperator,
+                      connectors.operators
+                    ).objectId;
+                    console.log("objId", objId);
+                    let type = targetedFromOperator.type;
+                    id = objId;
+                    typeId = targetedFromOperator.type;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+            break;
+        }
+      }
+      const resp = {
+        id,
+        toId,
+        typeToId,
+        typeId
+      };
+      dataLinkages.push(resp);
     });
     console.log("Connectors from event handler", connectors);
-    console.log("PAYLOAD: ", dataLinkages)
+    console.log("PAYLOAD: ", dataLinkages);
     //Update the data in mongoDB
   });
 
@@ -137,14 +214,15 @@ $(document).ready(function() {
     return data;
   }
 
-  function createApproveDeleteOperator(nbInputs, nbOutputs, title, random) {
+  function createApproveRejectOperator(nbInputs, nbOutputs, title, random) {
     var data = {
       properties: {
         title: title,
         inputs: {},
         outputs: {},
         shape: "rectangle",
-        random: random
+        random: random,
+        type: title
       }
     };
 
@@ -225,13 +303,13 @@ $(document).ready(function() {
         $flowchart.flowchart("addOperator", data, myEmitter);
 
         if (data.properties.func == "decider") {
-          var approve = createApproveDeleteOperator(
+          var approve = createApproveRejectOperator(
             1,
             1,
             "Approve",
             data.properties.random
           );
-          var reject = createApproveDeleteOperator(
+          var reject = createApproveRejectOperator(
             1,
             1,
             "Reject",
