@@ -217,11 +217,11 @@ $(document).ready(function() {
         // set object ID for each node
         data.properties.objectId = ObjectID().str;
         const objectId = data.properties.objectId;
-        console.log("Emitting event: nodeClicked with objectId: ", objectId);
-        const nodeClicked = new CustomEvent("nodeClicked", {
+        console.log("Emitting event: nodeCreated with objectId: ", objectId);
+        const nodeCreated = new CustomEvent("nodeCreated", {
           detail: { objectId }
         });
-        window.dispatchEvent(nodeClicked);
+        window.dispatchEvent(nodeCreated);
 
         // console.log(relativeLeft, relativeTop);
 

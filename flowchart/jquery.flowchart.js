@@ -1625,10 +1625,10 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
-      const objId = this.data.operators[operatorId].properties.objectId;
+      const objectId = this.data.operators[operatorId].properties.objectId;
       console.log(this.data.operators[operatorId])
-      console.log("Emitting event: nodeClicked with objectId: ", objId);
-      const nodeClicked = new Event("nodeClicked", { objId });
+      console.log("Emitting event: nodeClicked with objectId: ", objectId);
+      const nodeClicked = new CustomEvent("nodeClicked", { detail: {objectId} });
       window.dispatchEvent(nodeClicked);
       this.selectedLinkId = null;
       $(`.flowchart-link line`).each(function() {
