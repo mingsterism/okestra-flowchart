@@ -37,12 +37,10 @@ $(document).ready(function() {
       );
       let id = targetedFromOperator.objectId;
       let toId = targetedToOperator.objectId;
-      let typeToId;
-      let typeId;
+      let actionType;
 
       if (!toId) {
-        toId = id;
-        typeToId = targetedToOperator.type;
+        return;
       }
       if (!id && targetedFromOperator.random) {
         switch (targetedFromOperator.type) {
@@ -64,7 +62,7 @@ $(document).ready(function() {
                     console.log("objId", objId);
                     let type = targetedFromOperator.type;
                     id = objId;
-                    typeId = targetedFromOperator.type;
+                    actionType = targetedFromOperator.type;
                     break;
                   }
                 }
@@ -90,7 +88,7 @@ $(document).ready(function() {
                     console.log("objId", objId);
                     let type = targetedFromOperator.type;
                     id = objId;
-                    typeId = targetedFromOperator.type;
+                    actionType = targetedFromOperator.type;
                     break;
                   }
                 }
@@ -103,8 +101,7 @@ $(document).ready(function() {
       const resp = {
         id,
         toId,
-        typeToId,
-        typeId
+        actionType
       };
       dataLinkages.push(resp);
     });
