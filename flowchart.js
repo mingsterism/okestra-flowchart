@@ -1,13 +1,45 @@
-import { EventEmitter } from 'events';
-
+import myEmitter from "./Emitter";
 // var $ = require("./node_modules/jquery/dist/jquery");
 // var panzoom = require("jquery.panzoom");
 
-$(document).ready(() => {
-  const $flowchart = $('#example');
-  console.log($flowchart, '===============');
-  console.log($flowchart.flowchart);
-  const $container = $flowchart.parent();
+$(document).ready(function() {
+  //Hooking event emitter listener
+  myEmitter.on("operatorChanged", operators => {
+    console.log("Operators from event handler", operators);
+    //Update the data in mongoDB
+  });
+
+  myEmitter.on("connectorChanged", connectors => {
+    console.log("Draw link");
+    console.log(connectors);
+    const getOperatorId = (operatorNum, operatorsObj) => {
+      console.log('@@@@@@@@@@@@@@@@@@')
+      console.log(operatorsObj)
+      return operatorsObj[operatorNum].properties.objectId;
+    };
+    const dataLinkages = [];
+    console.log(Object.entries(connectors.links))
+    const linkConnectors = Object.entries(connectors.links)
+
+    linkConnectors.map(op => {
+      console.log('@@@@@@@  1111    @@@@@@@@@@@')
+      console.log(op['1'])
+      const id =  getOperatorId(op['1'].fromOperator, connectors.operators);
+      const toId =  getOperatorId(op['1'].toOperator, connectors.operators)
+      const resp = {
+        id, toId
+      }
+      dataLinkages.push(resp)
+    });
+    console.log("Connectors from event handler", connectors);
+    console.log("PAYLOAD: ", dataLinkages)
+    //Update the data in mongoDB
+  });
+
+  var $flowchart = $("#example");
+  // console.log($flowchart, "===============");
+  // console.log($flowchart.flowchart);
+  var $container = $flowchart.parent();
 
   const cx = $flowchart.width() / 2;
   const cy = $flowchart.height() / 2;
@@ -54,13 +86,14 @@ $(document).ready(() => {
     data,
     linkWidth: 5,
   });
+
   $flowchart
     .parent()
     .siblings()
-    .children('.delete_selected_button')
-    .click(() => {
-      console.log('DELETING');
-      $flowchart.flowchart('deleteSelected');
+    .children(".delete_selected_button")
+    .click(function() {
+      //console.log("DELETING");
+      $flowchart.flowchart("deleteSelected");
     });
 
   const $draggableOperators = $('.draggable_operator');
@@ -139,19 +172,19 @@ $(document).ready(() => {
     appendTo: 'body',
     zIndex: 1000,
 
-    helper(e) {
-      const $this = $(this);
-      const data = getOperatorData($this);
-      console.log('operatorDataSource', data);
-      // This is where the operatorData is passed into the flowchart function
-      return $flowchart.flowchart('getOperatorElement', data);
+    helper: function(e) {
+      var $this = $(this);
+      var data = getOperatorData($this);
+      //console.log("operatorDataSource", data);
+      //This is where the operatorData is passed into the flowchart function
+      return $flowchart.flowchart("getOperatorElement", data);
     },
-    stop(e, ui) {
-      console.log('!!!!!!!!!!!!!!');
-      console.log(e);
-      console.log('!!!!!!!!!!!!!!');
-      const $this = $(this);
-      const elOffset = ui.offset;
+    stop: function(e, ui) {
+      // console.log("!!!!!!!!!!!!!!");
+      // console.log(e);
+      // console.log("!!!!!!!!!!!!!!");
+      var $this = $(this);
+      var elOffset = ui.offset;
       // console.log(ui.offset);
       const containerOffset = $container.offset();
       // console.log(containerOffset);
@@ -178,19 +211,17 @@ $(document).ready(() => {
         const data = getOperatorData($this);
         data.left = relativeLeft;
         data.top = relativeTop;
+        // set object ID for each node
         data.properties.objectId = ObjectID().str;
-        const { objectId } = data.properties;
-        console.log('Emitting event: nodeCreated with objectId: ', objectId);
-        const nodeCreated = new CustomEvent('nodeCreated', { detail: { objectId } });
-        console.log('===========================');
-        console.log(nodeCreated);
-        console.log('========= -------   ==================');
+        const objectId = data.properties.objectId;
+        console.log("Emitting event: nodeCreated with objectId: ", objectId);
+        const nodeCreated = new Event("nodeCreated", { objectId });
         window.dispatchEvent(nodeCreated);
 
         // console.log(relativeLeft, relativeTop);
 
-        // This function comes from the library
-        $flowchart.flowchart('addOperator', data);
+        //This function comes from the library
+        $flowchart.flowchart("addOperator", data, myEmitter);
 
         if (data.properties.func == 'decider') {
           const approve = createApproveDeleteOperator(
@@ -209,8 +240,8 @@ $(document).ready(() => {
           approve.top = relativeTop + 100;
           reject.left = relativeLeft + 140;
           reject.top = approve.top;
-          $flowchart.flowchart('addOperator', approve);
-          $flowchart.flowchart('addOperator', reject);
+          $flowchart.flowchart("addOperator", approve, myEmitter);
+          $flowchart.flowchart("addOperator", reject, myEmitter);
         }
       }
     },
