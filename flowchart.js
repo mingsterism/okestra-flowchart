@@ -12,23 +12,96 @@ $(document).ready(function() {
   myEmitter.on("connectorChanged", connectors => {
     console.log("Draw link");
     console.log(connectors);
-    const getOperatorId = (operatorNum, operatorsObj) => {
+    const getOperatorProp = (operatorNum, operatorsObj) => {
       console.log("@@@@@@@@@@@@@@@@@@");
       console.log(operatorsObj);
-      return operatorsObj[operatorNum].properties.objectId;
+      return operatorsObj[operatorNum].properties;
     };
     const dataLinkages = [];
     console.log(Object.entries(connectors.links));
     const linkConnectors = Object.entries(connectors.links);
 
+    console.log(connectors.links);
+    console.log(linkConnectors);
+
     linkConnectors.map(op => {
       console.log("@@@@@@@  1111    @@@@@@@@@@@");
       console.log(op["1"]);
-      const id = getOperatorId(op["1"].fromOperator, connectors.operators);
-      const toId = getOperatorId(op["1"].toOperator, connectors.operators);
+      const targetedFromOperator = getOperatorProp(
+        op["1"].fromOperator,
+        connectors.operators
+      );
+      const targetedToOperator = getOperatorProp(
+        op["1"].toOperator,
+        connectors.operators
+      );
+      let id = targetedFromOperator.objectId;
+      let toId = targetedToOperator.objectId;
+      let actionType;
+
+      if (!toId) {
+        return;
+      }
+      if (!id && targetedFromOperator.random) {
+        switch (targetedFromOperator.type) {
+          case "Approve":
+            for (let connector in connectors.links) {
+              if (
+                connectors.links[connector].toOperator === op["1"].toOperator
+              ) {
+                for (let con in connectors.links) {
+                  if (
+                    parseInt(connectors.links[connector].fromOperator) ===
+                    parseInt(connectors.links[con].toOperator)
+                  ) {
+                    console.log("hi");
+                    let objId = getOperatorProp(
+                      connectors.links[con].fromOperator,
+                      connectors.operators
+                    ).objectId;
+                    console.log("objId", objId);
+                    let type = targetedFromOperator.type;
+                    id = objId;
+                    actionType = targetedFromOperator.type;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+            break;
+          case "Reject":
+            for (let connector in connectors.links) {
+              if (
+                connectors.links[connector].toOperator === op["1"].toOperator
+              ) {
+                for (let con in connectors.links) {
+                  if (
+                    parseInt(connectors.links[connector].fromOperator) ===
+                    parseInt(connectors.links[con].toOperator)
+                  ) {
+                    console.log("hi");
+                    let objId = getOperatorProp(
+                      connectors.links[con].fromOperator,
+                      connectors.operators
+                    ).objectId;
+                    console.log("objId", objId);
+                    let type = targetedFromOperator.type;
+                    id = objId;
+                    actionType = targetedFromOperator.type;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+            break;
+        }
+      }
       const resp = {
         id,
-        toId
+        toId,
+        actionType
       };
       dataLinkages.push(resp);
     });
@@ -139,14 +212,15 @@ $(document).ready(function() {
     return data;
   }
 
-  function createApproveDeleteOperator(nbInputs, nbOutputs, title, random) {
-    const data = {
+  function createApproveRejectOperator(nbInputs, nbOutputs, title, random) {
+    var data = {
       properties: {
         title,
         inputs: {},
         outputs: {},
         shape: "rectangle",
-        random
+        random: random,
+        type: title
       }
     };
 
@@ -229,13 +303,13 @@ $(document).ready(function() {
         $flowchart.flowchart("addOperator", data, myEmitter);
 
         if (data.properties.func == "decider") {
-          const approve = createApproveDeleteOperator(
+          var approve = createApproveRejectOperator(
             1,
             1,
             "Approve",
             data.properties.random
           );
-          const reject = createApproveDeleteOperator(
+          var reject = createApproveRejectOperator(
             1,
             1,
             "Reject",
