@@ -108,6 +108,11 @@ $(document).ready(function() {
     console.log("Connectors from event handler", connectors);
     console.log("PAYLOAD: ", dataLinkages);
     //Update the data in mongoDB
+    console.log("Emitting event: nodeConnected");
+    const nodeConnected = new CustomEvent("nodeConnected", {
+      detail: { dataLinkages }
+    });
+    window.dispatchEvent(nodeConnected);
   });
 
   var $flowchart = $("#example");
