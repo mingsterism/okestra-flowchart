@@ -262,9 +262,6 @@ $(document).ready(function() {
       return $flowchart.flowchart("getOperatorElement", data);
     },
     stop: function(e, ui) {
-      // console.log("!!!!!!!!!!!!!!");
-      // console.log(e);
-      // console.log("!!!!!!!!!!!!!!");
       var $this = $(this);
       var elOffset = ui.offset;
       // console.log(ui.offset);
@@ -291,6 +288,7 @@ $(document).ready(function() {
         relativeTop /= positionRatio;
 
         const data = getOperatorData($this);
+        const isApproval = data.properties.func === 'decider'
         data.left = relativeLeft;
         data.top = relativeTop;
         // set object ID for each node
@@ -298,7 +296,7 @@ $(document).ready(function() {
         const objectId = data.properties.objectId;
         console.log("Emitting event: nodeCreated with objectId: ", objectId);
         const nodeCreated = new CustomEvent("nodeCreated", {
-          detail: { objectId }
+          detail: { objectId, isApproval  }
         });
         window.dispatchEvent(nodeCreated);
 
