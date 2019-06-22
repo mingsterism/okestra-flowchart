@@ -2,6 +2,42 @@
 
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
+
+function setLineAttribute(lineObject, attributesObject) {
+  const attributesArray = Object.keys(attributesObject);
+  for (let i = 0; i < attributesArray.length; i++) {
+    lineObject.setAttribute(
+      attributesArray[i],
+      attributesObject[attributesArray[i]]
+    );
+  }
+  lineObject.setAttribute("stroke", "black");
+}
+
+function setLinesAttribute(linesObject, attributesObjects) {
+  setLineAttribute(linesObject.line1, attributesObjects["line1"]);
+  setLineAttribute(linesObject.line2, attributesObjects["line2"]);
+  setLineAttribute(linesObject.line3, attributesObjects["line3"]);
+  setLineAttribute(linesObject.line4, attributesObjects["line4"]);
+  setLineAttribute(linesObject.line5, attributesObjects["line5"]);
+}
+
+function setInitialShapeAttribute(shapeObject, attributesObjects) {
+  const attributesArray = Object.keys(attributesObjects);
+  for (let i = 0; i < attributesArray.length; i++) {
+    shapeObject.setAttribute(
+      attributesArray[i],
+      attributesObjects[attributesArray[i]]
+    );
+  }
+}
+
+function createSvgElement(document, elementToCreate) {
+  return document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    elementToCreate
+  );
+}
 $(function() {
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
@@ -94,16 +130,16 @@ $(function() {
         "line"
       );
 
-      console.log("Shape", shape);
-
       //The dotted line is created here which we saw during dragging the line
-      shape.setAttribute("x1", "0");
-      shape.setAttribute("y1", "0");
-      shape.setAttribute("x2", "0");
-      shape.setAttribute("y2", "0");
-      shape.setAttribute("stroke-width", "1");
-      shape.setAttribute("stroke", "black");
-      shape.setAttribute("fill", "none");
+      setInitialShapeAttribute(shape, {
+        x1: "0",
+        y1: "0",
+        x2: "0",
+        y2: "0",
+        "stroke-width": "1",
+        stroke: "black",
+        fill: "none"
+      });
       this.objs.layers.temporaryLink[0].appendChild(shape);
 
       //This.objs.temporary link now refers to the temporary guiding black line
@@ -572,38 +608,18 @@ $(function() {
 
       console.log("linkData.internal.els", linkData.internal.els);
 
-      var overallGroup = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-      );
+      var overallGroup = createSvgElement(document, "g");
+
       this.objs.layers.links[0].appendChild(overallGroup);
 
-      var line1 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-      var line2 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-
-      var line3 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-
-      var line4 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-
-      var line5 = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
+      var line1 = createSvgElement(document, "line");
+      var line2 = createSvgElement(document, "line");
+      var line3 = createSvgElement(document, "line");
+      var line4 = createSvgElement(document, "line");
+      var line5 = createSvgElement(document, "line");
 
       linkData.internal.els.overallGroup = overallGroup;
-      var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      var group = createSvgElement(document, "g");
       group.setAttribute("class", "flowchart-link");
       group.setAttribute("data-link_id", linkId);
       overallGroup.appendChild(group);
@@ -675,173 +691,149 @@ $(function() {
       var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
       var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
 
-      console.log("xdiff", xdiff);
-      console.log("ydiff", ydiff);
-
-      console.log("xdiff", xdiff);
       var halfYdiff = ydiff / 2;
       var halfXdiff = xdiff / 2;
+      let linesData;
+      let isDirectlyAbove = xdiff == 0 && toY - fromY < 0;
+      let isInDirectlyAbove = toY - fromY < 0 && xdiff != 0;
+      let isBeside = toY - fromY < 62 && toY - fromY >= -20 && xdiff >= 100;
 
-      if (toY - fromY < 62 && toY - fromY >= -20 && xdiff >= 100) {
-        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y1", fromY);
-        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y2", fromY + 80);
-        linkData.internal.els.line1.setAttribute("stroke", "black");
-
-        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line2.setAttribute("y1", fromY + 80);
-        console.log(toX - fromX);
-        linkData.internal.els.line2.setAttribute(
-          "x2",
-          toX + (toX - fromX) * 1.5
-        );
-        linkData.internal.els.line2.setAttribute("y2", fromY + 80);
-        linkData.internal.els.line2.setAttribute("stroke", "black");
-
-        linkData.internal.els.line3.setAttribute(
-          "x1",
-          toX + (toX - fromX) * 1.5
-        );
-        linkData.internal.els.line3.setAttribute("y1", fromY + 80);
-        linkData.internal.els.line3.setAttribute(
-          "x2",
-          toX + (toX - fromX) * 1.5
-        );
-        linkData.internal.els.line3.setAttribute("y2", fromY - 40);
-        linkData.internal.els.line3.setAttribute("stroke", "black");
-
-        linkData.internal.els.line4.setAttribute(
-          "x1",
-          toX + (toX - fromX) * 1.5
-        );
-        linkData.internal.els.line4.setAttribute("y1", fromY - 40);
-        linkData.internal.els.line4.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line4.setAttribute("y2", fromY - 40);
-        linkData.internal.els.line4.setAttribute("stroke", "black");
-
-        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y1", fromY - 40);
-        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y2", toY);
-        linkData.internal.els.line5.setAttribute("stroke", "black");
-      } else if (toY - fromY < 0 && xdiff != 0) {
-        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y1", fromY);
-        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
-        linkData.internal.els.line1.setAttribute("stroke", "black");
-
-        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
-        linkData.internal.els.line2.setAttribute(
-          "x2",
-          toX + offsetFromX + halfXdiff
-        );
-        linkData.internal.els.line2.setAttribute("y2", fromY + halfYdiff);
-        linkData.internal.els.line2.setAttribute("stroke", "black");
-
-        linkData.internal.els.line3.setAttribute(
-          "x1",
-          toX + offsetFromX + halfXdiff
-        );
-        linkData.internal.els.line3.setAttribute("y1", fromY + halfYdiff);
-        linkData.internal.els.line3.setAttribute(
-          "x2",
-          toX + offsetFromX + halfXdiff
-        );
-        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line3.setAttribute("stroke", "black");
-
-        linkData.internal.els.line4.setAttribute(
-          "x1",
-          toX + offsetFromX + halfXdiff
-        );
-        linkData.internal.els.line4.setAttribute("y1", toY - halfYdiff);
-        linkData.internal.els.line4.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line4.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line4.setAttribute("stroke", "black");
-
-        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y1", toY);
-        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line5.setAttribute("stroke", "black");
-      } else if (xdiff == 0 && toY - fromY < 0) {
-        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y1", fromY);
-        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
-        linkData.internal.els.line1.setAttribute("stroke", "black");
-
-        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
-        linkData.internal.els.line2.setAttribute(
-          "x2",
-          fromX + offsetFromX + 200
-        );
-        linkData.internal.els.line2.setAttribute("y2", fromY + halfYdiff);
-        linkData.internal.els.line2.setAttribute("stroke", "black");
-
-        linkData.internal.els.line3.setAttribute(
-          "x1",
-          fromX + offsetFromX + 200
-        );
-        linkData.internal.els.line3.setAttribute("y1", fromY + halfYdiff);
-        linkData.internal.els.line3.setAttribute(
-          "x2",
-          toX + offsetFromX + halfXdiff + 200
-        );
-        linkData.internal.els.line3.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line3.setAttribute("stroke", "black");
-
-        linkData.internal.els.line4.setAttribute(
-          "x1",
-          toX + offsetFromX + halfXdiff
-        );
-        linkData.internal.els.line4.setAttribute("y1", toY - halfYdiff);
-        linkData.internal.els.line4.setAttribute(
-          "x2",
-          toX + offsetFromX + halfXdiff + 200
-        );
-        linkData.internal.els.line4.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line4.setAttribute("stroke", "black");
-
-        linkData.internal.els.line5.setAttribute("x1", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y1", toY);
-        linkData.internal.els.line5.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line5.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line5.setAttribute("stroke", "black");
+      if (isBeside) {
+        linesData = {
+          line1: {
+            x1: fromX + offsetFromX,
+            y1: fromY,
+            x2: fromX + offsetFromX,
+            y2: fromY + 80
+          },
+          line2: {
+            x1: fromX + offsetFromX,
+            y1: fromY + 80,
+            x2: toX + (toX - fromX) * 1.5,
+            y2: fromY + 80
+          },
+          line3: {
+            x1: toX + (toX - fromX) * 1.5,
+            y1: fromY + 80,
+            x2: toX + (toX - fromX) * 1.5,
+            y2: fromY - 40
+          },
+          line4: {
+            x1: toX + (toX - fromX) * 1.5,
+            y1: fromY - 40,
+            x2: toX + offsetFromX,
+            y2: fromY - 40
+          },
+          line5: {
+            x1: toX + offsetFromX,
+            y1: fromY - 40,
+            x2: toX + offsetFromX,
+            y2: toY
+          }
+        };
+        setLinesAttribute(linkData.internal.els, linesData);
+      } else if (isInDirectlyAbove) {
+        linesData = {
+          line1: {
+            x1: fromX + offsetFromX,
+            y1: fromY,
+            x2: fromX + offsetFromX,
+            y2: fromY + halfYdiff
+          },
+          line2: {
+            x1: fromX + offsetFromX,
+            y1: fromY + halfYdiff,
+            x2: toX + offsetFromX + halfXdiff,
+            y2: fromY + halfYdiff
+          },
+          line3: {
+            x1: toX + offsetFromX + halfXdiff,
+            y1: fromY + halfYdiff,
+            x2: toX + offsetFromX + halfXdiff,
+            y2: toY - halfYdiff
+          },
+          line4: {
+            x1: toX + offsetFromX + halfXdiff,
+            y1: toY - halfYdiff,
+            x2: toX + offsetFromX,
+            y2: toY - halfYdiff
+          },
+          line5: {
+            x1: toX + offsetFromX,
+            y1: toY,
+            x2: toX + offsetFromX,
+            y2: toY - halfYdiff
+          }
+        };
+        setLinesAttribute(linkData.internal.els, linesData);
+      } else if (isDirectlyAbove) {
+        linesData = {
+          line1: {
+            x1: fromX + offsetFromX,
+            y1: fromY,
+            x2: fromX + offsetFromX,
+            y2: fromY + halfYdiff
+          },
+          line2: {
+            x1: fromX + offsetFromX,
+            y1: fromY + halfYdiff,
+            x2: fromX + offsetFromX + 200,
+            y2: fromY + halfYdiff
+          },
+          line3: {
+            x1: fromX + offsetFromX + 200,
+            y1: fromY + halfYdiff,
+            x2: toX + offsetFromX + halfXdiff + 200,
+            y2: toY - halfYdiff
+          },
+          line4: {
+            x1: toX + offsetFromX + halfXdiff,
+            y1: toY - halfYdiff,
+            x2: toX + offsetFromX + halfXdiff + 200,
+            y2: toY - halfYdiff
+          },
+          line5: {
+            x1: toX + offsetFromX,
+            y1: toY,
+            x2: toX + offsetFromX,
+            y2: toY - halfYdiff
+          }
+        };
+        setLinesAttribute(linkData.internal.els, linesData);
       } else {
-        linkData.internal.els.line1.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y1", fromY);
-        linkData.internal.els.line1.setAttribute("x2", fromX + offsetFromX);
-        linkData.internal.els.line1.setAttribute("y2", fromY + halfYdiff);
-        linkData.internal.els.line1.setAttribute("stroke", "black");
-
-        linkData.internal.els.line2.setAttribute("x1", fromX + offsetFromX);
-        linkData.internal.els.line2.setAttribute("y1", fromY + halfYdiff);
-        linkData.internal.els.line2.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line2.setAttribute("y2", toY - halfYdiff);
-        linkData.internal.els.line2.setAttribute("stroke", "black");
-
-        linkData.internal.els.line3.setAttribute("x1", toX + offsetFromX);
-        linkData.internal.els.line3.setAttribute("y1", toY - halfYdiff);
-        linkData.internal.els.line3.setAttribute("x2", toX + offsetFromX);
-        linkData.internal.els.line3.setAttribute("y2", toY);
-        linkData.internal.els.line3.setAttribute("stroke", "black");
-
-        linkData.internal.els.line4.setAttribute("x1", 0);
-        linkData.internal.els.line4.setAttribute("y1", 0);
-        linkData.internal.els.line4.setAttribute("x2", 0);
-        linkData.internal.els.line4.setAttribute("y2", 0);
-        linkData.internal.els.line4.setAttribute("stroke", "black");
-
-        linkData.internal.els.line5.setAttribute("x1", 0);
-        linkData.internal.els.line5.setAttribute("y1", 0);
-        linkData.internal.els.line5.setAttribute("x2", 0);
-        linkData.internal.els.line5.setAttribute("y2", 0);
-        linkData.internal.els.line5.setAttribute("stroke", "black");
+        linesData = {
+          line1: {
+            x1: fromX + offsetFromX,
+            y1: fromY,
+            x2: fromX + offsetFromX,
+            y2: fromY + halfYdiff
+          },
+          line2: {
+            x1: fromX + offsetFromX,
+            y1: fromY + halfYdiff,
+            x2: toX + offsetFromX,
+            y2: toY - halfYdiff
+          },
+          line3: {
+            x1: toX + offsetFromX,
+            y1: toY - halfYdiff,
+            x2: toX + offsetFromX,
+            y2: toY
+          },
+          line4: {
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0
+          },
+          line5: {
+            x1: 0,
+            y1: 0,
+            x2: 0,
+            y2: 0
+          }
+        };
+        setLinesAttribute(linkData.internal.els, linesData);
       }
     },
 
@@ -1107,7 +1099,8 @@ $(function() {
       this.createOperator(this.operatorNum, operatorData);
 
       //Automatically popups of the Approve and Reject Operator
-      if (operatorData.properties.title == "Reject") {
+      var isItDeciderNode = operatorData.properties.title == "Reject";
+      if (isItDeciderNode) {
         let r = operatorData.properties.random;
         let approve, reject, mother, approveNum, rejectNum, motherNum;
         for (var key in this.data.operators) {
@@ -1524,11 +1517,10 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
-        const objId =
-          this.data.operators[operatorId].properties.objectId;
-        console.log("Emitting event: nodeClicked with objectId: ", objId);
-        const nodeClicked = new Event("nodeClicked", { objId });
-        window.dispatchEvent(nodeClicked);
+      const objId = this.data.operators[operatorId].properties.objectId;
+      console.log("Emitting event: nodeClicked with objectId: ", objId);
+      const nodeClicked = new Event("nodeClicked", { objId });
+      window.dispatchEvent(nodeClicked);
       this.selectedLinkId = null;
       $(`.flowchart-link line`).each(function() {
         $(this).attr("stroke", "black");

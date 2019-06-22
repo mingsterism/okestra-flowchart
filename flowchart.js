@@ -190,6 +190,7 @@ function dragHandler(draggableOperators, flowchartElement, container) {
     }
   });
 }
+
 $(document).ready(function() {
   var $flowchart = $("#example");
   var $element = document.querySelector("#example");
