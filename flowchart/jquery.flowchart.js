@@ -17,6 +17,7 @@ function setLineAttribute(lineObject, attributesObject) {
 }
 
 function setLinesAttribute(linesObject, attributesObjects) {
+<<<<<<< HEAD
   const linesArray = Object.keys(linesObject).slice(3);
   for (let i = 0; i < linesArray.length; i++) {
     setLineAttribute(
@@ -24,6 +25,13 @@ function setLinesAttribute(linesObject, attributesObjects) {
       attributesObjects[linesArray[i]]
     );
   }
+=======
+  setLineAttribute(linesObject.line1, attributesObjects["line1"]);
+  setLineAttribute(linesObject.line2, attributesObjects["line2"]);
+  setLineAttribute(linesObject.line3, attributesObjects["line3"]);
+  setLineAttribute(linesObject.line4, attributesObjects["line4"]);
+  setLineAttribute(linesObject.line5, attributesObjects["line5"]);
+>>>>>>> parent of bc9718b... jquery.flowchart.js temporary refactor done
 }
 
 function setInitialShapeAttribute(shapeObject, attributesObjects) {
@@ -645,9 +653,11 @@ $(function() {
     //Setting the x and y attribute of the shape created in _drawlink
     _refreshLinkPositions: function(linkId) {
       var linkData = this.data.links[linkId];
+
       var subConnectors = this._getSubConnectors(linkData);
       var fromSubConnector = subConnectors[0];
       var toSubConnector = subConnectors[1];
+
       var fromPosition = this.getConnectorPosition(
         linkData.fromOperator,
         linkData.fromConnector,
@@ -658,17 +668,31 @@ $(function() {
         linkData.toConnector,
         toSubConnector
       );
-      let linesData;
+
+      //I use svg line to draw line <line></line>
+
+      //x position of the output connector
       var fromX = fromPosition.x;
       var offsetFromX = fromPosition.width;
+
+      //y position of output connector
       var fromY = fromPosition.y;
+
+      //x position of input connector
       var toX = toPosition.x;
+
+      //y position of input connector
       var toY = toPosition.y;
+
       var distanceFromArrow = this.options.distanceFromArrow;
+
+      //Doing the math 1st
       var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
       var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
+
       var halfYdiff = ydiff / 2;
       var halfXdiff = xdiff / 2;
+      let linesData;
       let isDirectlyAbove = xdiff == 0 && toY - fromY < 0;
       let isInDirectlyAbove = toY - fromY < 0 && xdiff != 0;
       let isBeside = toY - fromY < 62 && toY - fromY >= -20 && xdiff >= 100;
