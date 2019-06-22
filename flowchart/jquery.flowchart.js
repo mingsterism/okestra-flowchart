@@ -2,6 +2,7 @@
 
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
+import RefactoredFunctions from "./jquery.refactor";
 
 function setLineAttribute(lineObject, attributesObject) {
   const attributesArray = Object.keys(attributesObject);
@@ -22,7 +23,6 @@ function setLinesAttribute(linesObject, attributesObjects) {
       attributesObjects[linesArray[i]]
     );
   }
-  g;
 }
 
 function setInitialShapeAttribute(shapeObject, attributesObjects) {
@@ -409,103 +409,15 @@ $(function() {
 
     //Entry point of the program
     setData: function(data) {
-      console.log("setData", data.operators, data.operatorTypes);
-      this._clearOperatorsLayer();
-      this.data.operatorTypes = {};
-      if (typeof data.operatorTypes != "undefined") {
-        this.data.operatorTypes = data.operatorTypes;
-      }
-
-      this.data.operators = {};
-      for (var operatorId in data.operators) {
-        if (data.operators.hasOwnProperty(operatorId)) {
-          this.createOperator(operatorId, data.operators[operatorId]);
-        }
-      }
-
-      console.log("data.operators", data.operators);
-      this.data.links = {};
-      for (var linkId in data.links) {
-        if (data.links.hasOwnProperty(linkId)) {
-          this.createLink(linkId, data.links[linkId]);
-        }
-      }
-      this.redrawLinksLayer();
+      RefactoredFunctions.setData(data, this);
     },
 
     addLink: function(linkData) {
-      //Called upon linking when both input and output connector is clicked
-      console.log("links", this.data.links);
-      console.log(
-        "link.this.data.operators from addLink function",
-        this.data.operators
-      );
-
-      //This.data.links is a object storing linkData
-      while (typeof this.data.links[this.linkNum] != "undefined") {
-        this.linkNum++;
-      }
-
-      this.createLink(this.linkNum, linkData); //(0,linkData)
-      return this.linkNum;
+      RefactoredFunctions.addLink(linkData, this);
     },
 
     createLink: function(linkId, linkDataOriginal) {
-      var linkData = $.extend(true, {}, linkDataOriginal);
-      if (!this.callbackEvent("linkCreate", [linkId, linkData])) {
-        return;
-      }
-
-      console.log("Line 339 of createLink", this.data.links);
-
-      var subConnectors = this._getSubConnectors(linkData);
-      //Getting the output connector involved
-      var fromSubConnector = subConnectors[0];
-
-      //Getting the input connector involved
-      var toSubConnector = subConnectors[1];
-
-      //Check if the connector is already connected, the old connection will be abolished,i.e. the old object will be removed
-      //from the this.data.link object
-      var multipleLinksOnOutput = this.options.multipleLinksOnOutput;
-      var multipleLinksOnInput = this.options.multipleLinksOnInput;
-      if (!multipleLinksOnOutput || !multipleLinksOnInput) {
-        for (var linkId2 in this.data.links) {
-          if (this.data.links.hasOwnProperty(linkId2)) {
-            var currentLink = this.data.links[linkId2];
-
-            var currentSubConnectors = this._getSubConnectors(currentLink);
-            var currentFromSubConnector = currentSubConnectors[0];
-            var currentToSubConnector = currentSubConnectors[1];
-
-            if (
-              !multipleLinksOnOutput &&
-              currentLink.fromOperator == linkData.fromOperator &&
-              currentLink.fromConnector == linkData.fromConnector &&
-              currentFromSubConnector == fromSubConnector
-            ) {
-              this.deleteLink(linkId2);
-              continue;
-            }
-            if (
-              !multipleLinksOnInput &&
-              currentLink.toOperator == linkData.toOperator &&
-              currentLink.toConnector == linkData.toConnector &&
-              currentToSubConnector == toSubConnector
-            ) {
-              this.deleteLink(linkId2);
-            }
-          }
-        }
-      }
-
-      //new linkData is inserted into this.data.links
-      this.data.links[linkId] = linkData;
-
-      //Time to draw out svg and path line
-      this._drawLink(linkId);
-
-      this.callbackEvent("afterChange", ["link_create"]);
+      RefactoredFunctions.createLink(linkId, linkDataOriginal, this);
     },
 
     _autoCreateSubConnector: function(
@@ -865,25 +777,23 @@ $(function() {
         console.log("Decider");
       }
 
-      $operator_diamond_item_count = $('<div class="item_count"></div>');
-
       var $operator = $('<div class="flowchart-operator"></div>');
       $operator.addClass(infos.class);
       $operator.addClass(infos.shape);
 
       console.log("info.class", infos.class);
 
-      $container = $('<div class="container"></div>');
+      let $container = $('<div class="container"></div>');
 
       $container.appendTo($operator);
 
-      $row = $('<div class="row"></div>');
+      let $row = $('<div class="row"></div>');
 
       $row.appendTo($container);
 
-      $icon = $("<div class='col-sm-2'></div>");
+      let $icon = $("<div class='col-sm-2'></div>");
 
-      $mailIcon = $(
+      let $mailIcon = $(
         '<span class="glyphicon" style="color:black;font-size:30px">&#x2709;</span>'
       );
 
@@ -891,7 +801,7 @@ $(function() {
 
       $icon.appendTo($row);
 
-      $title = $("<div class='col-sm-10'></div>");
+      let $title = $("<div class='col-sm-10'></div>");
 
       $title.appendTo($row);
 
@@ -1077,238 +987,14 @@ $(function() {
 
     //Adding operator happens here when you drop a div at the canvas
     addOperator: function(operatorData) {
-      while (typeof this.data.operators[this.operatorNum] != "undefined") {
-        //Create the id of operator
-        this.operatorNum++;
-      }
-
-      //Put the operatorData into the JSON object which is accessible through this.data.operators
-      this.createOperator(this.operatorNum, operatorData);
-
-      //Automatically popups of the Approve and Reject Operator
-      var isItDeciderNode = operatorData.properties.title == "Reject";
-      if (isItDeciderNode) {
-        let r = operatorData.properties.random;
-        let approve, reject, mother, approveNum, rejectNum, motherNum;
-        for (var key in this.data.operators) {
-          if (
-            this.data.operators[key].properties.random == r &&
-            this.data.operators[key].properties.title == "Approve"
-          ) {
-            approve = this.data.operators[key];
-            approveNum = key;
-          }
-
-          if (
-            this.data.operators[key].properties.random == r &&
-            this.data.operators[key].properties.title == "Reject"
-          ) {
-            reject = this.data.operators[key];
-            rejectNum = key;
-          }
-
-          if (
-            this.data.operators[key].properties.random == r &&
-            this.data.operators[key].properties.title != "Approve" &&
-            this.data.operators[key].properties.title != "Reject"
-          ) {
-            mother = this.data.operators[key];
-            motherNum = key;
-          }
-        }
-
-        //After i put the approve and reject operator onto the canvas, i create link to link them together
-        var linkData1 = {
-          fromOperator: motherNum,
-          fromConnector: "output_0",
-          fromSubConnector: 0,
-          toOperator: approveNum,
-          toConnector: "input_0",
-          toSubConnector: 0
-        };
-
-        var linkData2 = {
-          fromOperator: motherNum,
-          fromConnector: "output_1",
-          fromSubConnector: 0,
-          toOperator: rejectNum,
-          toConnector: "input_0",
-          toSubConnector: 0
-        };
-
-        //Add Link object into JSON object that contains all the link which is called this.data.links
-        this.addLink(linkData1);
-
-        this.addLink(linkData2);
-      }
-      return this.operatorNum;
+      RefactoredFunctions.addOperator({
+        operatorData: operatorData,
+        self: this
+      });
     },
 
     createOperator: function(operatorId, operatorData) {
-      operatorData.internal = {};
-      this._refreshInternalProperties(operatorData);
-
-      var fullElement = this._getOperatorFullElement(operatorData);
-      console.log("operatorData", operatorData);
-      if (
-        !this.callbackEvent("operatorCreate", [
-          operatorId,
-          operatorData,
-          fullElement
-        ])
-      ) {
-        return false;
-      }
-
-      var grid = this.options.grid;
-
-      if (grid) {
-        operatorData.top = Math.round(operatorData.top / grid) * grid;
-        operatorData.left = Math.round(operatorData.left / grid) * grid;
-      }
-
-      console.log(operatorData.top);
-      console.log(operatorData.left);
-
-      fullElement.operator.appendTo(this.objs.layers.operators);
-      fullElement.operator.css({
-        position: "absolute",
-        top: operatorData.top,
-        left: operatorData.left
-      });
-      fullElement.operator.data("operator_id", operatorId);
-
-      this.data.operators[operatorId] = operatorData;
-      this.data.operators[operatorId].internal.els = fullElement;
-
-      if (operatorId == this.selectedOperatorId) {
-        this._addSelectedClass(operatorId);
-      }
-
-      var self = this;
-
-      function operatorChangedPosition(operator_id, pos) {
-        //We passed in the new position of the operator
-        operatorData.top = pos.top;
-        operatorData.left = pos.left;
-
-        for (var linkId in self.data.links) {
-          if (self.data.links.hasOwnProperty(linkId)) {
-            var linkData = self.data.links[linkId];
-            if (
-              linkData.fromOperator == operator_id ||
-              linkData.toOperator == operator_id
-            ) {
-              self._refreshLinkPositions(linkId);
-            }
-          }
-        }
-      }
-
-      // Small fix has been added in order to manage eventual zoom
-      // http://stackoverflow.com/questions/2930092/jquery-draggable-with-zoom-problem
-      if (this.options.canUserMoveOperators) {
-        var pointerX;
-        var pointerY;
-        fullElement.operator.draggable({
-          containment: operatorData.internal.properties.uncontained
-            ? false
-            : this.element,
-          handle: ".flowchart-operator-title",
-          start: function(e, ui) {
-            if (self.lastOutputConnectorClicked != null) {
-              e.preventDefault();
-              return;
-            }
-            var elementOffset = self.element.offset();
-            pointerX =
-              (e.pageX - elementOffset.left) / self.positionRatio -
-              parseInt($(e.target).css("left"));
-            pointerY =
-              (e.pageY - elementOffset.top) / self.positionRatio -
-              parseInt($(e.target).css("top"));
-          },
-          //Everytime the operator is dragged this callback will be called
-          drag: function(e, ui) {
-            if (self.options.grid) {
-              var grid = self.options.grid;
-              var elementOffset = self.element.offset();
-              console.log(elementOffset);
-              ui.position.left =
-                Math.round(
-                  ((e.pageX - elementOffset.left) / self.positionRatio -
-                    pointerX) /
-                    grid
-                ) * grid;
-              console.log("ui.position.left", ui.position.left);
-              ui.position.top =
-                Math.round(
-                  ((e.pageY - elementOffset.top) / self.positionRatio -
-                    pointerY) /
-                    grid
-                ) * grid;
-              console.log(!operatorData.internal.properties.uncontained);
-              if (!operatorData.internal.properties.uncontained) {
-                const sizeW = parseInt($("#example").css("width"));
-                const sizeH = parseInt($("#example").css("height"));
-                const constantW = (19.5 / (sizeW / 100)) * sizeW;
-                const constantH = (21 / (sizeH / 100)) * sizeH;
-                console.log(sizeH);
-                var $this = $(this);
-                // ui.position.left = Math.min(
-                //   Math.max(ui.position.left, 0),
-                //   self.element.width() - $this.outerWidth()
-                // );
-                if (ui.position.left > constantW) {
-                  ui.position.left = constantW;
-                } else if (ui.position.left < 0) {
-                  ui.position.left = 0;
-                }
-
-                if (ui.position.top < 0) {
-                  ui.position.top = 0;
-                } else if (ui.position.top > constantH) {
-                  ui.position.top = constantH;
-                }
-                // ui.position.top = Math.min(
-                //   Math.max(ui.position.top, 0),
-                //   self.element.height() - $this.outerHeight()
-                // );
-              }
-
-              ui.offset.left = Math.round(
-                ui.position.left + elementOffset.left
-              );
-              ui.offset.top = Math.round(ui.position.top + elementOffset.top);
-              fullElement.operator.css({
-                left: ui.position.left,
-                top: ui.position.top
-              });
-            }
-
-            operatorChangedPosition($(this).data("operator_id"), ui.position);
-
-            console.log("ui.position", ui.position);
-          },
-          stop: function(e, ui) {
-            //  console.log("############ 1300")
-            //  console.log(e)
-            //  console.log("############ 1300")
-            self._unsetTemporaryLink();
-            var operatorId = $(this).data("operator_id");
-            operatorChangedPosition(operatorId, ui.position);
-            //Height auto causing shape deformed
-            // fullElement.operator.css({
-            //   height: "auto"
-            // });
-
-            self.callbackEvent("operatorMoved", [operatorId, ui.position]);
-            self.callbackEvent("afterChange", ["operator_moved"]);
-          }
-        });
-      }
-
-      this.callbackEvent("afterChange", ["operator_create"]);
+      RefactoredFunctions.createOperator(operatorId, operatorData, this);
     },
 
     //This is the callback function when connector is clicked
@@ -1616,29 +1302,11 @@ $(function() {
     },
 
     unselectLink: function() {
-      if (this.selectedLinkId != null) {
-        if (!this.callbackEvent("linkUnselect", [])) {
-          return;
-        }
-        this.selectedLinkId = null;
-      }
+      RefactoredFunctions.unselectLink(this);
     },
 
     selectLink: function(linkId) {
-      this.unselectLink();
-      if (!this.callbackEvent("linkSelect", [linkId])) {
-        return;
-      }
-      this.unselectOperator();
-      this.selectedLinkId = linkId;
-
-      let toOperator = this.data.links[linkId].toOperator;
-      let fromOperator = this.data.links[linkId].fromOperator;
-
-      if (
-        !this.data.operators[toOperator].properties.random ||
-        !this.data.operators[fromOperator].properties.random
-      ) {
+      if (RefactoredFunctions.selectLink(linkId, this)) {
         $(`.flowchart-link line`).each(function() {
           $(this).attr("stroke", "black");
         });
@@ -1653,70 +1321,15 @@ $(function() {
     },
 
     _deleteOperator: function(operatorId, replace) {
-      if (!this.callbackEvent("operatorDelete", [operatorId, replace])) {
-        return false;
-      }
-      if (!replace) {
-        for (var linkId in this.data.links) {
-          if (this.data.links.hasOwnProperty(linkId)) {
-            var currentLink = this.data.links[linkId];
-            if (
-              currentLink.fromOperator == operatorId ||
-              currentLink.toOperator == operatorId
-            ) {
-              this._deleteLink(linkId, true);
-            }
-          }
-        }
-      }
-      if (!replace && operatorId == this.selectedOperatorId) {
-        this.unselectOperator();
-      }
-      this.data.operators[operatorId].internal.els.operator.remove();
-      delete this.data.operators[operatorId];
-
-      this.callbackEvent("afterChange", ["operator_delete"]);
-
-      for (var key in this.data.links) {
-        console.log(this.data.links);
-        console.log(key);
-        this._refreshLinkPositions(key);
-      }
+      RefactoredFunctions._deleteOperator(operatorId, replace, this);
     },
 
     deleteLink: function(linkId) {
-      let fromOperator = this.data.links[linkId].fromOperator;
-      let toOperator = this.data.links[linkId].toOperator;
-      if (
-        !this.data.operators[fromOperator].properties.random ||
-        !this.data.operators[toOperator].properties.random
-      ) {
-        this._deleteLink(linkId, false);
-      }
+      RefactoredFunctions.deleteLink(linkId, this);
     },
 
     _deleteLink: function(linkId, forced) {
-      if (this.selectedLinkId == linkId) {
-        this.unselectLink();
-      }
-      if (!this.callbackEvent("linkDelete", [linkId, forced])) {
-        if (!forced) {
-          return;
-        }
-      }
-      this.colorizeLink(linkId, "transparent");
-      var linkData = this.data.links[linkId];
-      var fromOperator = linkData.fromOperator;
-      var fromConnector = linkData.fromConnector;
-      var toOperator = linkData.toOperator;
-      var toConnector = linkData.toConnector;
-      linkData.internal.els.overallGroup.remove();
-      delete this.data.links[linkId];
-
-      this._cleanMultipleConnectors(fromOperator, fromConnector, "from");
-      this._cleanMultipleConnectors(toOperator, toConnector, "to");
-
-      this.callbackEvent("afterChange", ["link_delete"]);
+      RefactoredFunctions._deleteLink(linkId, forced, this);
     },
 
     _cleanMultipleConnectors: function(operator, connector, linkFromTo) {
@@ -1763,53 +1376,7 @@ $(function() {
     },
 
     deleteSelected: function() {
-      if (this.selectedLinkId != null) {
-        this.deleteLink(this.selectedLinkId);
-      }
-      if (this.selectedOperatorId != null) {
-        console.log(this.data.operators);
-        if (!this.data.operators[this.selectedOperatorId].properties.random) {
-          this.deleteOperator(this.selectedOperatorId);
-        }
-
-        if (
-          this.data.operators[this.selectedOperatorId].properties.random &&
-          this.data.operators[this.selectedOperatorId].properties.title !=
-            "Reject" &&
-          this.data.operators[this.selectedOperatorId].properties.title !=
-            "Approve"
-        ) {
-          let r = this.data.operators[this.selectedOperatorId].properties
-            .random;
-          for (var key in this.data.operators) {
-            if (
-              this.data.operators[key].properties.random == r &&
-              this.data.operators[key].properties.title == "Approve"
-            ) {
-              this.deleteOperator(key);
-            }
-          }
-
-          for (var key in this.data.operators) {
-            if (
-              this.data.operators[key].properties.random == r &&
-              this.data.operators[key].properties.title == "Reject"
-            ) {
-              this.deleteOperator(key);
-            }
-          }
-
-          for (var key in this.data.operators) {
-            if (
-              this.data.operators[key].properties.random == r &&
-              this.data.operators[key].properties.title != "Approve" &&
-              this.data.operators[key].properties.title != "Reject"
-            ) {
-              this.deleteOperator(key);
-            }
-          }
-        }
-      }
+      RefactoredFunctions.deleteSelected(this);
     },
 
     setPositionRatio: function(positionRatio) {

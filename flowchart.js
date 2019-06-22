@@ -48,7 +48,7 @@ function deleteOperatorHandler(flowchartElement) {
     .children(".delete_selected_button")
     .click(function() {
       console.log("DELETING");
-      flowchartElement.flowchart("deleteSelected");
+      flowchartElement.flowchart("deleteSelected", this);
     });
 }
 
