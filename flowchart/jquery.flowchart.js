@@ -3,8 +3,6 @@
 //The problem:the connector screw the input of data into input field
 //Arrow and line algorithm is at _drawLink function at line 483
 
-import RefactoredFunctions from "./jquery.refactor";
-
 function setLineAttribute(lineObject, attributesObject) {
   const attributesArray = Object.keys(attributesObject);
   for (let i = 0; i < attributesArray.length; i++) {
@@ -18,6 +16,7 @@ function setLineAttribute(lineObject, attributesObject) {
 
 function setLinesAttribute(linesObject, attributesObjects) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const linesArray = Object.keys(linesObject).slice(3);
   for (let i = 0; i < linesArray.length; i++) {
     setLineAttribute(
@@ -26,12 +25,19 @@ function setLinesAttribute(linesObject, attributesObjects) {
     );
   }
 =======
+=======
+  const linesArray = Object.keys(linesObject);
+  console.log(linesArray);
+>>>>>>> parent of cfb60c3... Refactored
   setLineAttribute(linesObject.line1, attributesObjects["line1"]);
   setLineAttribute(linesObject.line2, attributesObjects["line2"]);
   setLineAttribute(linesObject.line3, attributesObjects["line3"]);
   setLineAttribute(linesObject.line4, attributesObjects["line4"]);
   setLineAttribute(linesObject.line5, attributesObjects["line5"]);
+<<<<<<< HEAD
 >>>>>>> parent of bc9718b... jquery.flowchart.js temporary refactor done
+=======
+>>>>>>> parent of cfb60c3... Refactored
 }
 
 function setInitialShapeAttribute(shapeObject, attributesObjects) {
@@ -50,7 +56,6 @@ function createSvgElement(document, elementToCreate) {
     elementToCreate
   );
 }
-
 $(function() {
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
@@ -138,7 +143,10 @@ $(function() {
       );
       this.objs.layers.temporaryLink.appendTo(this.element);
 
-      var shape = createSvgElement(document, "line");
+      var shape = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
 
       //The dotted line is created here which we saw during dragging the line
       setInitialShapeAttribute(shape, {
@@ -184,6 +192,12 @@ $(function() {
 
     _initEvents: function() {
       var self = this;
+
+      //Customised listener
+
+      //self.data.operators is the data of whole diagram
+
+      //IF the flow chart title is double clicked, then the input will be visible
       this.objs.layers.operators.on(
         "dblclick",
         ".flowchart-span-title",
@@ -394,12 +408,16 @@ $(function() {
         function(e) {
           console.log($(this));
           self._operatorMouseOver($(this).data("operator_id"));
+          // console.log("mouseover", $(this).data("operator_id"));
         }
       );
 
       this.objs.layers.operators.on("mouseout", ".flowchart-operator", function(
         e
       ) {
+        // console.log("........................ 350")
+        // console.log(e)
+        // console.log("........................ 350")
         self._operatorMouseOut($(this).data("operator_id"));
       });
     },
@@ -617,8 +635,9 @@ $(function() {
       var line3 = createSvgElement(document, "line");
       var line4 = createSvgElement(document, "line");
       var line5 = createSvgElement(document, "line");
-      var group = createSvgElement(document, "g");
+
       linkData.internal.els.overallGroup = overallGroup;
+      var group = createSvgElement(document, "g");
       group.setAttribute("class", "flowchart-link");
       group.setAttribute("data-link_id", linkId);
       overallGroup.appendChild(group);
@@ -877,7 +896,7 @@ $(function() {
         console.log("Decider");
       }
 
-      let $operator_diamond_item_count = $('<div class="item_count"></div>');
+      $operator_diamond_item_count = $('<div class="item_count"></div>');
 
       var $operator = $('<div class="flowchart-operator"></div>');
       $operator.addClass(infos.class);
@@ -885,17 +904,17 @@ $(function() {
 
       console.log("info.class", infos.class);
 
-      let $container = $('<div class="container"></div>');
+      $container = $('<div class="container"></div>');
 
       $container.appendTo($operator);
 
-      let $row = $('<div class="row"></div>');
+      $row = $('<div class="row"></div>');
 
       $row.appendTo($container);
 
-      let $icon = $("<div class='col-sm-2'></div>");
+      $icon = $("<div class='col-sm-2'></div>");
 
-      let $mailIcon = $(
+      $mailIcon = $(
         '<span class="glyphicon" style="color:black;font-size:30px">&#x2709;</span>'
       );
 
@@ -903,7 +922,7 @@ $(function() {
 
       $icon.appendTo($row);
 
-      let $title = $("<div class='col-sm-10'></div>");
+      $title = $("<div class='col-sm-10'></div>");
 
       $title.appendTo($row);
 
