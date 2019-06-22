@@ -22,6 +22,7 @@ function setLinesAttribute(linesObject, attributesObjects) {
       attributesObjects[linesArray[i]]
     );
   }
+  g;
 }
 
 function setInitialShapeAttribute(shapeObject, attributesObjects) {
