@@ -450,26 +450,23 @@ $(function() {
 
     //The svg and path is CREATED here in this function, noted that created only , the position is not set yet
     _drawLink: function(linkId) {
-      RefactoredFunctions._drawLink(linkId, this);
+      var linkId = RefactoredFunctions.createAssignAndAppendLines(
+        RefactoredFunctions._drawLink(linkId, this)
+      );
+
+      this._refreshLinkPositions(linkId);
+      this.uncolorizeLink(linkId);
     },
 
     _getSubConnectors: function(linkData) {
-      var fromSubConnector = 0;
-      if (typeof linkData.fromSubConnector != "undefined") {
-        fromSubConnector = linkData.fromSubConnector;
-      }
-
-      var toSubConnector = 0;
-      if (typeof linkData.toSubConnector != "undefined") {
-        toSubConnector = linkData.toSubConnector;
-      }
-
-      return [fromSubConnector, toSubConnector];
+      return RefactoredFunctions._getSubConnectors(linkData);
     },
 
     //Setting the x and y attribute of the shape created in _drawlink
     _refreshLinkPositions: function(linkId) {
-      RefactoredFunctions._refreshLinkPositions(linkId, this);
+      RefactoredFunctions.setLinesAttribute(
+        RefactoredFunctions._refreshLinkPositions(linkId, this)
+      );
     },
 
     getOperatorCompleteData: function(operatorData) {
@@ -571,75 +568,15 @@ $(function() {
       subConnector,
       connectorCategory
     ) {
-      if (connectorCategory == "outputs") {
-        var d = new Date();
-        // var currentTime = d.getTime();
-        this.lastOutputConnectorClicked = {
-          operator: operator,
-          connector: connector,
-          subConnector: subConnector
-        };
-
-        // console.log(
-        //   "this.lastOutputConnectorClicked",
-        //   this.lastOutputConnectorClicked
-        // );
-
-        this.objs.layers.temporaryLink.show();
-
-        // console.log(
-        //   "this.objs.layers.temporaryLink",
-        //   this.objs.layers.temporaryLink
-        // );
-
-        var position = this.getConnectorPosition(
+      this.addLink(
+        RefactoredFunctions._connectorClicked(
           operator,
           connector,
-          subConnector
-        );
-
-        // console.log("position", position);
-
-        var x = position.x + position.width;
-        var y = position.y;
-
-        // console.log("x", x);
-        // console.log("y", y);
-
-        //Where is temporaryLink; This set the starting point of the temporary link
-        this.objs.temporaryLink.setAttribute("x1", x.toString());
-        this.objs.temporaryLink.setAttribute("y1", y.toString());
-
-        //Where is mousemove? Setting the initial position of the hint line first
-        this._mousemove(x, y);
-      }
-      if (
-        //Check if input connector is pressed and check if output connector is clicked beforehand
-        connectorCategory == "inputs" &&
-        this.lastOutputConnectorClicked != null
-      ) {
-        // console.log("connectorCategory", connectorCategory);
-        // console.log(
-        //   "this.lastOutputConnectorClicked",
-        //   this.lastOutputConnectorClicked
-        // );
-        var linkData = {
-          fromOperator: this.lastOutputConnectorClicked.operator,
-          fromConnector: this.lastOutputConnectorClicked.connector,
-          fromSubConnector: this.lastOutputConnectorClicked.subConnector,
-          toOperator: operator,
-          toConnector: connector,
-          toSubConnector: subConnector
-        };
-
-        // console.log("linkData", linkData);
-
-        // console.log(linkData);
-
-        //Linkdata specify which output of which operator is connected to which input of which operator
-        this._unsetTemporaryLink();
-        this.addLink(linkData);
-      }
+          subConnector,
+          connectorCategory,
+          this
+        )
+      );
     },
 
     _unsetTemporaryLink: function() {
@@ -933,6 +870,10 @@ $(function() {
 
     setOperatorData: function(operatorId, operatorData) {
       RefactoredFunctions.setOperatorData(operatorId, operatorData, self);
+      this._deleteOperator(operatorId, true);
+      this.createOperator(operatorId, operatorData);
+      this.redrawLinksLayer();
+      this.callbackEvent("afterChange", ["operator_data_change"]);
     },
 
     doesOperatorExists: function(operatorId) {

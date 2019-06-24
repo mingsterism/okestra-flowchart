@@ -82,6 +82,9 @@ function createLink(linkId, linkDataOriginal, self) {
 }
 
 function addLink(linkData, self) {
+  if (!linkData) {
+    return;
+  }
   //Called upon linking when both input and output connector is clicked
   let linkNum;
 
@@ -490,7 +493,8 @@ function setLineAttribute(lineObject, attributesObject) {
   lineObject.setAttribute("stroke", "black");
 }
 
-function setLinesAttribute(linesObject, attributesObjects) {
+function setLinesAttribute(object) {
+  const { linesObject, attributesObjects } = object;
   const linesArray = Object.keys(linesObject).slice(3);
   for (let i = 0; i < linesArray.length; i++) {
     setLineAttribute(
@@ -563,7 +567,6 @@ function _refreshLinkPositions(linkId, self) {
         y2: toY
       }
     };
-    setLinesAttribute(linkData.internal.els, linesData);
   } else if (isInDirectlyAbove) {
     linesData = {
       line1: {
@@ -597,7 +600,6 @@ function _refreshLinkPositions(linkId, self) {
         y2: toY - halfYdiff
       }
     };
-    setLinesAttribute(linkData.internal.els, linesData);
   } else if (isDirectlyAbove) {
     linesData = {
       line1: {
@@ -631,7 +633,6 @@ function _refreshLinkPositions(linkId, self) {
         y2: toY - halfYdiff
       }
     };
-    setLinesAttribute(linkData.internal.els, linesData);
   } else {
     linesData = {
       line1: {
@@ -665,8 +666,9 @@ function _refreshLinkPositions(linkId, self) {
         y2: 0
       }
     };
-    setLinesAttribute(linkData.internal.els, linesData);
   }
+
+  return { linesObject: linkData.internal.els, attributesObjects: linesData };
 }
 
 function getData(self) {
@@ -713,11 +715,11 @@ function _drawLink(linkId, self) {
   linkData.internal.els.fromSmallConnector = fromSmallConnector;
   linkData.internal.els.toSmallConnector = toSmallConnector;
 
-  createAssignAndAppendLines({
+  return {
     linkData,
     linkId,
     self
-  });
+  };
 }
 
 function selectOperator(operatorId, self) {}
@@ -738,10 +740,6 @@ function setOperatorData(operatorId, operatorData, self) {
       }
     }
   }
-  self._deleteOperator(operatorId, true);
-  self.createOperator(operatorId, operatorData);
-  self.redrawLinksLayer();
-  self.callbackEvent("afterChange", ["operator_data_change"]);
 }
 
 function createAssignAndAppendLines(object) {
@@ -760,8 +758,8 @@ function createAssignAndAppendLines(object) {
     linkData.internal.els[attr] = createSvgElement(document, "line");
     group.appendChild(linkData.internal.els[attr]);
   }
-  self._refreshLinkPositions(linkId);
-  self.uncolorizeLink(linkId);
+
+  return linkId;
 }
 
 function setOperatorTitle(operatorId, title, self) {
@@ -1023,7 +1021,94 @@ function addConnector() {}
 
 function _createSubConnector() {}
 
-function _connectorClicked() {}
+function _connectorClicked(
+  operator,
+  connector,
+  subConnector,
+  connectorCategory,
+  self
+) {
+  if (connectorCategory == "outputs") {
+    var d = new Date();
+    // var currentTime = d.getTime();
+    self.lastOutputConnectorClicked = {
+      operator: operator,
+      connector: connector,
+      subConnector: subConnector
+    };
+
+    // console.log(
+    //   "self.lastOutputConnectorClicked",
+    //   self.lastOutputConnectorClicked
+    // );
+
+    self.objs.layers.temporaryLink.show();
+
+    // console.log(
+    //   "self.objs.layers.temporaryLink",
+    //   self.objs.layers.temporaryLink
+    // );
+
+    var position = self.getConnectorPosition(operator, connector, subConnector);
+
+    // console.log("position", position);
+
+    var x = position.x + position.width;
+    var y = position.y;
+
+    // console.log("x", x);
+    // console.log("y", y);
+
+    //Where is temporaryLink; This set the starting point of the temporary link
+    self.objs.temporaryLink.setAttribute("x1", x.toString());
+    self.objs.temporaryLink.setAttribute("y1", y.toString());
+
+    //Where is mousemove? Setting the initial position of the hint line first
+    self._mousemove(x, y);
+    return null;
+  }
+  if (
+    //Check if input connector is pressed and check if output connector is clicked beforehand
+    connectorCategory == "inputs" &&
+    self.lastOutputConnectorClicked != null
+  ) {
+    // console.log("connectorCategory", connectorCategory);
+    // console.log(
+    //   "self.lastOutputConnectorClicked",
+    //   self.lastOutputConnectorClicked
+    // );
+    var linkData = {
+      fromOperator: self.lastOutputConnectorClicked.operator,
+      fromConnector: self.lastOutputConnectorClicked.connector,
+      fromSubConnector: self.lastOutputConnectorClicked.subConnector,
+      toOperator: operator,
+      toConnector: connector,
+      toSubConnector: subConnector
+    };
+
+    // console.log("linkData", linkData);
+
+    // console.log(linkData);
+
+    //Linkdata specify which output of which operator is connected to which input of which operator
+    self._unsetTemporaryLink();
+    return linkData;
+  }
+}
+
+function _getSubConnectors(linkData) {
+  var fromSubConnector = 0;
+  if (typeof linkData.fromSubConnector != "undefined") {
+    fromSubConnector = linkData.fromSubConnector;
+  }
+
+  var toSubConnector = 0;
+  if (typeof linkData.toSubConnector != "undefined") {
+    toSubConnector = linkData.toSubConnector;
+  }
+
+  return [fromSubConnector, toSubConnector];
+}
 
 module.exports = {
   addOperator,
@@ -1053,5 +1138,9 @@ module.exports = {
   _createSubConnector,
   _connectorClicked,
   connectRejectAndApproveWithMother,
-  linkMotherToApproveAndReject
+  linkMotherToApproveAndReject,
+  _connectorClicked,
+  setLinesAttribute,
+  _getSubConnectors,
+  createAssignAndAppendLines
 };
