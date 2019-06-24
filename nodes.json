@@ -1,0 +1,40 @@
+{
+  "nodes": {}
+}
+
+//pass in only the data needed
+
+// Jane Smith4: 57 PM
+// 1) CONFIG FILE
+// : Add new shapes
+// : Add shape logic (One to Many, Many to many etc...)
+// : Shape style (css)
+// : Shape Arrow multiple arrows from 1 point
+// Jane Smith4: 58 PM
+// {
+// name: Decision Node,
+// style: decisionNode.css
+// shapeLogic: "OTM | OTO | OTO"
+// }
+// Jane Smith5: 01 PM
+// shapeLogic: [
+//     {
+//     name: "Approve"
+//     },
+//     {
+//     name: "reject"
+//     }
+
+//reduce the amount of nested functions
+//reduce the amount of functions calling each other
+
+// [
+//     {
+//         "name": "Decision node",
+//         "nodeStyle": "./decisionNode.css",
+//         "nodeLogic": {
+//             "input": 1,
+//             "output": "M"
+//         }
+//     }
+// ]

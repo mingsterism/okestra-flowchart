@@ -426,20 +426,12 @@ $(function() {
 
     //Get the positon of the connector clicked
     getConnectorPosition: function(operatorId, connectorId, subConnector) {
-      var operatorData = this.data.operators[operatorId];
-      var $connector =
-        operatorData.internal.els.connectorArrows[connectorId][subConnector];
-
-      var connectorOffset = $connector.offset();
-      var elementOffset = this.element.offset();
-
-      var x = (connectorOffset.left - elementOffset.left) / this.positionRatio;
-      var width = parseInt($connector.css("border-top-width"));
-      var y =
-        (connectorOffset.top - elementOffset.top - 1) / this.positionRatio +
-        parseInt($connector.css("border-left-width"));
-
-      return { x: x, width: width, y: y };
+      return RefactoredFunctions.getConnectorPosition(
+        operatorId,
+        connectorId,
+        subConnector,
+        this
+      );
     },
 
     getLinkMainColor: function(linkId) {
@@ -481,194 +473,12 @@ $(function() {
     },
 
     getOperatorCompleteData: function(operatorData) {
-      if (typeof operatorData.internal == "undefined") {
-        operatorData.internal = {};
-      }
-      this._refreshInternalProperties(operatorData);
-      var infos = $.extend(true, {}, operatorData.internal.properties);
-
-      console.log("infos.inputs", infos.inputs);
-
-      for (var connectorId_i in infos.inputs) {
-        if (infos.inputs.hasOwnProperty(connectorId_i)) {
-          if (infos.inputs[connectorId_i] == null) {
-            delete infos.inputs[connectorId_i];
-          }
-        }
-      }
-
-      for (var connectorId_o in infos.outputs) {
-        if (infos.outputs.hasOwnProperty(connectorId_o)) {
-          if (infos.outputs[connectorId_o] == null) {
-            delete infos.outputs[connectorId_o];
-          }
-        }
-      }
-
-      if (typeof infos.class == "undefined") {
-        infos.class = this.options.defaultOperatorClass;
-      }
-      return infos;
+      return RefactoredFunctions.getOperatorCompleteData(operatorData, this);
     },
 
     //this depends upon getOperatorComplete data to generate html element
     _getOperatorFullElement: function(operatorData) {
-      var infos = this.getOperatorCompleteData(operatorData);
-
-      console.log("infos", infos);
-
-      if (infos.func == "decider") {
-        console.log("Decider");
-      }
-
-      var $operator = $('<div class="flowchart-operator"></div>');
-      $operator.addClass(infos.class);
-      $operator.addClass(infos.shape);
-
-      console.log("info.class", infos.class);
-
-      let $container = $('<div class="container"></div>');
-
-      $container.appendTo($operator);
-
-      let $row = $('<div class="row"></div>');
-
-      $row.appendTo($container);
-
-      let $icon = $("<div class='col-sm-2'></div>");
-
-      let $mailIcon = $(
-        '<span class="glyphicon" style="color:black;font-size:30px">&#x2709;</span>'
-      );
-
-      $mailIcon.appendTo($icon);
-
-      $icon.appendTo($row);
-
-      let $title = $("<div class='col-sm-10'></div>");
-
-      $title.appendTo($row);
-
-      //Creating an input to take in customised value on the user
-      var $operator_input = $(
-        '<input type="text" style="width:100%;display:none;height:90%" class="input-inside-operator"/>'
-      );
-
-      var $operator_title = $('<div class="flowchart-operator-title"></div>');
-
-      var $operator_span_title = $(
-        "<div class='flowchart-span-title'>" + infos.title + "</div>"
-      );
-
-      $operator_title.html($operator_span_title);
-      $operator_title.appendTo($title);
-      $operator_input.appendTo($operator_title);
-
-      //Adding input with display on none
-      $operator_title.addClass("centerText");
-
-      var $operator_inputs_outputs = $(
-        '<div class="flowchart-operator-inputs-outputs"></div>'
-      );
-
-      $operator_inputs_outputs.appendTo($operator);
-
-      //Input div part
-      var $operator_inputs = $('<div class="flowchart-operator-inputs"></div>');
-
-      $operator_inputs.appendTo($operator_inputs_outputs);
-
-      var $operator_outputs = $(
-        '<div class="flowchart-operator-outputs"></div>'
-      );
-      $operator_outputs.appendTo($operator_inputs_outputs);
-
-      var self = this;
-
-      var connectorArrows = {};
-      var connectorSmallArrows = {};
-      var connectorSets = {};
-      var connectors = {};
-
-      var fullElement = {
-        operator: $operator,
-        title: $operator_title,
-        connectorSets: connectorSets,
-        connectors: connectors,
-        connectorArrows: connectorArrows,
-        connectorSmallArrows: connectorSmallArrows,
-        func: infos.func
-      };
-
-      //Connector is created here
-      function addConnector(
-        connectorKey,
-        connectorInfos,
-        $operator_container,
-        connectorType,
-        bottomPadding,
-        func
-      ) {
-        var $operator_connector_set = $(
-          '<div class="flowchart-operator-connector-set"></div>'
-        );
-
-        if (connectorKey == "output_1" && func == "decider") {
-          $operator_connector_set.css("height", 0);
-        }
-
-        $operator_connector_set.data("connector_type", connectorType);
-        $operator_connector_set.appendTo($operator_container);
-
-        connectorArrows[connectorKey] = [];
-        connectorSmallArrows[connectorKey] = [];
-        connectors[connectorKey] = [];
-        connectorSets[connectorKey] = $operator_connector_set;
-
-        self._createSubConnector(
-          connectorKey,
-          connectorInfos,
-          fullElement,
-          connectorType,
-          bottomPadding,
-          fullElement.func
-        );
-      }
-
-      for (var key_i in infos.inputs) {
-        if (infos.inputs.hasOwnProperty(key_i)) {
-          var bottomPadding = false;
-          if (Object.keys(infos.inputs).length == 2 && key_i == "input_0") {
-            bottomPadding = true;
-          }
-          addConnector(
-            key_i,
-            infos.inputs[key_i],
-            $operator_inputs,
-            "inputs",
-            bottomPadding
-          );
-        }
-      }
-      console.log("infos", infos.func);
-      for (var key_o in infos.outputs) {
-        if (infos.outputs.hasOwnProperty(key_o)) {
-          var bottomPadding = false;
-          if (Object.keys(infos.outputs).length == 2 && key_o == "output_0") {
-            bottomPadding = true;
-          }
-          addConnector(
-            key_o,
-            infos.outputs[key_o],
-            $operator_outputs,
-            "outputs",
-            bottomPadding,
-            infos.func
-          );
-        }
-      }
-
-      return fullElement;
+      return RefactoredFunctions._getOperatorFullElement(operatorData, this);
     },
 
     //Create connector the triangle  shape
@@ -731,10 +541,22 @@ $(function() {
 
     //Adding operator happens here when you drop a div at the canvas
     addOperator: function(operatorData) {
-      RefactoredFunctions.addOperator({
-        operatorData: operatorData,
-        self: this
-      });
+      if (
+        RefactoredFunctions.createOperator(
+          RefactoredFunctions.addOperator({
+            operatorData: operatorData,
+            self: this
+          }),
+          operatorData
+        )
+      ) {
+        RefactoredFunctions.linkMotherToApproveAndReject(
+          RefactoredFunctions.connectRejectAndApproveWithMother(
+            operatorData,
+            this
+          )
+        );
+      }
     },
 
     createOperator: function(operatorId, operatorData) {
@@ -1077,46 +899,12 @@ $(function() {
     },
 
     _cleanMultipleConnectors: function(operator, connector, linkFromTo) {
-      if (
-        !this.data.operators[operator].properties[
-          linkFromTo == "from" ? "outputs" : "inputs"
-        ][connector].multiple
-      ) {
-        return;
-      }
-
-      var maxI = -1;
-      var fromToOperator = linkFromTo + "Operator";
-      var fromToConnector = linkFromTo + "Connector";
-      var fromToSubConnector = linkFromTo + "SubConnector";
-      var els = this.data.operators[operator].internal.els;
-      var subConnectors = els.connectors[connector];
-      var nbSubConnectors = subConnectors.length;
-
-      for (var linkId in this.data.links) {
-        if (this.data.links.hasOwnProperty(linkId)) {
-          var linkData = this.data.links[linkId];
-          if (
-            linkData[fromToOperator] == operator &&
-            linkData[fromToConnector] == connector
-          ) {
-            if (maxI < linkData[fromToSubConnector]) {
-              maxI = linkData[fromToSubConnector];
-            }
-          }
-        }
-      }
-
-      var nbToDelete = Math.min(
-        nbSubConnectors - maxI - 2,
-        nbSubConnectors - 1
+      RefactoredFunctions._cleanMultipleConnectors(
+        operator,
+        connector,
+        linkFromTo,
+        this
       );
-      for (var i = 0; i < nbToDelete; i++) {
-        subConnectors[subConnectors.length - 1].remove();
-        subConnectors.pop();
-        els.connectorArrows[connector].pop();
-        els.connectorSmallArrows[connector].pop();
-      }
     },
 
     deleteSelected: function() {

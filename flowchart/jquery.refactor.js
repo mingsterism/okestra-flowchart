@@ -1,3 +1,10 @@
+//config file
+// 1) CONFIG FILE
+// : Add new shapes
+// : Add shape logic(One to Many, Many to many etc...)
+// : Shape style(css)
+// : Shape Arrow multiple arrows from 1 point
+
 function setInitialShapeAttribute(shapeObject, attributesObjects) {
   const attributesArray = Object.keys(attributesObjects);
   for (let i = 0; i < attributesArray.length; i++) {
@@ -13,23 +20,6 @@ function createSvgElement(document, elementToCreate) {
     "http://www.w3.org/2000/svg",
     elementToCreate
   );
-}
-
-function createLinkData(linkDataObject) {
-  const {
-    fromOperator,
-    fromConnector,
-    toOperator,
-    toConnector
-  } = linkDataObject;
-  return {
-    fromOperator: fromOperator,
-    fromConnector: fromConnector,
-    fromSubConnector: 0,
-    toOperator: toOperator,
-    toConnector: toConnector,
-    toSubConnector: 0
-  };
 }
 
 function createLink(linkId, linkDataOriginal, self) {
@@ -93,22 +83,19 @@ function createLink(linkId, linkDataOriginal, self) {
 
 function addLink(linkData, self) {
   //Called upon linking when both input and output connector is clicked
-  console.log("links", self.data.links);
-  console.log(
-    "link.this.data.operators from addLink function",
-    self.data.operators
-  );
+  let linkNum;
 
   //This.data.links is a object storing linkData
   while (typeof self.data.links[self.linkNum] != "undefined") {
-    self.linkNum++;
+    linkNum = self.linkNum++;
   }
 
   createLink(self.linkNum, linkData, self); //(0,linkData)
-  return self.linkNum;
+  return linkNum;
 }
 
-function createOperator(operatorId, operatorData, self) {
+function createOperator(operatorObject, operatorData) {
+  const { operatorId, title, self } = operatorObject;
   operatorData.internal = {};
   self._refreshInternalProperties(operatorData);
   var fullElement = self._getOperatorFullElement(operatorData);
@@ -255,6 +242,8 @@ function createOperator(operatorId, operatorData, self) {
   }
 
   self.callbackEvent("afterChange", ["operator_create"]);
+
+  return title;
 }
 
 function addOperator(addOperatorObject) {
@@ -267,55 +256,63 @@ function addOperator(addOperatorObject) {
   while (typeof self.data.operators[operatorNum] != "undefined") {
     operatorNum++; //Create the id of operator
   }
-
-  createOperator(operatorNum, operatorData, self); //Put the operatorData into the JSON object which is accessible through data.operators
-
+  //createOperator(operatorNum, operatorData, self); //Put the operatorData into the JSON object which is accessible through data.operators
   //Automatically popups of the Approve and Reject Operator
   var isItRejectNode = operatorData.properties.title === "Reject";
 
-  if (isItRejectNode) {
-    let approveNum, rejectNum, motherNum;
-    let r = operatorData.properties.random;
+  return { operatorId: operatorNum, title: isItRejectNode, self };
+}
 
-    for (var key in operators) {
-      let isApproveNodeAndSameMother =
-        operators[key].properties.random == r &&
-        operators[key].properties.title === "Approve";
-      let isMotherNode =
-        operators[key].properties.random === r &&
-        operators[key].properties.title != "Approve" &&
-        operators[key].properties.title != "Reject";
-      if (isApproveNodeAndSameMother) {
-        approveNum = key;
-      }
+function connectRejectAndApproveWithMother(operatorData, self) {
+  let approveNum, rejectNum, motherNum;
+  let r = operatorData.properties.random;
+  let operators = self.data.operators;
 
-      if (isMotherNode) {
-        motherNum = key;
-      }
+  for (var key in operators) {
+    let isApproveNodeAndSameMother =
+      operators[key].properties.random == r &&
+      operators[key].properties.title === "Approve";
+    let isMotherNode =
+      operators[key].properties.random === r &&
+      operators[key].properties.title != "Approve" &&
+      operators[key].properties.title != "Reject";
+    let isRejectNode =
+      operators[key].properties.random == r &&
+      operators[key].properties.title === "Reject";
+
+    if (isRejectNode) {
+      rejectNum = key;
+    }
+    if (isApproveNodeAndSameMother) {
+      approveNum = key;
     }
 
-    //Add Link object into JSON object that contains all the link which is called data.links
-    addLink(
-      createLinkData({
-        fromOperator: motherNum,
-        fromConnector: "output_0",
-        toOperator: approveNum,
-        toConnector: "input_0"
-      }),
-      self
-    );
-
-    addLink(
-      createLinkData({
-        fromOperator: motherNum,
-        fromConnector: "output_1",
-        toOperator: operatorNum,
-        toConnector: "input_0"
-      }),
-      self
-    );
-    return operatorNum;
+    if (isMotherNode) {
+      motherNum = key;
+    }
   }
+
+  return {
+    linkToApprove: {
+      fromOperator: motherNum,
+      fromConnector: "output_0",
+      toOperator: approveNum,
+      toConnector: "input_0"
+    },
+    linkToReject: {
+      fromOperator: motherNum,
+      fromConnector: "output_1",
+      toOperator: rejectNum,
+      toConnector: "input_0"
+    },
+    self
+  };
+}
+
+function linkMotherToApproveAndReject(object) {
+  const { self, linkToApprove, linkToReject } = object;
+  addLink(linkToApprove, self);
+  addLink(linkToReject, self);
 }
 
 function _deleteOperator(operatorId, replace, self) {
@@ -777,6 +774,257 @@ function setOperatorTitle(operatorId, title, self) {
   self.callbackEvent("afterChange", ["operator_title_change"]);
 }
 
+function _cleanMultipleConnectors(operator, connector, linkFromTo, self) {
+  if (
+    !self.data.operators[operator].properties[
+      linkFromTo == "from" ? "outputs" : "inputs"
+    ][connector].multiple
+  ) {
+    return;
+  }
+
+  var maxI = -1;
+  var fromToOperator = linkFromTo + "Operator";
+  var fromToConnector = linkFromTo + "Connector";
+  var fromToSubConnector = linkFromTo + "SubConnector";
+  var els = self.data.operators[operator].internal.els;
+  var subConnectors = els.connectors[connector];
+  var nbSubConnectors = subConnectors.length;
+
+  for (var linkId in self.data.links) {
+    if (self.data.links.hasOwnProperty(linkId)) {
+      var linkData = self.data.links[linkId];
+      if (
+        linkData[fromToOperator] == operator &&
+        linkData[fromToConnector] == connector
+      ) {
+        if (maxI < linkData[fromToSubConnector]) {
+          maxI = linkData[fromToSubConnector];
+        }
+      }
+    }
+  }
+
+  var nbToDelete = Math.min(nbSubConnectors - maxI - 2, nbSubConnectors - 1);
+  for (var i = 0; i < nbToDelete; i++) {
+    subConnectors[subConnectors.length - 1].remove();
+    subConnectors.pop();
+    els.connectorArrows[connector].pop();
+    els.connectorSmallArrows[connector].pop();
+  }
+}
+
+function getConnectorPosition(operatorId, connectorId, subConnector, self) {
+  var operatorData = self.data.operators[operatorId];
+  var $connector =
+    operatorData.internal.els.connectorArrows[connectorId][subConnector];
+
+  var connectorOffset = $connector.offset();
+  var elementOffset = self.element.offset();
+
+  var x = (connectorOffset.left - elementOffset.left) / self.positionRatio;
+  var width = parseInt($connector.css("border-top-width"));
+  var y =
+    (connectorOffset.top - elementOffset.top - 1) / self.positionRatio +
+    parseInt($connector.css("border-left-width"));
+
+  return { x: x, width: width, y: y };
+}
+
+function getOperatorCompleteData(operatorData, self) {
+  if (typeof operatorData.internal == "undefined") {
+    operatorData.internal = {};
+  }
+  self._refreshInternalProperties(operatorData);
+  var infos = $.extend(true, {}, operatorData.internal.properties);
+
+  console.log("infos.inputs", infos.inputs);
+
+  for (var connectorId_i in infos.inputs) {
+    if (infos.inputs.hasOwnProperty(connectorId_i)) {
+      if (infos.inputs[connectorId_i] == null) {
+        delete infos.inputs[connectorId_i];
+      }
+    }
+  }
+
+  for (var connectorId_o in infos.outputs) {
+    if (infos.outputs.hasOwnProperty(connectorId_o)) {
+      if (infos.outputs[connectorId_o] == null) {
+        delete infos.outputs[connectorId_o];
+      }
+    }
+  }
+
+  if (typeof infos.class == "undefined") {
+    infos.class = self.options.defaultOperatorClass;
+  }
+  return infos;
+}
+
+function _getOperatorFullElement(operatorData, self) {
+  var infos = self.getOperatorCompleteData(operatorData);
+
+  console.log("infos", infos);
+
+  if (infos.func == "decider") {
+    console.log("Decider");
+  }
+
+  var $operator = $('<div class="flowchart-operator"></div>');
+  $operator.addClass(infos.class);
+  $operator.addClass(infos.shape);
+
+  console.log("info.class", infos.class);
+
+  let $container = $('<div class="container"></div>');
+
+  $container.appendTo($operator);
+
+  let $row = $('<div class="row"></div>');
+
+  $row.appendTo($container);
+
+  let $icon = $("<div class='col-sm-2'></div>");
+
+  let $mailIcon = $(
+    '<span class="glyphicon" style="color:black;font-size:30px">&#x2709;</span>'
+  );
+
+  $mailIcon.appendTo($icon);
+
+  $icon.appendTo($row);
+
+  let $title = $("<div class='col-sm-10'></div>");
+
+  $title.appendTo($row);
+
+  //Creating an input to take in customised value on the user
+  var $operator_input = $(
+    '<input type="text" style="width:100%;display:none;height:90%" class="input-inside-operator"/>'
+  );
+
+  var $operator_title = $('<div class="flowchart-operator-title"></div>');
+
+  var $operator_span_title = $(
+    "<div class='flowchart-span-title'>" + infos.title + "</div>"
+  );
+
+  $operator_title.html($operator_span_title);
+  $operator_title.appendTo($title);
+  $operator_input.appendTo($operator_title);
+
+  //Adding input with display on none
+  $operator_title.addClass("centerText");
+
+  var $operator_inputs_outputs = $(
+    '<div class="flowchart-operator-inputs-outputs"></div>'
+  );
+
+  $operator_inputs_outputs.appendTo($operator);
+
+  //Input div part
+  var $operator_inputs = $('<div class="flowchart-operator-inputs"></div>');
+
+  $operator_inputs.appendTo($operator_inputs_outputs);
+
+  var $operator_outputs = $('<div class="flowchart-operator-outputs"></div>');
+  $operator_outputs.appendTo($operator_inputs_outputs);
+
+  var self = self;
+
+  var connectorArrows = {};
+  var connectorSmallArrows = {};
+  var connectorSets = {};
+  var connectors = {};
+
+  var fullElement = {
+    operator: $operator,
+    title: $operator_title,
+    connectorSets: connectorSets,
+    connectors: connectors,
+    connectorArrows: connectorArrows,
+    connectorSmallArrows: connectorSmallArrows,
+    func: infos.func
+  };
+
+  //Connector is created here
+  function addConnector(
+    connectorKey,
+    connectorInfos,
+    $operator_container,
+    connectorType,
+    bottomPadding,
+    func
+  ) {
+    var $operator_connector_set = $(
+      '<div class="flowchart-operator-connector-set"></div>'
+    );
+
+    if (connectorKey == "output_1" && func == "decider") {
+      $operator_connector_set.css("height", 0);
+    }
+
+    $operator_connector_set.data("connector_type", connectorType);
+    $operator_connector_set.appendTo($operator_container);
+
+    connectorArrows[connectorKey] = [];
+    connectorSmallArrows[connectorKey] = [];
+    connectors[connectorKey] = [];
+    connectorSets[connectorKey] = $operator_connector_set;
+
+    self._createSubConnector(
+      connectorKey,
+      connectorInfos,
+      fullElement,
+      connectorType,
+      bottomPadding,
+      fullElement.func
+    );
+  }
+
+  for (var key_i in infos.inputs) {
+    if (infos.inputs.hasOwnProperty(key_i)) {
+      var bottomPadding = false;
+      if (Object.keys(infos.inputs).length == 2 && key_i == "input_0") {
+        bottomPadding = true;
+      }
+      addConnector(
+        key_i,
+        infos.inputs[key_i],
+        $operator_inputs,
+        "inputs",
+        bottomPadding
+      );
+    }
+  }
+  console.log("infos", infos.func);
+  for (var key_o in infos.outputs) {
+    if (infos.outputs.hasOwnProperty(key_o)) {
+      var bottomPadding = false;
+      if (Object.keys(infos.outputs).length == 2 && key_o == "output_0") {
+        bottomPadding = true;
+      }
+      addConnector(
+        key_o,
+        infos.outputs[key_o],
+        $operator_outputs,
+        "outputs",
+        bottomPadding,
+        infos.func
+      );
+    }
+  }
+
+  return fullElement;
+}
+
+function addConnector() {}
+
+function _createSubConnector() {}
+
+function _connectorClicked() {}
+
 module.exports = {
   addOperator,
   createOperator,
@@ -796,5 +1044,14 @@ module.exports = {
   setOperatorData,
   createAssignAndAppendLines,
   setOperatorTitle,
-  _drawLink
+  _drawLink,
+  _cleanMultipleConnectors,
+  getConnectorPosition,
+  getOperatorCompleteData,
+  _getOperatorFullElement,
+  addConnector,
+  _createSubConnector,
+  _connectorClicked,
+  connectRejectAndApproveWithMother,
+  linkMotherToApproveAndReject
 };
