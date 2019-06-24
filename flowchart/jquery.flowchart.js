@@ -4,29 +4,6 @@
 //Arrow and line algorithm is at _drawLink function at line 483
 import RefactoredFunctions from "./jquery.refactor";
 
-function createAssignAndAppendLines(object) {
-  const { self, linkData, linkId } = object;
-
-  var group = RefactoredFunctions.createSvgElement(document, "g");
-  var overallGroup = RefactoredFunctions.createSvgElement(document, "g");
-  group.setAttribute("class", "flowchart-link");
-  group.setAttribute("data-link_id", linkId);
-  overallGroup.appendChild(group);
-  self.objs.layers.links[0].appendChild(overallGroup);
-  linkData.internal.els.overallGroup = overallGroup;
-
-  for (let i = 0; i < 5; i++) {
-    let attr = `line${i + 1}`;
-    linkData.internal.els[attr] = RefactoredFunctions.createSvgElement(
-      document,
-      "line"
-    );
-    group.appendChild(linkData.internal.els[attr]);
-  }
-  self._refreshLinkPositions(linkId);
-  self.uncolorizeLink(linkId);
-}
-
 $(function() {
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
@@ -481,33 +458,7 @@ $(function() {
 
     //The svg and path is CREATED here in this function, noted that created only , the position is not set yet
     _drawLink: function(linkId) {
-      var linkData = this.data.links[linkId];
-      if (typeof linkData.internal == "undefined") {
-        linkData.internal = {};
-      }
-      linkData.internal.els = {};
-      var fromOperatorId = linkData.fromOperator;
-      var fromConnectorId = linkData.fromConnector;
-      var toOperatorId = linkData.toOperator;
-      var toConnectorId = linkData.toConnector;
-      var subConnectors = this._getSubConnectors(linkData);
-      var fromSubConnector = subConnectors[0];
-      var toSubConnector = subConnectors[1];
-      var color = this.getLinkMainColor(linkId);
-      var fromOperator = this.data.operators[fromOperatorId];
-      var toOperator = this.data.operators[toOperatorId];
-      var fromSmallConnector =
-        fromOperator.internal.els.connectorSmallArrows[fromConnectorId][
-          fromSubConnector
-        ];
-      var toSmallConnector =
-        toOperator.internal.els.connectorSmallArrows[toConnectorId][
-          toSubConnector
-        ];
-      linkData.internal.els.fromSmallConnector = fromSmallConnector;
-      linkData.internal.els.toSmallConnector = toSmallConnector;
-
-      createAssignAndAppendLines({ linkData, linkId, self: this });
+      RefactoredFunctions._drawLink(linkId, this);
     },
 
     _getSubConnectors: function(linkData) {
@@ -1185,13 +1136,7 @@ $(function() {
     },
 
     setOperatorTitle: function(operatorId, title) {
-      this.data.operators[operatorId].internal.els.title.html(title);
-      if (typeof this.data.operators[operatorId].properties == "undefined") {
-        this.data.operators[operatorId].properties = {};
-      }
-      this.data.operators[operatorId].properties.title = title;
-      this._refreshInternalProperties(this.data.operators[operatorId]);
-      this.callbackEvent("afterChange", ["operator_title_change"]);
+      RefactoredFunctions.setOperatorTitle(operatorId, title, this);
     },
 
     getOperatorTitle: function(operatorId) {
@@ -1199,25 +1144,7 @@ $(function() {
     },
 
     setOperatorData: function(operatorId, operatorData) {
-      console.log("setOperatorData", operatorId, operatorData);
-      var infos = this.getOperatorCompleteData(operatorData);
-      for (var linkId in this.data.links) {
-        if (this.data.links.hasOwnProperty(linkId)) {
-          var linkData = this.data.links[linkId];
-          if (
-            (linkData.fromOperator == operatorId &&
-              typeof infos.outputs[linkData.fromConnector] == "undefined") ||
-            (linkData.toOperator == operatorId &&
-              typeof infos.inputs[linkData.toConnector] == "undefined")
-          ) {
-            this._deleteLink(linkId, true);
-          }
-        }
-      }
-      this._deleteOperator(operatorId, true);
-      this.createOperator(operatorId, operatorData);
-      this.redrawLinksLayer();
-      this.callbackEvent("afterChange", ["operator_data_change"]);
+      RefactoredFunctions.setOperatorData(operatorId, operatorData, self);
     },
 
     doesOperatorExists: function(operatorId) {

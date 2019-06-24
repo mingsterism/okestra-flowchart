@@ -691,10 +691,91 @@ function getData(self) {
   return data;
 }
 
-function _drawLink(linkId, self) {}
+function _drawLink(linkId, self) {
+  var linkData = self.data.links[linkId];
+  if (typeof linkData.internal == "undefined") {
+    linkData.internal = {};
+  }
+  linkData.internal.els = {};
+  var fromOperatorId = linkData.fromOperator;
+  var fromConnectorId = linkData.fromConnector;
+  var toOperatorId = linkData.toOperator;
+  var toConnectorId = linkData.toConnector;
+  var subConnectors = self._getSubConnectors(linkData);
+  var fromSubConnector = subConnectors[0];
+  var toSubConnector = subConnectors[1];
+  var color = self.getLinkMainColor(linkId);
+  var fromOperator = self.data.operators[fromOperatorId];
+  var toOperator = self.data.operators[toOperatorId];
+  var fromSmallConnector =
+    fromOperator.internal.els.connectorSmallArrows[fromConnectorId][
+      fromSubConnector
+    ];
+  var toSmallConnector =
+    toOperator.internal.els.connectorSmallArrows[toConnectorId][toSubConnector];
+  linkData.internal.els.fromSmallConnector = fromSmallConnector;
+  linkData.internal.els.toSmallConnector = toSmallConnector;
+
+  createAssignAndAppendLines({
+    linkData,
+    linkId,
+    self
+  });
+}
 
 function selectOperator(operatorId, self) {}
-//addLink
+
+function setOperatorData(operatorId, operatorData, self) {
+  console.log("setOperatorData", operatorId, operatorData);
+  var infos = self.getOperatorCompleteData(operatorData);
+  for (var linkId in self.data.links) {
+    if (self.data.links.hasOwnProperty(linkId)) {
+      var linkData = self.data.links[linkId];
+      if (
+        (linkData.fromOperator == operatorId &&
+          typeof infos.outputs[linkData.fromConnector] == "undefined") ||
+        (linkData.toOperator == operatorId &&
+          typeof infos.inputs[linkData.toConnector] == "undefined")
+      ) {
+        self._deleteLink(linkId, true);
+      }
+    }
+  }
+  self._deleteOperator(operatorId, true);
+  self.createOperator(operatorId, operatorData);
+  self.redrawLinksLayer();
+  self.callbackEvent("afterChange", ["operator_data_change"]);
+}
+
+function createAssignAndAppendLines(object) {
+  const { self, linkData, linkId } = object;
+
+  var group = createSvgElement(document, "g");
+  var overallGroup = createSvgElement(document, "g");
+  group.setAttribute("class", "flowchart-link");
+  group.setAttribute("data-link_id", linkId);
+  overallGroup.appendChild(group);
+  self.objs.layers.links[0].appendChild(overallGroup);
+  linkData.internal.els.overallGroup = overallGroup;
+
+  for (let i = 0; i < 5; i++) {
+    let attr = `line${i + 1}`;
+    linkData.internal.els[attr] = createSvgElement(document, "line");
+    group.appendChild(linkData.internal.els[attr]);
+  }
+  self._refreshLinkPositions(linkId);
+  self.uncolorizeLink(linkId);
+}
+
+function setOperatorTitle(operatorId, title, self) {
+  self.data.operators[operatorId].internal.els.title.html(title);
+  if (typeof self.data.operators[operatorId].properties == "undefined") {
+    self.data.operators[operatorId].properties = {};
+  }
+  self.data.operators[operatorId].properties.title = title;
+  self._refreshInternalProperties(self.data.operators[operatorId]);
+  self.callbackEvent("afterChange", ["operator_title_change"]);
+}
 
 module.exports = {
   addOperator,
@@ -711,5 +792,9 @@ module.exports = {
   _refreshLinkPositions,
   getData,
   setInitialShapeAttribute,
-  createSvgElement
+  createSvgElement,
+  setOperatorData,
+  createAssignAndAppendLines,
+  setOperatorTitle,
+  _drawLink
 };
