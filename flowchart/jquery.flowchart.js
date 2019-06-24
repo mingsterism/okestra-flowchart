@@ -4,43 +4,29 @@
 //Arrow and line algorithm is at _drawLink function at line 483
 import RefactoredFunctions from "./jquery.refactor";
 
-function setLineAttribute(lineObject, attributesObject) {
-  const attributesArray = Object.keys(attributesObject);
-  for (let i = 0; i < attributesArray.length; i++) {
-    lineObject.setAttribute(
-      attributesArray[i],
-      attributesObject[attributesArray[i]]
+function createAssignAndAppendLines(object) {
+  const { self, linkData, linkId } = object;
+
+  var group = RefactoredFunctions.createSvgElement(document, "g");
+  var overallGroup = RefactoredFunctions.createSvgElement(document, "g");
+  group.setAttribute("class", "flowchart-link");
+  group.setAttribute("data-link_id", linkId);
+  overallGroup.appendChild(group);
+  self.objs.layers.links[0].appendChild(overallGroup);
+  linkData.internal.els.overallGroup = overallGroup;
+
+  for (let i = 0; i < 5; i++) {
+    let attr = `line${i + 1}`;
+    linkData.internal.els[attr] = RefactoredFunctions.createSvgElement(
+      document,
+      "line"
     );
+    group.appendChild(linkData.internal.els[attr]);
   }
-  lineObject.setAttribute("stroke", "black");
+  self._refreshLinkPositions(linkId);
+  self.uncolorizeLink(linkId);
 }
 
-function setLinesAttribute(linesObject, attributesObjects) {
-  const linesArray = Object.keys(linesObject).slice(3);
-  for (let i = 0; i < linesArray.length; i++) {
-    setLineAttribute(
-      linesObject[linesArray[i]],
-      attributesObjects[linesArray[i]]
-    );
-  }
-}
-
-function setInitialShapeAttribute(shapeObject, attributesObjects) {
-  const attributesArray = Object.keys(attributesObjects);
-  for (let i = 0; i < attributesArray.length; i++) {
-    shapeObject.setAttribute(
-      attributesArray[i],
-      attributesObjects[attributesArray[i]]
-    );
-  }
-}
-
-function createSvgElement(document, elementToCreate) {
-  return document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    elementToCreate
-  );
-}
 $(function() {
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
@@ -134,7 +120,7 @@ $(function() {
       );
 
       //The dotted line is created here which we saw during dragging the line
-      setInitialShapeAttribute(shape, {
+      RefactoredFunctions.setInitialShapeAttribute(shape, {
         x1: "0",
         y1: "0",
         x2: "0",
@@ -521,35 +507,7 @@ $(function() {
       linkData.internal.els.fromSmallConnector = fromSmallConnector;
       linkData.internal.els.toSmallConnector = toSmallConnector;
 
-      console.log("linkData.internal.els", linkData.internal.els);
-
-      var overallGroup = createSvgElement(document, "g");
-
-      this.objs.layers.links[0].appendChild(overallGroup);
-
-      var line1 = createSvgElement(document, "line");
-      var line2 = createSvgElement(document, "line");
-      var line3 = createSvgElement(document, "line");
-      var line4 = createSvgElement(document, "line");
-      var line5 = createSvgElement(document, "line");
-
-      linkData.internal.els.overallGroup = overallGroup;
-      var group = createSvgElement(document, "g");
-      group.setAttribute("class", "flowchart-link");
-      group.setAttribute("data-link_id", linkId);
-      overallGroup.appendChild(group);
-      linkData.internal.els.line1 = line1;
-      linkData.internal.els.line2 = line2;
-      linkData.internal.els.line3 = line3;
-      linkData.internal.els.line4 = line4;
-      linkData.internal.els.line5 = line5;
-      group.appendChild(line1);
-      group.appendChild(line2);
-      group.appendChild(line3);
-      group.appendChild(line4);
-      group.appendChild(line5);
-      this._refreshLinkPositions(linkId);
-      this.uncolorizeLink(linkId);
+      createAssignAndAppendLines({ linkData, linkId, self: this });
     },
 
     _getSubConnectors: function(linkData) {
@@ -568,172 +526,7 @@ $(function() {
 
     //Setting the x and y attribute of the shape created in _drawlink
     _refreshLinkPositions: function(linkId) {
-      var linkData = this.data.links[linkId];
-      var subConnectors = this._getSubConnectors(linkData);
-      var fromSubConnector = subConnectors[0];
-      var toSubConnector = subConnectors[1];
-      var fromPosition = this.getConnectorPosition(
-        linkData.fromOperator,
-        linkData.fromConnector,
-        fromSubConnector
-      );
-      var toPosition = this.getConnectorPosition(
-        linkData.toOperator,
-        linkData.toConnector,
-        toSubConnector
-      );
-      let linesData;
-      var fromX = fromPosition.x;
-      var offsetFromX = fromPosition.width;
-      var fromY = fromPosition.y;
-      var toX = toPosition.x;
-      var toY = toPosition.y;
-      var distanceFromArrow = this.options.distanceFromArrow;
-      var xdiff = toX - fromX < 0 ? -(toX - fromX) : toX - fromX;
-      var ydiff = toY - fromY < 0 ? -(toY - fromY) : toY - fromY;
-      var halfYdiff = ydiff / 2;
-      var halfXdiff = xdiff / 2;
-      let isDirectlyAbove = xdiff == 0 && toY - fromY < 0;
-      let isInDirectlyAbove = toY - fromY < 0 && xdiff != 0;
-      let isBeside = toY - fromY < 62 && toY - fromY >= -20 && xdiff >= 100;
-
-      if (isBeside) {
-        linesData = {
-          line1: {
-            x1: fromX + offsetFromX,
-            y1: fromY,
-            x2: fromX + offsetFromX,
-            y2: fromY + 80
-          },
-          line2: {
-            x1: fromX + offsetFromX,
-            y1: fromY + 80,
-            x2: toX + (toX - fromX) * 1.5,
-            y2: fromY + 80
-          },
-          line3: {
-            x1: toX + (toX - fromX) * 1.5,
-            y1: fromY + 80,
-            x2: toX + (toX - fromX) * 1.5,
-            y2: fromY - 40
-          },
-          line4: {
-            x1: toX + (toX - fromX) * 1.5,
-            y1: fromY - 40,
-            x2: toX + offsetFromX,
-            y2: fromY - 40
-          },
-          line5: {
-            x1: toX + offsetFromX,
-            y1: fromY - 40,
-            x2: toX + offsetFromX,
-            y2: toY
-          }
-        };
-        setLinesAttribute(linkData.internal.els, linesData);
-      } else if (isInDirectlyAbove) {
-        linesData = {
-          line1: {
-            x1: fromX + offsetFromX,
-            y1: fromY,
-            x2: fromX + offsetFromX,
-            y2: fromY + halfYdiff
-          },
-          line2: {
-            x1: fromX + offsetFromX,
-            y1: fromY + halfYdiff,
-            x2: toX + offsetFromX + halfXdiff,
-            y2: fromY + halfYdiff
-          },
-          line3: {
-            x1: toX + offsetFromX + halfXdiff,
-            y1: fromY + halfYdiff,
-            x2: toX + offsetFromX + halfXdiff,
-            y2: toY - halfYdiff
-          },
-          line4: {
-            x1: toX + offsetFromX + halfXdiff,
-            y1: toY - halfYdiff,
-            x2: toX + offsetFromX,
-            y2: toY - halfYdiff
-          },
-          line5: {
-            x1: toX + offsetFromX,
-            y1: toY,
-            x2: toX + offsetFromX,
-            y2: toY - halfYdiff
-          }
-        };
-        setLinesAttribute(linkData.internal.els, linesData);
-      } else if (isDirectlyAbove) {
-        linesData = {
-          line1: {
-            x1: fromX + offsetFromX,
-            y1: fromY,
-            x2: fromX + offsetFromX,
-            y2: fromY + halfYdiff
-          },
-          line2: {
-            x1: fromX + offsetFromX,
-            y1: fromY + halfYdiff,
-            x2: fromX + offsetFromX + 200,
-            y2: fromY + halfYdiff
-          },
-          line3: {
-            x1: fromX + offsetFromX + 200,
-            y1: fromY + halfYdiff,
-            x2: toX + offsetFromX + halfXdiff + 200,
-            y2: toY - halfYdiff
-          },
-          line4: {
-            x1: toX + offsetFromX + halfXdiff,
-            y1: toY - halfYdiff,
-            x2: toX + offsetFromX + halfXdiff + 200,
-            y2: toY - halfYdiff
-          },
-          line5: {
-            x1: toX + offsetFromX,
-            y1: toY,
-            x2: toX + offsetFromX,
-            y2: toY - halfYdiff
-          }
-        };
-        setLinesAttribute(linkData.internal.els, linesData);
-      } else {
-        linesData = {
-          line1: {
-            x1: fromX + offsetFromX,
-            y1: fromY,
-            x2: fromX + offsetFromX,
-            y2: fromY + halfYdiff
-          },
-          line2: {
-            x1: fromX + offsetFromX,
-            y1: fromY + halfYdiff,
-            x2: toX + offsetFromX,
-            y2: toY - halfYdiff
-          },
-          line3: {
-            x1: toX + offsetFromX,
-            y1: toY - halfYdiff,
-            x2: toX + offsetFromX,
-            y2: toY
-          },
-          line4: {
-            x1: 0,
-            y1: 0,
-            x2: 0,
-            y2: 0
-          },
-          line5: {
-            x1: 0,
-            y1: 0,
-            x2: 0,
-            y2: 0
-          }
-        };
-        setLinesAttribute(linkData.internal.els, linesData);
-      }
+      RefactoredFunctions._refreshLinkPositions(linkId, this);
     },
 
     getOperatorCompleteData: function(operatorData) {
@@ -1388,22 +1181,7 @@ $(function() {
     },
 
     getData: function() {
-      var keys = ["operators", "links"];
-      var data = {};
-      data.operators = $.extend(true, {}, this.data.operators);
-      data.links = $.extend(true, {}, this.data.links);
-      for (var keyI in keys) {
-        if (keys.hasOwnProperty(keyI)) {
-          var key = keys[keyI];
-          for (var objId in data[key]) {
-            if (data[key].hasOwnProperty(objId)) {
-              delete data[key][objId].internal;
-            }
-          }
-        }
-      }
-      data.operatorTypes = this.data.operatorTypes;
-      return data;
+      RefactoredFunctions.getData(self);
     },
 
     setOperatorTitle: function(operatorId, title) {
