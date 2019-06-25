@@ -557,7 +557,10 @@ $(function() {
     },
 
     createOperator: function(operatorId, operatorData) {
-      RefactoredFunctions.createOperator(operatorId, operatorData, this);
+      RefactoredFunctions.createOperator(
+        { operatorId, self: this, title: true },
+        operatorData
+      );
     },
 
     //This is the callback function when connector is clicked
@@ -607,56 +610,7 @@ $(function() {
     },
 
     _click: function(x, y, e) {
-      var $target = $(e.target);
-      var $flowchart_temporary_link_layer = $(
-        ".flowchart-temporary-link-layer"
-      );
-      var lastLineDrawn = $(".flowchart-temporary-link-layer line:last-child");
-      var nextLine = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-      var x1 = lastLineDrawn.attr("x1");
-      var y1 = lastLineDrawn.attr("y1");
-      var x2 = lastLineDrawn.attr("x2");
-      var y2 = lastLineDrawn.attr("y2");
-      if (this.lastOutputConnectorClicked != null) {
-        console.log(x1);
-        console.log(x);
-        console.log(x - x1);
-        // isStraightLine = x - x1 < 0 ? -(x - x1) : x - x1;
-        // isPerpendicular = y - y1 < 0 ? -(y - y1) : y - y1;
-        //What to do when a connector is clicked and the temporary link is drag ann CLICKED on the svg of the flowchart
-        //if (isStraightLine < 5 || isPerpendicular < 5) {
-        this.objs.temporaryLink.setAttribute("x2", x);
-        this.objs.temporaryLink.setAttribute("y2", y);
-
-        if ($target[0].tagName == "svg") {
-          nextLine.setAttribute("x1", x2);
-          nextLine.setAttribute("y1", y2);
-          nextLine.setAttribute("x2", x2);
-          nextLine.setAttribute("y2", y2);
-          nextLine.setAttribute("stroke", "black");
-          nextLine.setAttribute("fill", "none");
-          $flowchart_temporary_link_layer.append(nextLine);
-          this.objs.temporaryLink = $(
-            ".flowchart-temporary-link-layer line:last-child"
-          )[0];
-          console.log("Time to fight lo");
-        }
-        //}
-      }
-      // if ($target.closest(".flowchart-operator-connector").length == 0 ) {
-      //   this._unsetTemporaryLink();
-      // }
-
-      if ($target.closest(".flowchart-operator").length == 0) {
-        this.unselectOperator();
-      }
-
-      // if ($target.closest(".flowchart-link").length == 0) {
-      //   this.unselectLink();
-      // }
+      RefactoredFunctions._click(x, y, e, this);
     },
 
     _removeSelectedClassOperators: function() {
@@ -693,21 +647,11 @@ $(function() {
     },
 
     selectOperator: function(operatorId) {
-      const objId = this.data.operators[operatorId].properties.objectId;
-      console.log("Emitting event: nodeClicked with objectId: ", objId);
-      const nodeClicked = new Event("nodeClicked", { objId });
-      window.dispatchEvent(nodeClicked);
-      this.selectedLinkId = null;
-      $(`.flowchart-link line`).each(function() {
-        $(this).attr("stroke", "black");
-      });
-      if (!this.callbackEvent("operatorSelect", [operatorId])) {
-        return;
-      }
+      this._addSelectedClass(
+        RefactoredFunctions.selectOperator(operatorId, this)
+      );
       this.unselectLink();
       this._removeSelectedClassOperators();
-      this._addSelectedClass(operatorId);
-      this.selectedOperatorId = operatorId;
     },
 
     addClassOperator: function(operatorId, className) {
@@ -871,7 +815,10 @@ $(function() {
     setOperatorData: function(operatorId, operatorData) {
       RefactoredFunctions.setOperatorData(operatorId, operatorData, self);
       this._deleteOperator(operatorId, true);
-      this.createOperator(operatorId, operatorData);
+      this.createOperator(
+        { operatorId, self: this, title: true },
+        operatorData
+      );
       this.redrawLinksLayer();
       this.callbackEvent("afterChange", ["operator_data_change"]);
     },
@@ -887,16 +834,7 @@ $(function() {
     },
 
     getOperatorFullProperties: function(operatorData) {
-      if (typeof operatorData.type != "undefined") {
-        var typeProperties = this.data.operatorTypes[operatorData.type];
-        var operatorProperties = {};
-        if (typeof operatorData.properties != "undefined") {
-          operatorProperties = operatorData.properties;
-        }
-        return $.extend({}, typeProperties, operatorProperties);
-      } else {
-        return operatorData.properties;
-      }
+      RefactoredFunctions.getOperatorFullProperties(operatorData, this);
     },
 
     _refreshInternalProperties: function(operatorData) {

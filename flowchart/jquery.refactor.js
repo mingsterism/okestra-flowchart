@@ -98,6 +98,7 @@ function addLink(linkData, self) {
 }
 
 function createOperator(operatorObject, operatorData) {
+  console.log("operatorData", operatorData);
   const { operatorId, title, self } = operatorObject;
   operatorData.internal = {};
   self._refreshInternalProperties(operatorData);
@@ -360,7 +361,10 @@ function setData(data, self) {
 
   for (var operatorId in data.operators) {
     if (data.operators.hasOwnProperty(operatorId)) {
-      self.createOperator(operatorId, data.operators[operatorId], self);
+      createOperator(
+        { operatorId, self, title: true },
+        data.operators[operatorId]
+      );
     }
   }
 
@@ -722,7 +726,21 @@ function _drawLink(linkId, self) {
   };
 }
 
-function selectOperator(operatorId, self) {}
+function selectOperator(operatorId, self) {
+  const objId = self.data.operators[operatorId].properties.objectId;
+  console.log("Emitting event: nodeClicked with objectId: ", objId);
+  const nodeClicked = new Event("nodeClicked", { objId });
+  window.dispatchEvent(nodeClicked);
+  self.selectedLinkId = null;
+  $(`.flowchart-link line`).each(function() {
+    $(self).attr("stroke", "black");
+  });
+  if (!self.callbackEvent("operatorSelect", [operatorId])) {
+    return;
+  }
+  self.selectedOperatorId = operatorId;
+  return operatorId;
+}
 
 function setOperatorData(operatorId, operatorData, self) {
   console.log("setOperatorData", operatorId, operatorData);
@@ -1110,6 +1128,63 @@ function _getSubConnectors(linkData) {
   return [fromSubConnector, toSubConnector];
 }
 
+function getOperatorFullProperties(operatorData, self) {
+  if (typeof operatorData.type != "undefined") {
+    var typeProperties = self.data.operatorTypes[operatorData.type];
+    var operatorProperties = {};
+    if (typeof operatorData.properties != "undefined") {
+      operatorProperties = operatorData.properties;
+    }
+    return $.extend({}, typeProperties, operatorProperties);
+  } else {
+    return operatorData.properties;
+  }
+}
+
+function _click(x, y, e, self) {
+  var $target = $(e.target);
+  var $flowchart_temporary_link_layer = $(".flowchart-temporary-link-layer");
+  var lastLineDrawn = $(".flowchart-temporary-link-layer line:last-child");
+  var nextLine = RefactoredFunctions.createSvgElement("line");
+  const attributesArray = ["x1", "x2", "y1", "y2"];
+
+  if (self.lastOutputConnectorClicked != null) {
+    // isStraightLine = x - x1 < 0 ? -(x - x1) : x - x1;
+    // isPerpendicular = y - y1 < 0 ? -(y - y1) : y - y1;
+    //What to do when a connector is clicked and the temporary link is drag ann CLICKED on the svg of the flowchart
+    //if (isStraightLine < 5 || isPerpendicular < 5) {
+    self.objs.temporaryLink.setAttribute("x2", x);
+    self.objs.temporaryLink.setAttribute("y2", y);
+
+    if ($target[0].tagName == "svg") {
+      for (let i = 0; i < attributesArray.length; i++) {
+        nextLine.setAttribute(
+          attributesArray[i],
+          lastLineDrawn.attr(attributesArray[i])
+        );
+      }
+      nextLine.setAttribute("stroke", "black");
+      nextLine.setAttribute("fill", "none");
+      $flowchart_temporary_link_layer.append(nextLine);
+      self.objs.temporaryLink = $(
+        ".flowchart-temporary-link-layer line:last-child"
+      )[0];
+    }
+    //}
+  }
+  // if ($target.closest(".flowchart-operator-connector").length == 0 ) {
+  //   self._unsetTemporaryLink();
+  // }
+
+  if ($target.closest(".flowchart-operator").length == 0) {
+    self.unselectOperator();
+  }
+
+  // if ($target.closest(".flowchart-link").length == 0) {
+  //   self.unselectLink();
+  // }
+}
+
 module.exports = {
   addOperator,
   createOperator,
@@ -1142,5 +1217,8 @@ module.exports = {
   _connectorClicked,
   setLinesAttribute,
   _getSubConnectors,
-  createAssignAndAppendLines
+  selectOperator,
+  createAssignAndAppendLines,
+  getOperatorFullProperties,
+  _click
 };
