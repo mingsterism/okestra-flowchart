@@ -610,7 +610,7 @@ $(function() {
     },
 
     _click: function(x, y, e) {
-      RefactoredFunctions._click(x, y, e, this);
+      RefactoredFunctions._click(x, y, e, this, document);
     },
 
     _removeSelectedClassOperators: function() {
@@ -834,7 +834,7 @@ $(function() {
     },
 
     getOperatorFullProperties: function(operatorData) {
-      RefactoredFunctions.getOperatorFullProperties(operatorData, this);
+      return RefactoredFunctions.getOperatorFullProperties(operatorData, this);
     },
 
     _refreshInternalProperties: function(operatorData) {

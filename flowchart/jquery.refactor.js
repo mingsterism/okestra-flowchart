@@ -1145,7 +1145,7 @@ function _click(x, y, e, self) {
   var $target = $(e.target);
   var $flowchart_temporary_link_layer = $(".flowchart-temporary-link-layer");
   var lastLineDrawn = $(".flowchart-temporary-link-layer line:last-child");
-  var nextLine = RefactoredFunctions.createSvgElement("line");
+  var nextLine = createSvgElement(document, "line");
   const attributesArray = ["x1", "x2", "y1", "y2"];
 
   if (self.lastOutputConnectorClicked != null) {
