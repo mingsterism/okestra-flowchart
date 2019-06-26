@@ -47,14 +47,10 @@ function multipleLinkAvailableCheck(object) {
   const { multipleLinkNotAllowed, linkId, self, linkData } = object;
   if (!multipleLinkNotAllowed) {
     self.data.links[linkId] = linkData;
-
     //Time to draw out svg and path line
     self._drawLink(linkId);
-
-    self.callbackEvent("afterChange", ["link_create"]);
-  } else {
-    return false;
   }
+  self.callbackEvent("afterChange", ["link_create"]);
 }
 
 function addLink(linkData, self) {
@@ -66,7 +62,7 @@ function addLink(linkData, self) {
 
   //This.data.links is a object storing linkData
   while (typeof self.data.links[self.linkNum] != "undefined") {
-    linkNum = self.linkNum++;
+    self.linkNum++;
   }
 
   self.createLink(self.linkNum, linkData); //(0,linkData)
@@ -92,7 +88,6 @@ function operatorChangedPosition(operator_id, pos, operatorData, self) {
 }
 
 function createOperator(operatorObject, operatorData) {
-  console.log("operatorData", operatorData);
   const { operatorId, title, self } = operatorObject;
   operatorData.internal = {};
   self._refreshInternalProperties(operatorData);
@@ -264,12 +259,9 @@ function connectRejectAndApproveWithMother(operatorData, self) {
 
     if (isRejectNode) {
       rejectNum = key;
-    }
-    if (isApproveNodeAndSameMother) {
+    } else if (isApproveNodeAndSameMother) {
       approveNum = key;
-    }
-
-    if (isMotherNode) {
+    } else if (isMotherNode) {
       motherNum = key;
     }
   }
@@ -289,8 +281,8 @@ function connectRejectAndApproveWithMother(operatorData, self) {
 
 function linkMotherToApproveAndReject(object) {
   const { self, linkToApprove, linkToReject } = object;
-  addLink(createLinkDataForDecision(linkToApprove), self);
-  addLink(createLinkDataForDecision(linkToReject), self);
+  self.addLink(createLinkDataForDecision(linkToApprove), self);
+  self.addLink(createLinkDataForDecision(linkToReject), self);
 }
 
 function createLinkDataForDecision({ fromOperator, toOperator }) {
@@ -365,7 +357,6 @@ function _deleteLink(linkId, forced, self) {
       return;
     }
   }
-  self.colorizeLink(linkId, "transparent");
   var linkData = self.data.links[linkId];
   var fromOperator = linkData.fromOperator;
   var fromConnector = linkData.fromConnector;
@@ -374,19 +365,21 @@ function _deleteLink(linkId, forced, self) {
   linkData.internal.els.overallGroup.remove();
   delete self.data.links[linkId];
 
-  self._cleanMultipleConnectors(fromOperator, fromConnector, "from");
-  self._cleanMultipleConnectors(toOperator, toConnector, "to");
-
-  self.callbackEvent("afterChange", ["link_delete"]);
+  return {
+    fromOperator,
+    fromConnector,
+    toOperator,
+    toConnector
+  };
 }
 
 function deleteLink(linkId, self) {
   let fromOperator = self.data.links[linkId].fromOperator;
   let toOperator = self.data.links[linkId].toOperator;
-  if (
-    !self.data.operators[fromOperator].properties.random ||
-    !self.data.operators[toOperator].properties.random
-  ) {
+  let notTheDecisionNode = !self.data.operators[fromOperator].properties.random;
+  let notConnectedToDecisionNode = !self.data.operators[toOperator].properties
+    .random;
+  if (notTheDecisionNode || notTheDecisionNode) {
     self._deleteLink(linkId, false);
   }
 }
@@ -403,7 +396,7 @@ function deleteSelected(self) {
       operators[self.selectedOperatorId].properties.name == "decision";
 
     if (notADeciderNode) {
-      self.deleteOperator(self.selectedOperatorId);
+      return self.deleteOperator(self.selectedOperatorId);
     }
 
     if (isAMotherOfDecideNode) {
@@ -420,15 +413,7 @@ function deleteSelected(self) {
           operators[key].properties.random === r &&
           operators[key].properties.name == "decision";
 
-        if (isApproveNode) {
-          self.deleteOperator(key);
-        }
-
-        if (isRejectNode) {
-          self.deleteOperator(key);
-        }
-
-        if (isMotherNode) {
+        if (isApproveNode || isRejectNode || isMotherNode) {
           self.deleteOperator(key);
         }
       }
@@ -946,16 +931,11 @@ function _getOperatorFullElement(operatorData, self) {
     connectorInfos,
     $operator_container,
     connectorType,
-    bottomPadding,
-    func
+    name
   ) {
     var $operator_connector_set = $(
       '<div class="flowchart-operator-connector-set"></div>'
     );
-
-    if (connectorKey == "output_1" && func == "decider") {
-      $operator_connector_set.css("height", 0);
-    }
 
     $operator_connector_set.data("connector_type", connectorType);
     $operator_connector_set.appendTo($operator_container);
@@ -970,40 +950,24 @@ function _getOperatorFullElement(operatorData, self) {
       connectorInfos,
       fullElement,
       connectorType,
-      bottomPadding,
-      fullElement.func
+      fullElement.name
     );
   }
 
   for (var key_i in infos.inputs) {
     if (infos.inputs.hasOwnProperty(key_i)) {
-      var bottomPadding = false;
-      if (Object.keys(infos.inputs).length == 2 && key_i == "input_0") {
-        bottomPadding = true;
-      }
-      addConnector(
-        key_i,
-        infos.inputs[key_i],
-        $operator_inputs,
-        "inputs",
-        bottomPadding
-      );
+      addConnector(key_i, infos.inputs[key_i], $operator_inputs, "inputs");
     }
   }
   console.log("infos", infos.func);
   for (var key_o in infos.outputs) {
     if (infos.outputs.hasOwnProperty(key_o)) {
-      var bottomPadding = false;
-      if (Object.keys(infos.outputs).length == 2 && key_o == "output_0") {
-        bottomPadding = true;
-      }
       addConnector(
         key_o,
         infos.outputs[key_o],
         $operator_outputs,
         "outputs",
-        bottomPadding,
-        infos.func
+        infos.name
       );
     }
   }
@@ -1018,7 +982,6 @@ function _createSubConnector(
   connectorInfos,
   fullElement,
   connectorType,
-  bottomPadding,
   func
 ) {
   var $operator_connector_set = fullElement.connectorSets[connectorKey];
@@ -1032,14 +995,7 @@ function _createSubConnector(
   var $operator_connector_small_arrow = $(
     '<div class="flowchart-operator-connector-small-arrow" style="position:relative"></div>'
   );
-  var needBottomPadding = bottomPadding && func != "decider";
   var isInputConnector = connectorType === "inputs";
-
-  if (needBottomPadding) {
-    $operator_connector = $(
-      '<div class="flowchart-operator-connector" style="bottom:20px"></div>'
-    );
-  }
 
   if (isInputConnector) {
     $operator_connector_small_arrow = $(
@@ -1076,27 +1032,12 @@ function _connectorClicked(
       subConnector: subConnector
     };
 
-    // console.log(
-    //   "self.lastOutputConnectorClicked",
-    //   self.lastOutputConnectorClicked
-    // );
-
     self.objs.layers.temporaryLink.show();
-
-    // console.log(
-    //   "self.objs.layers.temporaryLink",
-    //   self.objs.layers.temporaryLink
-    // );
 
     var position = self.getConnectorPosition(operator, connector, subConnector);
 
-    // console.log("position", position);
-
     var x = position.x + position.width;
     var y = position.y;
-
-    // console.log("x", x);
-    // console.log("y", y);
 
     //Where is temporaryLink; This set the starting point of the temporary link
     self.objs.temporaryLink.setAttribute("x1", x.toString());
@@ -1111,11 +1052,6 @@ function _connectorClicked(
     connectorCategory == "inputs" &&
     self.lastOutputConnectorClicked != null
   ) {
-    // console.log("connectorCategory", connectorCategory);
-    // console.log(
-    //   "self.lastOutputConnectorClicked",
-    //   self.lastOutputConnectorClicked
-    // );
     var linkData = {
       fromOperator: self.lastOutputConnectorClicked.operator,
       fromConnector: self.lastOutputConnectorClicked.connector,
@@ -1124,10 +1060,6 @@ function _connectorClicked(
       toConnector: connector,
       toSubConnector: subConnector
     };
-
-    // console.log("linkData", linkData);
-
-    // console.log(linkData);
 
     //Linkdata specify which output of which operator is connected to which input of which operator
     self._unsetTemporaryLink();
@@ -1425,10 +1357,8 @@ function _initEvents(self) {
 
 function removeGuidanceLine(e, self) {
   let firstLine = $(".flowchart-temporary-link-layer line:first-child");
-  let x1 = firstLine.attr("x1");
-  let y1 = firstLine.attr("y1");
-  firstLine[0].setAttribute("x2", x1);
-  firstLine[0].setAttribute("y2", y1);
+  firstLine[0].setAttribute("x2", firstLine.attr("x1"));
+  firstLine[0].setAttribute("y2", firstLine.attr("y1"));
   $(".flowchart-temporary-link-layer").html(firstLine);
   self.objs.temporaryLink = $(
     ".flowchart-temporary-link-layer line:last-child"

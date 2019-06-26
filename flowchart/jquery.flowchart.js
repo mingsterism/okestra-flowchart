@@ -467,7 +467,16 @@ $(function() {
     },
 
     _deleteLink: function(linkId, forced) {
-      RefactoredFunctions._deleteLink(linkId, forced, this);
+      const {
+        fromOperator,
+        fromConnector,
+        toOperator,
+        toConnector
+      } = RefactoredFunctions._deleteLink(linkId, forced, this);
+      this.colorizeLink(linkId, "transparent");
+      this._cleanMultipleConnectors(fromOperator, fromConnector, "from");
+      this._cleanMultipleConnectors(toOperator, toConnector, "to");
+      this.callbackEvent("afterChange", ["link_delete"]);
     },
 
     _cleanMultipleConnectors: function(operator, connector, linkFromTo) {
