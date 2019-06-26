@@ -19,8 +19,8 @@ $(function() {
       defaultSelectedLinkColor: "black",
       linkWidth: 10,
       grid: 20,
-      multipleLinksOnOutput: false,
-      multipleLinksOnInput: false,
+      multipleLinksOnOutput: true,
+      multipleLinksOnInput: true,
       linkVerticalDecal: 0,
       onOperatorSelect: function(operatorId) {
         return true;
@@ -103,7 +103,9 @@ $(function() {
     },
 
     createLink: function(linkId, linkDataOriginal) {
-      RefactoredFunctions.createLink(linkId, linkDataOriginal, this);
+      RefactoredFunctions.multipleLinkAvailableCheck(
+        RefactoredFunctions.createLink(linkId, linkDataOriginal, this)
+      );
     },
 
     _autoCreateSubConnector: function(

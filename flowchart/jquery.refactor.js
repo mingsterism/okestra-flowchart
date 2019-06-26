@@ -27,58 +27,35 @@ function createLink(linkId, linkDataOriginal, self) {
   if (!self.callbackEvent("linkCreate", [linkId, linkData])) {
     return;
   }
+  var node = self.data.operators[linkData.fromOperator].properties;
+  var multipleLinkNotAllowed =
+    node.random != null && node.title != "Approve" && node.title != "Reject";
+  const array = Object.keys(self.data.links).filter(index => {
+    return self.data.links[index].fromOperator == linkData.fromOperator;
+  });
+  var haveTwoChildrenAlready = array.length == 2;
+  console.log(array, self.data.links);
 
-  console.log("Line 339 of createLink", self.data.links);
+  return {
+    multipleLinkNotAllowed: multipleLinkNotAllowed && haveTwoChildrenAlready,
+    linkId,
+    self,
+    linkData
+  };
+}
 
-  var subConnectors = self._getSubConnectors(linkData);
-  //Getting the output connector involved
-  var fromSubConnector = subConnectors[0];
+function multipleLinkAvailableCheck(object) {
+  const { multipleLinkNotAllowed, linkId, self, linkData } = object;
+  if (!multipleLinkNotAllowed) {
+    self.data.links[linkId] = linkData;
 
-  //Getting the input connector involved
-  var toSubConnector = subConnectors[1];
+    //Time to draw out svg and path line
+    self._drawLink(linkId);
 
-  //Check if the connector is already connected, the old connection will be abolished,i.e. the old object will be removed
-  //from the self.data.link object
-  var multipleLinksOnOutput = self.options.multipleLinksOnOutput;
-  var multipleLinksOnInput = self.options.multipleLinksOnInput;
-  if (!multipleLinksOnOutput || !multipleLinksOnInput) {
-    for (var linkId2 in self.data.links) {
-      if (self.data.links.hasOwnProperty(linkId2)) {
-        var currentLink = self.data.links[linkId2];
-
-        var currentSubConnectors = self._getSubConnectors(currentLink);
-        var currentFromSubConnector = currentSubConnectors[0];
-        var currentToSubConnector = currentSubConnectors[1];
-
-        var fromIsAlreadyConnected =
-          !multipleLinksOnOutput &&
-          currentLink.fromOperator == linkData.fromOperator &&
-          currentLink.fromConnector == linkData.fromConnector &&
-          currentFromSubConnector == fromSubConnector;
-        var toIsAlreadyConnected =
-          !multipleLinksOnInput &&
-          currentLink.toOperator == linkData.toOperator &&
-          currentLink.toConnector == linkData.toConnector &&
-          currentToSubConnector == toSubConnector;
-
-        if (fromIsAlreadyConnected) {
-          self.deleteLink(linkId2);
-          continue;
-        }
-        if (toIsAlreadyConnected) {
-          self.deleteLink(linkId2);
-        }
-      }
-    }
+    self.callbackEvent("afterChange", ["link_create"]);
+  } else {
+    return false;
   }
-
-  //new linkData is inserted into self.data.links
-  self.data.links[linkId] = linkData;
-
-  //Time to draw out svg and path line
-  self._drawLink(linkId);
-
-  self.callbackEvent("afterChange", ["link_create"]);
 }
 
 function addLink(linkData, self) {
@@ -93,7 +70,7 @@ function addLink(linkData, self) {
     linkNum = self.linkNum++;
   }
 
-  createLink(self.linkNum, linkData, self); //(0,linkData)
+  self.createLink(self.linkNum, linkData); //(0,linkData)
   return linkNum;
 }
 
@@ -178,7 +155,6 @@ function createOperator(operatorObject, operatorData) {
       },
       //Everytime the operator is dragged this callback will be called
       drag: function(e, ui) {
-        console.log(self.data.operators);
         if (self.options.grid) {
           var grid = self.options.grid;
           var elementOffset = self.element.offset();
@@ -242,8 +218,7 @@ function createOperator(operatorObject, operatorData) {
       },
       stop: function(e, ui) {
         self._unsetTemporaryLink();
-        var operatorId = $(this).data("operator_id");
-        operatorChangedPosition(operatorId, ui.position);
+        var operatorId = $(this).data("operator_id"); //operatorChangedPosition(operatorId, ui.position);
         self.callbackEvent("operatorMoved", [operatorId, ui.position]);
         self.callbackEvent("afterChange", ["operator_moved"]);
       }
@@ -1312,19 +1287,8 @@ function _initEvents(self) {
 
   //End of customised listener
   self.element.dblclick(function(e) {
-    console.log("=============== 226");
-    console.log($(e.target).attr("class"));
     if ($(e.target).attr("class") == "flowchart-links-layer") {
-      let firstLine = $(".flowchart-temporary-link-layer line:first-child");
-      let x1 = firstLine.attr("x1");
-      let y1 = firstLine.attr("y1");
-      firstLine[0].setAttribute("x2", x1);
-      firstLine[0].setAttribute("y2", y1);
-      $(".flowchart-temporary-link-layer").html(firstLine);
-      self.objs.temporaryLink = $(
-        ".flowchart-temporary-link-layer line:last-child"
-      )[0];
-      self.lastOutputConnectorClicked = null;
+      removeGuidanceLine(e, self);
     }
   });
 
@@ -1387,6 +1351,18 @@ function _initEvents(self) {
       self.selectOperator($(this).data("operator_id"));
       console.log("Newly created operator", $(this).data("operator_id"));
     }
+    if (
+      self.lastOutputConnectorClicked != null &&
+      self.lastOutputConnectorClicked.operator !== $(this).data("operator_id")
+    ) {
+      self.addLink({
+        fromOperator: self.lastOutputConnectorClicked.operator,
+        fromConnector: "output_0",
+        toOperator: $(this).data("operator_id"),
+        toConnector: "input_0"
+      });
+      removeGuidanceLine(e, self);
+    }
   });
 
   //When the connector is clicked and ready to connect
@@ -1448,6 +1424,19 @@ function _initEvents(self) {
     // console.log("........................ 350")
     self._operatorMouseOut($(this).data("operator_id"));
   });
+}
+
+function removeGuidanceLine(e, self) {
+  let firstLine = $(".flowchart-temporary-link-layer line:first-child");
+  let x1 = firstLine.attr("x1");
+  let y1 = firstLine.attr("y1");
+  firstLine[0].setAttribute("x2", x1);
+  firstLine[0].setAttribute("y2", y1);
+  $(".flowchart-temporary-link-layer").html(firstLine);
+  self.objs.temporaryLink = $(
+    ".flowchart-temporary-link-layer line:last-child"
+  )[0];
+  self.lastOutputConnectorClicked = null;
 }
 
 function _create(self) {
@@ -1540,5 +1529,6 @@ module.exports = {
   _click,
   _initEvents,
   _create,
-  _createSubConnector
+  _createSubConnector,
+  multipleLinkAvailableCheck
 };

@@ -1,6 +1,14 @@
-{
-  "nodes": {}
-}
+[
+  {
+    "name": "Decision Node",
+    "function": "decider",
+    "nodeStyle": "./decisionNode.css",
+    "nodeLogic": {
+      "input": 1,
+      "output": "M"
+    }
+  }
+]
 
 //pass in only the data needed
 
