@@ -1195,8 +1195,7 @@ function _click(x, y, e, self) {
   var $flowchart_temporary_link_layer = $(".flowchart-temporary-link-layer");
   var lastLineDrawn = $(".flowchart-temporary-link-layer line:last-child");
   var nextLine = createSvgElement(document, "line");
-  const attributesArray = ["x1", "x2", "y1", "y2"];
-
+  const array = ["x1", "x2", "y1", "y2"];
   if (self.lastOutputConnectorClicked != null) {
     // isStraightLine = x - x1 < 0 ? -(x - x1) : x - x1;
     // isPerpendicular = y - y1 < 0 ? -(y - y1) : y - y1;
@@ -1206,11 +1205,12 @@ function _click(x, y, e, self) {
     self.objs.temporaryLink.setAttribute("y2", y);
 
     if ($target[0].tagName == "svg") {
-      for (let i = 0; i < attributesArray.length; i++) {
-        nextLine.setAttribute(
-          attributesArray[i],
-          lastLineDrawn.attr(attributesArray[i])
-        );
+      for (let i = 0; i < array.length; i++) {
+        if (array[i] === "x1" || array[i] === "x2") {
+          nextLine.setAttribute(array[i], lastLineDrawn.attr("x2"));
+        } else {
+          nextLine.setAttribute(array[i], lastLineDrawn.attr("y2"));
+        }
       }
       nextLine.setAttribute("stroke", "black");
       nextLine.setAttribute("fill", "none");
