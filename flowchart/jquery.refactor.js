@@ -62,7 +62,7 @@ function addLink(linkData, self) {
 
   //This.data.links is a object storing linkData
   while (typeof self.data.links[self.linkNum] != "undefined") {
-    self.linkNum++;
+    linkNum = self.linkNum++;
   }
 
   self.createLink(self.linkNum, linkData); //(0,linkData)
