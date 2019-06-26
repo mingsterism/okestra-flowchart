@@ -97,6 +97,24 @@ function addLink(linkData, self) {
   return linkNum;
 }
 
+function operatorChangedPosition(operator_id, pos, operatorData, self) {
+  //We passed in the new position of the operator
+  operatorData.top = pos.top;
+  operatorData.left = pos.left;
+
+  for (var linkId in self.data.links) {
+    if (self.data.links.hasOwnProperty(linkId)) {
+      var linkData = self.data.links[linkId];
+      if (
+        linkData.fromOperator == operator_id ||
+        linkData.toOperator == operator_id
+      ) {
+        self._refreshLinkPositions(linkId);
+      }
+    }
+  }
+}
+
 function createOperator(operatorObject, operatorData) {
   console.log("operatorData", operatorData);
   const { operatorId, title, self } = operatorObject;
@@ -133,24 +151,6 @@ function createOperator(operatorObject, operatorData) {
 
   if (operatorId == self.selectedOperatorId) {
     self._addSelectedClass(operatorId);
-  }
-
-  function operatorChangedPosition(operator_id, pos) {
-    //We passed in the new position of the operator
-    operatorData.top = pos.top;
-    operatorData.left = pos.left;
-
-    for (var linkId in self.data.links) {
-      if (self.data.links.hasOwnProperty(linkId)) {
-        var linkData = self.data.links[linkId];
-        if (
-          linkData.fromOperator == operator_id ||
-          linkData.toOperator == operator_id
-        ) {
-          self._refreshLinkPositions(linkId);
-        }
-      }
-    }
   }
 
   // Small fix has been added in order to manage eventual zoom
@@ -231,7 +231,12 @@ function createOperator(operatorObject, operatorData) {
           });
         }
 
-        operatorChangedPosition($(this).data("operator_id"), ui.position);
+        operatorChangedPosition(
+          $(this).data("operator_id"),
+          ui.position,
+          operatorData,
+          self
+        );
 
         console.log("ui.position", ui.position);
       },
