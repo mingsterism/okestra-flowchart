@@ -80,16 +80,14 @@ function getOperatorData(element) {
   var nbInputs = int(element.data("nb-inputs"));
   var nbOutputs = int(element.data("nb-outputs"));
   var shape = element.data("shape");
-  var func = element.data("function");
   var name = element.data("name");
-  let random = func === "decider" ? generateRandomString() : null;
+  let random = name === "decision" ? generateRandomString() : null;
   var data = {
     properties: {
       title: element.text(),
       inputs: {},
       outputs: {},
       shape,
-      func,
       random,
       objectId: "",
       name
@@ -173,7 +171,7 @@ function dragHandler(draggableOperators, flowchartElement, container) {
         //This function comes from the library
         flowchartElement.flowchart("addOperator", data);
 
-        if (data.properties.func == "decider") {
+        if (data.properties.name == "decision") {
           var approve = createApproveDeleteOperator("Approve", data.properties);
           var reject = createApproveDeleteOperator("Reject", data.properties);
           approve.left = relativeLeft - 120;

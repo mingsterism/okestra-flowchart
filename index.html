@@ -17,54 +17,65 @@
         <div class="draggable_operators_label">
           Operators (drag and drop them in the flowchart):
         </div>
-        <div class="draggable_operators_divs">
-          <div
-            class="draggable_operator"
-            data-nb-inputs="0"
-            data-nb-outputs="1"
-            data-shape="rectangle"
-            data-name="start"
-            style="display:flex;justify-content: center;align-items: center;width:100%;margin-bottom:10px"
-          >
-            Start
-          </div>
-          <div
-            class="draggable_operator"
-            data-nb-inputs="1"
-            data-nb-outputs="0"
-            data-shape="rectangle"
-            data-name="end"
-            style="display:flex;justify-content: center;align-items: center;width:100%;margin-bottom:10px"
-          >
-            End
-          </div>
-          <div
-            class="draggable_operator"
-            style="width:100%;display:flex;justify-content: center;align-items: center;margin-bottom:10px"
-            data-shape="rectangle"
-            data-nb-inputs="1"
-            data-nb-outputs="1"
-            data-name="step"
-          >
-            Step
-          </div>
+        <div class="draggable_operators_divs"></div>
 
-          <div
-            class="draggable_operator"
-            style="width:100%;display:flex;justify-content: center;align-items: center;margin-bottom: 10px"
-            data-shape="rectangle"
-            data-function="decider"
-            data-nb-inputs="1"
-            data-nb-outputs="1"
-            data-name="decision"
-          >
-            ????
-          </div>
-        </div>
         <button class="delete_selected_button">
           Delete selected operator / link
         </button>
       </div>
     </div>
+    <script>
+      const data = [
+        {
+          name: "decision",
+          nodeStyle: "rectangle",
+          nodeLogic: {
+            input: 1,
+            output: 1
+          }
+        },
+        {
+          name: "start",
+          nodeStyle: "rectangle",
+          nodeLogic: {
+            input: 1,
+            output: 1
+          }
+        },
+        {
+          name: "end",
+          nodeStyle: "rectangle",
+          nodeLogic: {
+            input: 1,
+            output: 1
+          }
+        },
+        {
+          name: "step",
+          nodeStyle: "rectangle",
+          nodeLogic: {
+            input: 1,
+            output: 1
+          }
+        }
+      ];
+      var string = "";
+      for (let i = 0; i < data.length; i++) {
+        string += `
+        <div
+            class="draggable_operator"
+            style="width:100%;display:flex;justify-content: center;align-items: center;margin-bottom: 10px"
+            data-shape="${data[i].nodeStyle}"
+            data-nb-inputs="${data[i].nodeLogic.input}"
+            data-nb-outputs="${data[i].nodeLogic.output}"
+            data-name="${data[i].name}"
+          >
+            ${data[i].name}
+          </div>
+        `;
+      }
+      let div = document.getElementsByClassName("draggable_operators_divs")[0];
+      div.innerHTML = string;
+    </script>
   </body>
 </html>
