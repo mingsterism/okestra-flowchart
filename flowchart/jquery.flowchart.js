@@ -68,58 +68,7 @@ $(function() {
 
     // the constructor
     _create: function() {
-      if (typeof document.__flowchartNumber == "undefined") {
-        document.__flowchartNumber = 0;
-      } else {
-        document.__flowchartNumber++;
-      }
-      this.globalId = document.__flowchartNumber;
-      this._unitVariables();
-
-      this.element.addClass("flowchart-container");
-
-      this.objs.layers.links = $('<svg class="flowchart-links-layer"></svg>');
-      this.objs.layers.links.appendTo(this.element);
-
-      this.objs.layers.operators = $(
-        '<div class="flowchart-operators-layer unselectable"></div>'
-      );
-      this.objs.layers.operators.appendTo(this.element);
-
-      this.objs.layers.temporaryLink = $(
-        '<svg class="flowchart-temporary-link-layer"></svg>'
-      );
-      this.objs.layers.temporaryLink.appendTo(this.element);
-
-      var shape = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-      );
-
-      //The dotted line is created here which we saw during dragging the line
-      RefactoredFunctions.setInitialShapeAttribute(shape, {
-        x1: "0",
-        y1: "0",
-        x2: "0",
-        y2: "0",
-        "stroke-width": "1",
-        stroke: "black",
-        fill: "none"
-      });
-      this.objs.layers.temporaryLink[0].appendChild(shape);
-
-      //This.objs.temporary link now refers to the temporary guiding black line
-      //this.objs.temporaryLink = shape;
-
-      this.objs.temporaryLink = $(
-        ".flowchart-temporary-link-layer line:last-child"
-      )[0];
-
-      this._initEvents();
-
-      if (typeof this.options.data != "undefined") {
-        this.setData(this.options.data);
-      }
+      RefactoredFunctions._create(this);
     },
 
     _unitVariables: function() {
@@ -139,240 +88,14 @@ $(function() {
     },
 
     _initEvents: function() {
-      var self = this;
-
-      //Customised listener
-
-      //self.data.operators is the data of whole diagram
-
-      //IF the flow chart title is double clicked, then the input will be visible
-      this.objs.layers.operators.on(
-        "dblclick",
-        ".flowchart-span-title",
-        function(e) {
-          //Find nearest input field and remove the input-invisible class
-          $(e.target)
-            .next()
-            .show();
-          $(e.target).hide();
-        }
-      );
-
-      this.objs.layers.operators.on(
-        "dblclick",
-        ".input-inside-operator",
-        function(e) {
-          //Find nearest input field and remove the input-invisible class
-          if (e.target.value || /^\s*$/.test(e.target.vale)) {
-            console.log("enter key is pressed");
-            $(e.target)
-              .prev()
-              .html($(e.target).val());
-          } else {
-            $(e.target)
-              .prev()
-              .html("Start");
-          }
-          $(e.target)
-            .prev()
-            .show();
-          $(e.target).hide();
-        }
-      );
-
-      this.objs.layers.operators.on(
-        "keypress",
-        ".input-inside-operator",
-        function(e) {
-          if (e.which == 13) {
-            console.log(e.target.value);
-            console.log(!/^\s*$/.test(e.target.vale));
-            if (e.target.value || /^\s*$/.test(e.target.vale)) {
-              console.log("enter key is pressed");
-              $(e.target)
-                .prev()
-                .html($(e.target).val());
-            } else {
-              $(e.target)
-                .prev()
-                .html("Start");
-            }
-
-            var operator_id = $(e.target)
-              .parent()
-              .parent()
-              .parent()
-              .parent()
-              .parent()
-              .data("operator_id");
-            console.log("=============== 207");
-            console.log(operator_id);
-
-            var newOperatorData = self.data.operators;
-            newOperatorData[operator_id].properties.title = $(e.target).val();
-            self.data.operators = newOperatorData;
-            console.log("=============== 213");
-            console.log(self.data.operators);
-
-            $(e.target).hide();
-            $(e.target)
-              .prev()
-              .show();
-          }
-        }
-      );
-
-      //End of customised listener
-      this.element.dblclick(function(e) {
-        console.log("=============== 226");
-        console.log($(e.target).attr("class"));
-        if ($(e.target).attr("class") == "flowchart-links-layer") {
-          let firstLine = $(".flowchart-temporary-link-layer line:first-child");
-          let x1 = firstLine.attr("x1");
-          let y1 = firstLine.attr("y1");
-          firstLine[0].setAttribute("x2", x1);
-          firstLine[0].setAttribute("y2", y1);
-          $(".flowchart-temporary-link-layer").html(firstLine);
-          self.objs.temporaryLink = $(
-            ".flowchart-temporary-link-layer line:last-child"
-          )[0];
-          self.lastOutputConnectorClicked = null;
-        }
-      });
-
-      this.element.mousemove(function(e) {
-        //console.log(e);
-        var $this = $(this);
-        var offset = $this.offset();
-        // console.log(
-        //   (e.pageX - offset.left) / self.positionRatio,
-        //   (e.pageY - offset.top) / self.positionRatio
-        // );
-        self._mousemove(
-          (e.pageX - offset.left) / self.positionRatio,
-          (e.pageY - offset.top) / self.positionRatio,
-          e
-        );
-      });
-
-      this.element.click(function(e) {
-        // console.log($(e.target).attr("class"));
-        var $this = $(this);
-        // console.log("== @@@@@@@@@@@  ================");
-        // console.log(self.data)
-        // console.log(self.data.operators)
-        // const clickedOperatorId = $(this).data.apply("operator_id");
-        // console.log(self.data.operators[clickedOperatorId].properties.objectId);
-        // const objId =
-        //   self.data.operators[clickedOperatorId].properties.objectId;
-        // console.log("Emitting event: nodeClicked with objectId: ", objId);
-        // const nodeClicked = new Event("nodeClicked", { objId });
-        // window.dispatchEvent(nodeClicked);
-
-        // console.log("...................");
-        // console.log(self.data.links);
-        // console.log("== @@@@@@@@@@@  ================");
-        var offset = $this.offset();
-        // console.log("this.data.operators", self.data.operators);
-        // console.log("this.data.links", self.data.links);
-        self._click(
-          (e.pageX - offset.left) / self.positionRatio,
-          (e.pageY - offset.top) / self.positionRatio,
-          e
-        );
-      });
-
-      this.objs.layers.operators.on(
-        "pointerdown mousedown touchstart",
-        ".flowchart-operator",
-        function(e) {
-          e.stopImmediatePropagation();
-        }
-      );
-
-      this.objs.layers.operators.on("click", ".flowchart-operator", function(
-        e
-      ) {
-        console.log(
-          "connector",
-          $(e.target).closest(".flowchart-operator-connector")
-        );
-        if ($(e.target).closest(".flowchart-operator-connector").length == 0) {
-          self.selectOperator($(this).data("operator_id"));
-          console.log("Newly created operator", $(this).data("operator_id"));
-        }
-      });
-
-      //When the connector is clicked and ready to connect
-      this.objs.layers.operators.on(
-        "click",
-        ".flowchart-operator-connector",
-        function() {
-          console.log("Connector is now clicked!");
-          var $this = $(this);
-          console.log($this);
-          if (self.options.canUserEditLinks) {
-            //Where is self._connectorClicked
-            self._connectorClicked(
-              $this.closest(".flowchart-operator").data("operator_id"),
-              $this.data("connector"),
-              $this.data("sub_connector"),
-              $this
-                .closest(".flowchart-operator-connector-set")
-                .data("connector_type")
-            );
-          }
-        }
-      );
-
-      //End of the connector is clicked and ready to connect
-
-      // this.objs.layers.links.on(
-      //   "mousedown touchstart",
-      //   ".flowchart-link",
-      //   function(e) {
-      //     e.stopImmediatePropagation();
-      //   }
-      // );
-
-      this.objs.layers.links.on(
-        "mouseover dblclick",
-        ".flowchart-link",
-        function(e) {
-          console.log(self.selectedLinkId);
-          self._connecterMouseOver($(this).data("link_id"));
-          self.selectLink($(this).data("link_id"));
-        }
-      );
-
-      // this.objs.layers.links.on("click", ".flowchart-link", function(e) {
-      //   console.log("linkId", $(this).data("link_id"));
-      //   self.selectLink($(this).data("link_id"));
-      // });
-
-      this.objs.layers.operators.on(
-        "mouseover",
-        ".flowchart-operator",
-        function(e) {
-          console.log($(this));
-          self._operatorMouseOver($(this).data("operator_id"));
-          // console.log("mouseover", $(this).data("operator_id"));
-        }
-      );
-
-      this.objs.layers.operators.on("mouseout", ".flowchart-operator", function(
-        e
-      ) {
-        // console.log("........................ 350")
-        // console.log(e)
-        // console.log("........................ 350")
-        self._operatorMouseOut($(this).data("operator_id"));
-      });
+      RefactoredFunctions._initEvents(this);
     },
 
     //Entry point of the program
     setData: function(data) {
+      this._clearOperatorsLayer();
       RefactoredFunctions.setData(data, this);
+      this.redrawLinksLayer();
     },
 
     addLink: function(linkData) {
@@ -487,47 +210,13 @@ $(function() {
       bottomPadding,
       func
     ) {
-      var $operator_connector_set = fullElement.connectorSets[connectorKey];
-
-      var subConnector = fullElement.connectors[connectorKey].length;
-
-      var $operator_connector = $(
-        '<div class="flowchart-operator-connector"></div>'
-      );
-
-      if (bottomPadding && func != "decider") {
-        $operator_connector = $(
-          '<div class="flowchart-operator-connector" style="bottom:20px"></div>'
-        );
-      }
-
-      $operator_connector.appendTo($operator_connector_set);
-      $operator_connector.data("connector", connectorKey);
-      $operator_connector.data("sub_connector", subConnector);
-
-      var $operator_connector_arrow = $(
-        '<div class="flowchart-operator-connector-arrow"></div>'
-      );
-
-      $operator_connector_arrow.appendTo($operator_connector);
-
-      //Operator connector arrow
-      var $operator_connector_small_arrow = $(
-        '<div class="flowchart-operator-connector-small-arrow" style="position:relative"></div>'
-      );
-
-      if (connectorType == "inputs") {
-        $operator_connector_small_arrow = $(
-          '<div class="flowchart-operator-connector-small-arrow" style="position:relative"></div>'
-        );
-      }
-
-      $operator_connector_small_arrow.appendTo($operator_connector_arrow);
-
-      fullElement.connectors[connectorKey].push($operator_connector);
-      fullElement.connectorArrows[connectorKey].push($operator_connector_arrow);
-      fullElement.connectorSmallArrows[connectorKey].push(
-        $operator_connector_small_arrow
+      RefactoredFunctions._createSubConnector(
+        connectorKey,
+        connectorInfos,
+        fullElement,
+        connectorType,
+        bottomPadding,
+        func
       );
     },
 
