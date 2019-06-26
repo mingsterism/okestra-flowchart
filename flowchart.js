@@ -81,6 +81,7 @@ function getOperatorData(element) {
   var nbOutputs = int(element.data("nb-outputs"));
   var shape = element.data("shape");
   var func = element.data("function");
+  var name = element.data("name");
   let random = func === "decider" ? generateRandomString() : null;
   var data = {
     properties: {
@@ -90,20 +91,22 @@ function getOperatorData(element) {
       shape,
       func,
       random,
-      objectId: ""
+      objectId: "",
+      name
     }
   };
   return setInAndOutAttribute({ data, nbInputs, nbOutputs });
 }
 
-function createApproveDeleteOperator(title, random) {
+function createApproveDeleteOperator(title, { random }) {
   var data = {
     properties: {
-      title: title,
+      title,
       inputs: {},
       outputs: {},
       shape: "rectangle",
-      random: random
+      random,
+      name: title
     }
   };
 
@@ -171,14 +174,8 @@ function dragHandler(draggableOperators, flowchartElement, container) {
         flowchartElement.flowchart("addOperator", data);
 
         if (data.properties.func == "decider") {
-          var approve = createApproveDeleteOperator(
-            "Approve",
-            data.properties.random
-          );
-          var reject = createApproveDeleteOperator(
-            "Reject",
-            data.properties.random
-          );
+          var approve = createApproveDeleteOperator("Approve", data.properties);
+          var reject = createApproveDeleteOperator("Reject", data.properties);
           approve.left = relativeLeft - 120;
           approve.top = relativeTop + 100;
           reject.left = relativeLeft + 140;

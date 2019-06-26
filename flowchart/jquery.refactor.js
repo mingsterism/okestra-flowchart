@@ -28,8 +28,7 @@ function createLink(linkId, linkDataOriginal, self) {
     return;
   }
   var node = self.data.operators[linkData.fromOperator].properties;
-  var multipleLinkNotAllowed =
-    node.random != null && node.title != "Approve" && node.title != "Reject";
+  var multipleLinkNotAllowed = node.random != null && node.name == "decision";
   const array = Object.keys(self.data.links).filter(index => {
     return self.data.links[index].fromOperator == linkData.fromOperator;
   });
@@ -242,7 +241,7 @@ function addOperator(addOperatorObject) {
   }
   //createOperator(operatorNum, operatorData, self); //Put the operatorData into the JSON object which is accessible through data.operators
   //Automatically popups of the Approve and Reject Operator
-  var isItRejectNode = operatorData.properties.title === "Reject";
+  var isItRejectNode = operatorData.properties.name === "Reject";
 
   return { operatorId: operatorNum, title: isItRejectNode, self };
 }
@@ -255,14 +254,13 @@ function connectRejectAndApproveWithMother(operatorData, self) {
   for (var key in operators) {
     let isApproveNodeAndSameMother =
       operators[key].properties.random == r &&
-      operators[key].properties.title === "Approve";
+      operators[key].properties.name === "Approve";
     let isMotherNode =
       operators[key].properties.random === r &&
-      operators[key].properties.title != "Approve" &&
-      operators[key].properties.title != "Reject";
+      operators[key].properties.name == "decision";
     let isRejectNode =
       operators[key].properties.random == r &&
-      operators[key].properties.title === "Reject";
+      operators[key].properties.name === "Reject";
 
     if (isRejectNode) {
       rejectNum = key;
@@ -279,15 +277,11 @@ function connectRejectAndApproveWithMother(operatorData, self) {
   return {
     linkToApprove: {
       fromOperator: motherNum,
-      fromConnector: "output_0",
-      toOperator: approveNum,
-      toConnector: "input_0"
+      toOperator: approveNum
     },
     linkToReject: {
       fromOperator: motherNum,
-      fromConnector: "output_1",
-      toOperator: rejectNum,
-      toConnector: "input_0"
+      toOperator: rejectNum
     },
     self
   };
@@ -295,8 +289,17 @@ function connectRejectAndApproveWithMother(operatorData, self) {
 
 function linkMotherToApproveAndReject(object) {
   const { self, linkToApprove, linkToReject } = object;
-  addLink(linkToApprove, self);
-  addLink(linkToReject, self);
+  addLink(createLinkDataForDecision(linkToApprove), self);
+  addLink(createLinkDataForDecision(linkToReject), self);
+}
+
+function createLinkDataForDecision({ fromOperator, toOperator }) {
+  return {
+    fromOperator,
+    toOperator,
+    fromConnector: "output_0",
+    toConnector: "input_0"
+  };
 }
 
 function _deleteOperator(operatorId, replace, self) {
@@ -330,8 +333,6 @@ function _deleteOperator(operatorId, replace, self) {
 }
 
 function setData(data, self) {
-  console.log("setData", data.operators, data.operatorTypes);
-
   self.data.operatorTypes = {};
   self.data.operators = {};
   self.data.links = {};
@@ -347,8 +348,6 @@ function setData(data, self) {
       );
     }
   }
-
-  console.log("data.operators", data.operators);
 
   for (var linkId in data.links) {
     if (data.links.hasOwnProperty(linkId)) {
@@ -401,8 +400,7 @@ function deleteSelected(self) {
     var notADeciderNode = !operators[self.selectedOperatorId].properties.random;
     var isAMotherOfDecideNode =
       operators[self.selectedOperatorId].properties.random &&
-      operators[self.selectedOperatorId].properties.title != "Reject" &&
-      operators[self.selectedOperatorId].properties.title != "Approve";
+      operators[self.selectedOperatorId].properties.name == "decision";
 
     if (notADeciderNode) {
       self.deleteOperator(self.selectedOperatorId);
@@ -414,14 +412,13 @@ function deleteSelected(self) {
       for (var key in self.data.operators) {
         let isApproveNode =
           operators[key].properties.random === r &&
-          operators[key].properties.title === "Approve";
+          operators[key].properties.name === "Approve";
         let isRejectNode =
           operators[key].properties.random === r &&
-          operators[key].properties.title === "Reject";
+          operators[key].properties.name === "Reject";
         let isMotherNode =
           operators[key].properties.random === r &&
-          operators[key].properties.title != "Approve" &&
-          operators[key].properties.title != "Reject";
+          operators[key].properties.name == "decision";
 
         if (isApproveNode) {
           self.deleteOperator(key);
