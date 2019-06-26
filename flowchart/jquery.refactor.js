@@ -930,8 +930,7 @@ function _getOperatorFullElement(operatorData, self) {
     connectorKey,
     connectorInfos,
     $operator_container,
-    connectorType,
-    name
+    connectorType
   ) {
     var $operator_connector_set = $(
       '<div class="flowchart-operator-connector-set"></div>'
@@ -949,8 +948,7 @@ function _getOperatorFullElement(operatorData, self) {
       connectorKey,
       connectorInfos,
       fullElement,
-      connectorType,
-      fullElement.name
+      connectorType
     );
   }
 
@@ -959,30 +957,20 @@ function _getOperatorFullElement(operatorData, self) {
       addConnector(key_i, infos.inputs[key_i], $operator_inputs, "inputs");
     }
   }
-  console.log("infos", infos.func);
   for (var key_o in infos.outputs) {
     if (infos.outputs.hasOwnProperty(key_o)) {
-      addConnector(
-        key_o,
-        infos.outputs[key_o],
-        $operator_outputs,
-        "outputs",
-        infos.name
-      );
+      addConnector(key_o, infos.outputs[key_o], $operator_outputs, "outputs");
     }
   }
 
   return fullElement;
 }
 
-function addConnector() {}
-
 function _createSubConnector(
   connectorKey,
   connectorInfos,
   fullElement,
-  connectorType,
-  func
+  connectorType
 ) {
   var $operator_connector_set = fullElement.connectorSets[connectorKey];
   var subConnector = fullElement.connectors[connectorKey].length;
@@ -1442,7 +1430,6 @@ module.exports = {
   getConnectorPosition,
   getOperatorCompleteData,
   _getOperatorFullElement,
-  addConnector,
   _createSubConnector,
   _connectorClicked,
   connectRejectAndApproveWithMother,
