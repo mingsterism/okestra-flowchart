@@ -57,16 +57,14 @@ function addLink(linkData, self) {
   if (!linkData) {
     return;
   }
-  //Called upon linking when both input and output connector is clicked
-  let linkNum;
 
   //This.data.links is a object storing linkData
   while (typeof self.data.links[self.linkNum] != "undefined") {
-    linkNum = self.linkNum++;
+    self.linkNum++;
   }
 
-  self.createLink(self.linkNum, linkData); //(0,linkData)
-  return linkNum;
+  //self.createLink(self.linkNum, linkData); //(0,linkData)
+  return self.linkNum;
 }
 
 function operatorChangedPosition(operator_id, pos, operatorData, self) {
