@@ -739,16 +739,6 @@ function createAssignAndAppendLines(object) {
   return linkId;
 }
 
-function setOperatorTitle(operatorId, title, self) {
-  self.data.operators[operatorId].internal.els.title.html(title);
-  if (typeof self.data.operators[operatorId].properties == "undefined") {
-    self.data.operators[operatorId].properties = {};
-  }
-  self.data.operators[operatorId].properties.title = title;
-  self._refreshInternalProperties(self.data.operators[operatorId]);
-  self.callbackEvent("afterChange", ["operator_title_change"]);
-}
-
 function _cleanMultipleConnectors(operator, connector, linkFromTo, self) {
   if (
     !self.data.operators[operator].properties[
@@ -1422,7 +1412,6 @@ module.exports = {
   createSvgElement,
   setOperatorData,
   createAssignAndAppendLines,
-  setOperatorTitle,
   _drawLink,
   _cleanMultipleConnectors,
   getConnectorPosition,
