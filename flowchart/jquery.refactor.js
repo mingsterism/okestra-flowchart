@@ -86,7 +86,7 @@ function operatorChangedPosition(operator_id, pos, operatorData, self) {
 }
 
 function createOperator(operatorObject, operatorData) {
-  const { operatorId, title, self } = operatorObject;
+  const { operatorId, isItRejectNode, self } = operatorObject;
   operatorData.internal = {};
   self._refreshInternalProperties(operatorData);
   var fullElement = self._getOperatorFullElement(operatorData);
@@ -219,7 +219,7 @@ function createOperator(operatorObject, operatorData) {
 
   self.callbackEvent("afterChange", ["operator_create"]);
 
-  return title;
+  return isItRejectNode;
 }
 
 function addOperator(addOperatorObject) {
@@ -236,7 +236,7 @@ function addOperator(addOperatorObject) {
   //Automatically popups of the Approve and Reject Operator
   var isItRejectNode = operatorData.properties.name === "Reject";
 
-  return { operatorId: operatorNum, title: isItRejectNode, self };
+  return { operatorId: operatorNum, isItRejectNode: isItRejectNode, self };
 }
 
 function connectRejectAndApproveWithMother(operatorData, self) {
