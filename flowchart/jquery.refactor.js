@@ -86,6 +86,8 @@ function operatorChangedPosition(operator_id, pos, operatorData, self) {
 }
 
 function createOperator(operatorObject, operatorData) {
+  console.log("======== jquery.refactor.js =================");
+  console.log("createOperator");
   const { operatorId, isItRejectNode, self } = operatorObject;
   operatorData.internal = {};
   self._refreshInternalProperties(operatorData);
@@ -278,19 +280,19 @@ function connectRejectAndApproveWithMother(operatorData, self) {
 }
 
 function linkMotherToApproveAndReject(object) {
+  const  createLinkDataForDecision = ({ fromOperator, toOperator }) => {
+    return {
+      fromOperator,
+      toOperator,
+      fromConnector: "output_0",
+      toConnector: "input_0"
+    };
+  }
   const { self, linkToApprove, linkToReject } = object;
   self.addLink(createLinkDataForDecision(linkToApprove), self);
   self.addLink(createLinkDataForDecision(linkToReject), self);
 }
 
-function createLinkDataForDecision({ fromOperator, toOperator }) {
-  return {
-    fromOperator,
-    toOperator,
-    fromConnector: "output_0",
-    toConnector: "input_0"
-  };
-}
 
 function _deleteOperator(operatorId, replace, self) {
   if (!self.callbackEvent("operatorDelete", [operatorId, replace])) {
@@ -1058,6 +1060,8 @@ function _getSubConnectors(linkData) {
 }
 
 function getOperatorFullProperties(operatorData, self) {
+  console.log("========= jquery.refactor.js ================");
+  console.log("getOperatorFullProperties");
   if (typeof operatorData.type != "undefined") {
     var typeProperties = self.data.operatorTypes[operatorData.type];
     var operatorProperties = {};
@@ -1115,6 +1119,8 @@ function _click(x, y, e, self) {
 }
 
 function _initEvents(self) {
+  console.log("=============== jquery.refactor.js ==================");
+  console.log("initEvents");
   //Customised listener
 
   //self.data.operators is the data of whole diagram
@@ -1343,6 +1349,9 @@ function removeGuidanceLine(e, self) {
 }
 
 function _create(self) {
+  console.log("=============== jquery.refactor.js ==================");
+  console.log("create");
+
   if (typeof document.__flowchartNumber == "undefined") {
     document.__flowchartNumber = 0;
   } else {

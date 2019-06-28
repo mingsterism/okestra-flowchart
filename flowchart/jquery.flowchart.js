@@ -5,6 +5,7 @@
 import RefactoredFunctions from "./jquery.refactor";
 
 $(function() {
+  console.log("invoking flowchartElement.flowchart");
   // the widget definition, where "custom" is the namespace,
   // "colorize" the widget name
   $.widget("flowchart.flowchart", {
@@ -68,10 +69,14 @@ $(function() {
 
     // the constructor
     _create: function() {
+      console.log("============== jqeury.flowchart.js ==============");
+      console.log("create");
       RefactoredFunctions._create(this);
     },
 
     _unitVariables: function() {
+      console.log("=============== jquery.flowchart.js ==================");
+      console.log("_unitVariables");
       this.data = {
         operators: {},
         links: {}
@@ -232,25 +237,28 @@ $(function() {
 
     //Adding operator happens here when you drop a div at the canvas
     addOperator: function(operatorData) {
-      if (
-        RefactoredFunctions.createOperator(
-          RefactoredFunctions.addOperator({
-            operatorData: operatorData,
-            self: this
-          }),
-          operatorData
-        )
-      ) {
-        RefactoredFunctions.linkMotherToApproveAndReject(
-          RefactoredFunctions.connectRejectAndApproveWithMother(
-            operatorData,
-            this
-          )
+      console.log("=========================");
+      console.log("addOperator");
+      const operatorObj = RefactoredFunctions.addOperator({
+        operatorData: operatorData,
+        self: this
+      });
+      const opeartorCreated = RefactoredFunctions.createOperator(
+        operatorObj,
+        operatorData
+      );
+      if (opeartorCreated) {
+        const approvalLinks = RefactoredFunctions.connectRejectAndApproveWithMother(
+          operatorData,
+          this
         );
+        RefactoredFunctions.linkMotherToApproveAndReject(approvalLinks);
       }
     },
 
     createOperator: function(operatorId, operatorData) {
+      console.log("============== jquery.flowchart.js ===========");
+      console.log("createOperator");
       RefactoredFunctions.createOperator(
         { operatorId, self: this, title: true },
         operatorData
@@ -500,6 +508,9 @@ $(function() {
     },
 
     getPositionRatio: function() {
+      console.log("========================");
+      console.log("Getting position ratio");
+      console.log(this.positionRatio);
       return this.positionRatio;
     },
 
@@ -537,10 +548,14 @@ $(function() {
     },
 
     getOperatorFullProperties: function(operatorData) {
+      console.log("========= jquery.flowchart.js ================");
+      console.log("getOperatorFullProperties");
       return RefactoredFunctions.getOperatorFullProperties(operatorData, this);
     },
 
     _refreshInternalProperties: function(operatorData) {
+      console.log("========= jquery.flowchart.js ================");
+      console.log("refreshInternalProperties");
       operatorData.internal.properties = this.getOperatorFullProperties(
         operatorData
       );

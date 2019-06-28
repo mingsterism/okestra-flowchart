@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { defaultCoreCipherList } from "constants";
 
 // var $ = require("./node_modules/jquery/dist/jquery");
 // var panzoom = require("jquery.panzoom");
@@ -23,6 +24,7 @@ function panzoomHandler(flowchartElement, flowchartElementJS, container) {
   panzoom(flowchartElementJS);
 
   flowchartElement.panzoom("pan", centerX, centerY);
+  console.log(flowchartElement.panzoom())
 
   // Panzoom zoom handling...
   container.on("mousewheel.focal", function(e) {
@@ -112,6 +114,8 @@ function createApproveDeleteOperator(title, { random }) {
 }
 
 function dragHandler(draggableOperators, flowchartElement, container) {
+  console.log("=================== flowchart.js ===================");
+  console.log("Calling dragHandler");
   draggableOperators.draggable({
     cursor: "move",
     opacity: 0.7,
@@ -121,6 +125,8 @@ function dragHandler(draggableOperators, flowchartElement, container) {
     zIndex: 1000,
 
     helper: function(e) {
+      console.log('============ flowchart.js =============')
+      console.log("helperFn");
       var $this = $(this);
       var data = getOperatorData($this);
       console.log("operatorDataSource", data);
@@ -128,9 +134,8 @@ function dragHandler(draggableOperators, flowchartElement, container) {
       return flowchartElement.flowchart("getOperatorElement", data);
     },
     stop: function(e, ui) {
-      console.log("!!!!!!!!!!!!!!");
-      console.log(e);
-      console.log("!!!!!!!!!!!!!!");
+      console.log('============= flowchart.js =============')
+      console.log("stop function");
       var $this = $(this);
       var elOffset = ui.offset;
       // console.log(ui.offset);
