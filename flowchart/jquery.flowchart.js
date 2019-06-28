@@ -99,7 +99,10 @@ $(function() {
     },
 
     addLink: function(linkData) {
-      this.createLink(RefactoredFunctions.addLink(linkData, this), linkData);
+      this.createLink(
+        RefactoredFunctions.addLink(linkData, this) /*return linkId*/,
+        linkData
+      );
     },
 
     createLink: function(linkId, linkDataOriginal) {
